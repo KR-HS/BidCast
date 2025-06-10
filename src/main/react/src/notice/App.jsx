@@ -12,7 +12,7 @@ export default function Notice() {
                   BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!
               </p>
               <div className="nav">
-                  <a href="#">FAQ</a>
+                  <a href="#">FAQ  </a>
                   <a href="#">1:1문의</a>
                   <a href="#" className="active">
                       공지사항
