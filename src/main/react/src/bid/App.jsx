@@ -1,9 +1,7 @@
-import './App.css'
-import React, { useEffect, useState, useRef } from 'react'
+import React, {useEffect, useState, useRef} from 'react'
 import io from 'socket.io-client'
-import { Device } from 'mediasoup-client'
+import {Device} from 'mediasoup-client'
 import VideoGrid from './VideoGrid'
-
 
 
 export default function App() {
