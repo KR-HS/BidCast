@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-let count=0
 
 const VideoGrid = ({ peers }) => {
   console.log('전체 peers:', peers);
@@ -18,7 +17,6 @@ const VideoGrid = ({ peers }) => {
 
 
 const Video = ({ stream, muted }) => {
-  console.log(++count)
   console.log(stream.getVideoTracks());
   console.log(muted);
   console.log("--------------");
