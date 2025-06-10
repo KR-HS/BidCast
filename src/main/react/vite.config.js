@@ -14,6 +14,11 @@ export default defineConfig({
       input: {
         bid: path.resolve(__dirname, 'src/bid/bid.jsx'),
         home: path.resolve(__dirname, 'src/home/home.jsx'),
+        login: path.resolve(__dirname, 'src/login/login.jsx'),
+        join: path.resolve(__dirname, 'src/join/join.jsx'),
+        searchId: path.resolve(__dirname, 'src/search_id/searchId.jsx'),
+        searchPw: path.resolve(__dirname, 'src/search_pw/searchPw.jsx'),
+
       },
       preserveEntrySignatures: 'strict',
       output: {

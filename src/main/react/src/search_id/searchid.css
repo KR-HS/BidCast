@@ -1,0 +1,70 @@
+section{
+    min-width: 700px;
+}
+
+.sec{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+}
+h1{
+    font-size: 40px ;
+}
+
+.box{
+    border: 1px solid #ccc;
+    padding: 40px 70px;
+    text-align: center;
+    border-radius: 10px;
+}
+table{
+    margin: 0 auto;
+    border-spacing: 35px;
+}
+td{
+    font-size: 20px;
+}
+td input, select{
+    width: 320px;
+    height: 30px;
+    font-size: 15px;
+    padding-left: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.email-box input{
+    width: 130px;
+
+}
+
+.email-box select{
+    width: 70px;
+    height: 25px;
+    margin-left: 3px;
+    padding:0;
+    font-size: 11px;
+}
+
+.phonenum select{
+    width: 70px;
+    height: 34px;
+}
+.phonenum input{
+    text-align: center;
+    padding: 0 5px;
+    width: 200px;
+}
+button{
+    width: 250px;
+    height: 60px;
+    font-size: 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #EA6946;
+    color: white;
+    cursor: pointer;
+    margin: 0 auto;
+}
