@@ -47,7 +47,7 @@ const Calendar = ({ selectedDate, setSelectedDate }) => {
                     className={`day ${getDayClass(day)}`}
                     onClick={() => setSelectedDate(dateObj)}
                 >
-                    <div className="date">{day}</div>
+                    <div className="date">{day} </div>
                 </div>
             );
         }
