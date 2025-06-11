@@ -18,7 +18,7 @@ export default function App() {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrent(prev => (prev + 1) % images.length);
-        }, 3000); // 3초마다 전환
+        }, 5000);
 
         return () => clearInterval(timer);
     }, []);
