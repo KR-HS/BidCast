@@ -1,3 +1,6 @@
+section{
+    min-width: 700px;
+}
 
 .sec{
     display: flex;
@@ -13,10 +16,11 @@ h1{
 
 .box{
     border: 1px solid #ccc;
-    padding: 40px 70px;
     text-align: center;
     border-radius: 10px;
     margin: 30px 0;
+    width: 420px;
+
 }
 table{
     margin: 0 auto;
@@ -33,30 +37,9 @@ td input, select{
     border-radius: 5px;
     border: 1px solid #ccc;
 }
-.email-box input{
-    width: 130px;
 
-}
-
-.email-box select{
-    width: 70px;
-    height: 25px;
-    margin-left: 3px;
-    padding:0;
-    font-size: 11px;
-}
-
-.phonenum select{
-    width: 70px;
-    height: 34px;
-}
-.phonenum input{
-    text-align: center;
-    padding: 0 5px;
-    width: 200px;
-}
-button{
-    width: 250px;
+.button1{
+    width: 170px;
     height: 60px;
     font-size: 20px;
     border-radius: 5px;
@@ -64,5 +47,17 @@ button{
     background-color: #EA6946;
     color: white;
     cursor: pointer;
-    margin: 0 auto;
+    margin: 30px 37px;
+}
+
+.button2{
+    width: 170px;
+    height: 60px;
+    font-size: 20px;
+    border-radius: 5px;
+    background-color: white;
+    color: black;
+    border: 1px solid #EA6946;
+    cursor: pointer;
+    margin: 30px 37px;
 }

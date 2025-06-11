@@ -5,14 +5,20 @@ export default function App() {
             <div className="sec">
             <img src="./img/search1.png" alt="Logo" width="150px" height="150px" />
             <h1>
-                아이디찾기
+                비밀번호찾기
             </h1>
             <div className="box">
                 <h3 style={{color:"#EA6946"}}>
-                    회원 정보를 입력해주세요
+                    아이디와 회원 정보를 입력해주세요
                 </h3>
                 <table>
                     <tbody>
+                    <tr>
+                        <td>아이디</td>
+                        <td>
+                            <input type="text"/>
+                        </td>
+                    </tr>
                     <tr>
                         <td>이름</td>
                         <td>
@@ -54,7 +60,7 @@ export default function App() {
                     </tbody>
                 </table>
                 <div>
-                    <button type="button">아이디찾기</button>
+                    <button type="button">비밀번호 찾기</button>
                 </div>
 
             </div>
