@@ -54,7 +54,7 @@ export default function App() {
                     </tbody>
                 </table>
                 <div>
-                    <button type="button">아이디찾기</button>
+                    <button type="button">아이디 찾기</button>
                 </div>
 
             </div>

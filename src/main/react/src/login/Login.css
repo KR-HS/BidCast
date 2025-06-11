@@ -1,4 +1,11 @@
 /*로그인 css*/
+section{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 142px;
+    margin-top: 80px;
+}
 button{
     width: 370px;
     height: 40px;
@@ -21,6 +28,7 @@ button{
 
 .sec{
     text-align: center;
+
 }
 .ip-box input{
     width: 350px;
