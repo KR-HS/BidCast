@@ -41,6 +41,12 @@ export default function App() {
                             </td>
                         </tr>
                         <tr>
+                            <td>이름</td>
+                            <td>
+                                <input type="text"/>
+                            </td>
+                        </tr>
+                        <tr>
                             <td>생년월일</td>
                             <td>
                                 <input type="date"/>
@@ -61,6 +67,12 @@ export default function App() {
                                 <input type="text" style={{width:'100px'}}/>
                                 <span style={{margin:"0 6px"}}>-</span>
                                 <input type="text" style={{width:'100px'}}/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>닉네임</td>
+                            <td>
+                                <input type="text"/>
                             </td>
                         </tr>
                         </tbody>
