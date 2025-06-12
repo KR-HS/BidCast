@@ -3,7 +3,7 @@ export default function App() {
     return (
         <section>
             <div className="sec">
-            <img src="./img/password1.png" alt="Logo" width="150px" height="150px" />
+            <img src="./img/password1.png" alt="Logo" width="120px" height="120px" />
             <h1>
                 비밀번호 재설정
             </h1>
