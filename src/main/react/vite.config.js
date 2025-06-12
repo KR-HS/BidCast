@@ -18,7 +18,7 @@ export default defineConfig({
         login: path.resolve(__dirname, 'src/login/login.jsx'),
         searchId: path.resolve(__dirname, 'src/search_id/searchId.jsx'),
         searchPw: path.resolve(__dirname, 'src/search_pw/searchPw.jsx'),
-        myPage:path.resolve(__dirname, "src/my_page/myPage.jsx")
+        myPage:path.resolve(__dirname, "src/my_page/myPage.jsx"),
         changePw: path.resolve(__dirname, 'src/change_pw/changePw.jsx'),
         findComplete: path.resolve(__dirname, 'src/findcomplete/findComplete.jsx'),
         schedule: path.resolve(__dirname, 'src/schedule/schedule.jsx'),
