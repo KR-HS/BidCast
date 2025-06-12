@@ -1,18 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>[[${pageName}]]</title>
+    <meta charset="UTF-8">
+    <title>[[${pageName}]]</title>
 
-  <!-- 리액트기반에 앱에서 favicon을 기본적으로 인식함 (파비콘은 어플리케이션 대표아이콘) -->
-  <link rel="icon" th:href="@{/img/favicon.ico}" />
-  <link th:href="@{'/bundle/css/' + ${pageName} + '.css'}" rel="stylesheet" onerror="this.remove()" />
-
+    <!-- 리액트기반에 앱에서 favicon을 기본적으로 인식함 (파비콘은 어플리케이션 대표아이콘) -->
+    <link rel="icon" th:href="@{/img/favicon.ico}"/>
+    <link th:href="@{'/bundle/css/' + ${pageName} + '.css'}" rel="stylesheet" onerror="this.remove()"/>
+    <link rel="stylesheet" href="/css/common.css">
 </head>
 <body>
+<header>
+    <div class="header-left">
+        <div class="logo">
+            <a href="home.do"><img src="/img/BidLogo.png" alt="Logo"></a>
+        </div>
 
-<h3>리액트 부착하기</h3>
+        <ul class="menuList">
+            <li><a href="introduce.do">소개</a></li>
+            <li><a href="bid.do">경매</a></li>
+            <li><a href="customerService.do">고객센터</a></li>
+        </ul>
+    </div>
+    <div class="header-right">
+        <div class="searchWrap">
+            <input type="text" class="searchInput">
+            <a href='#' class="searchIcon">
+                <img src="/img/searchIcon.png" alt="검색">
+            </a>
+        </div>
+        <a href="#" class="alarm"><img src="/img/alarmIcon.png" alt="알람"></a>
+        <a href="#" class="announce"><img src="/img/announceIcon.png" alt="공지사항"></a>
+    </div>
+</header>
+
 <div id="root"></div>
+
+<footer>
+    <div class="line"></div>
+    <p class="company">BIDCAST</p>
+    <p class="company-detail">
+        (주)우겅넴 | 대표: 김현수 | 주소: 서울특별시 강남구 테헤란로7길 7 에스코빌딩 5층<br>
+        MAIL:abcd1234@gmail.com<br>
+        대표번호:1511-1234<br>
+        사업자번호:123-45-67890 | 통신판매업신고: 제2025-서울강남구-1234호<br>
+        Copyright @2025-2025 Woogeungnem, Inc. All rights reserved<br>
+        네이버 블로그 유튜브 인스타그램 페이스북
+    </p>
+    <div class="line"></div>
+</footer>
 
 <script type="module" th:src="@{'/bundle/js/' + ${pageName} + '.bundle.js'}"></script>
 

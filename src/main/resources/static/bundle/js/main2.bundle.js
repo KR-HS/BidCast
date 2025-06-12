@@ -1,1 +1,0 @@
-import{j as c,c as t}from"../chunk/client.chunk.js";function e(){return c("div",{children:c("h1",{children:"ccccssssssccaaaaaaaa"})})}const o=t.createRoot(document.getElementById("root"));o.render(c(e,{}));

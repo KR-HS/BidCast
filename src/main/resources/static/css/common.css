@@ -1,0 +1,155 @@
+:root {
+    --main-color:#EA6946; /* 주황색 */
+    /*--accent-color: #f39c12;*/
+    /*--text-color: #333;*/
+}
+*{
+    text-decoration:none;
+    list-style:none;
+    font-family: 'Arial', sans-serif;
+    color:black;
+    margin:0;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/*---------------------*/
+/*상단부 메뉴바*/
+header{
+    background-color:white;
+    width:100%;
+    display:flex;
+    box-sizing:border-box;
+    justify-content: center;
+    margin-bottom:20px;
+    gap:320px;
+}
+
+header>.header-left,header>.header-right{
+    display:flex;
+    align-items: center ;
+
+}
+
+header>.header-left{
+    justify-content: space-between;
+    gap:20px;
+}
+
+header>.header-right{
+    justify-content: right;
+    gap:10px;
+}
+
+/* 로고부분*/
+header>.header-left>.logo{
+    display:flex;
+    align-items:center;
+    justify-content: left;
+}
+header>.header-left>.logo{
+    padding:10px;
+}
+header>.header-left>.logo>a>img{
+    width:100px;
+}
+
+/*메뉴부분*/
+header>.header-left>.menuList{
+    display:flex;
+    list-style: none;
+    gap:80px;
+    justify-content: space-between;
+}
+header>.header-left>.menuList>li{
+    font-size:20px;
+    font-weight:600;
+    line-height:1;
+}
+
+/*검색부분*/
+header>.header-right>.searchWrap{
+    background-color:white;
+    position:relative;
+}
+
+header>.header-right>.searchWrap>.searchInput{
+    width:300px;
+    height:36px;
+    border-radius: 25px;
+    border:none;
+    /*border:1px solid #777;*/
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+    padding:0 60px 0 15px;
+    font-size:15px;
+    /*caret-color: transparent; !* 커서 색을 투명하게 설정 *!*/
+    font-weight:600;
+    box-sizing:border-box;
+}
+
+header>.header-right>.searchWrap>.searchIcon{
+    position:absolute;
+    right:10px;
+    top:5px;
+    background-color:var(--main-color);
+    padding:5px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+}
+header>.header-right>.searchWrap>.searchIcon>img{
+    height:16px;
+}
+
+
+
+
+/*공지사항,알람 아이콘*/
+header>.header-right>.alarm>img,header>.header-right>.announce>img{
+    height:30px;
+}
+
+/*---------------------------------*/
+/* 내용 부분*/
+#root{
+    width:80%;
+    margin:0 auto;
+    /*border:1px solid black;*/
+    padding:10px;
+    box-sizing:border-box;
+}
+
+/*--------------------------------*/
+/*하단부 footer*/
+footer{
+    background-color:#313131;
+    padding:20px 50px;
+    width:100%;
+    box-sizing:border-box;
+    margin-top:20px;
+}
+footer>.line{
+    border-bottom:1px solid lightgray;
+}
+footer>.line:first-child{
+    margin-bottom:5px;
+}
+footer>.line:last-child{
+    margin-top:5px;
+}
+footer>.company{
+    color:white;
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+    margin:0 0 10px 0;
+
+}
+footer>.company-detail{
+    color:white;
+    font-size:12px;
+}
