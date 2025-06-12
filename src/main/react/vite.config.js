@@ -14,6 +14,15 @@ export default defineConfig({
     rollupOptions: {
       input: {
         bid: path.resolve(__dirname, 'src/bid/bid.jsx'),
+        home: path.resolve(__dirname, 'src/home/home.jsx'),
+        join: path.resolve(__dirname, 'src/join/join.jsx'),
+        login: path.resolve(__dirname, 'src/login/login.jsx'),
+        searchId: path.resolve(__dirname, 'src/search_id/searchId.jsx'),
+        searchPw: path.resolve(__dirname, 'src/search_pw/searchPw.jsx'),
+        myPage:path.resolve(__dirname, "src/my_page/myPage.jsx"),
+        changePw: path.resolve(__dirname, 'src/change_pw/changePw.jsx'),
+        findComplete: path.resolve(__dirname, 'src/findcomplete/findComplete.jsx'),
+        schedule: path.resolve(__dirname, 'src/schedule/schedule.jsx'),
       },
       preserveEntrySignatures: 'strict',
       output: {
