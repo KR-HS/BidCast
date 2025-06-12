@@ -1,7 +1,8 @@
 package com.project.bidcast.controller;
 
 
-import com.project.bidcast.componenet.AuthService;
+import com.project.bidcast.config.JWTConfig;
+import com.project.bidcast.service.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +18,19 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    private AuthService jwtService;
+    AuthService authService;
 
+    @Autowired
+    private JWTConfig jwtConfig;
 
     //회원가입
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody Map<String, String> userInfo) {
-        String id = userInfo.get("id");
-        String pw = userInfo.get("pw");
-        String email = userInfo.get("email1") + "@" + userInfo.get("email2");
-        String name = userInfo.get("name");
-        String birthday = userInfo.get("birthday");
-        String phoneNumber = userInfo.get("phone1") + "-" + userInfo.get("phone2") + "-" + userInfo.get("phone3");
-        String nickName = userInfo.get("nickName");
 
-        jwtService.registerUser(pw);
 
         System.out.println("회원가입 정보: " + userInfo);
+
+        authService.createUser(userInfo);
 
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
@@ -47,7 +44,7 @@ public class AuthController {
         if (!id.isBlank() && !pw.isBlank()) {
             if (id.equals("db에서가져올값") && pw.equals("1234")) {
 
-                String token = AuthService.createToken(id);
+                String token = jwtConfig.createToken(id);
 
                 HashMap<String, String> map = new HashMap<>();
                 map.put("token", token);
@@ -78,7 +75,7 @@ public class AuthController {
         if (email != null && !email.isBlank() && name != null && !name.isBlank()) {
             // 실제 구현에서는 이메일을 기반으로 DB에서 사용자 조회 또는 등록
             // 여기서는 간단히 토큰만 발급
-            String token = AuthService.createToken(email);
+            String token = jwtConfig.createToken(email);
 
             HashMap<String, String> response = new HashMap<>();
             response.put("token", token);
