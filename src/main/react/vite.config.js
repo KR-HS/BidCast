@@ -8,6 +8,7 @@ export default defineConfig({
   root: 'src/main/react',
   build: {
     outDir: '../resources/static/bundle',
+    chunkSizeWarningLimit:1500,
     emptyOutDir: true,
     cssCodeSplit: true,  // CSS 분리 유지
     rollupOptions: {
