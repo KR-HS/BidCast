@@ -1,4 +1,100 @@
+.contentWrap{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+
+}
+
+.videoContent{
+    /*width:60%;*/
+}
+
+.titleWrap{
+    display:flex;
+    justify-content: space-between;
+}
+.titleWrap >p{
+    font-size:15px;
+    color:black;
+}
+
 .steaming-btn{
     padding: 10px 20px;
     margin-bottom: 10px;
+}
+
+.videoWrapper{
+    width: 750px;
+}
+
+.main-videoWrapper{
+    margin-bottom: 16px;
+    width: 750px;
+}
+.main-videoWrapper>video{
+     /* 고정 너비 대신 */
+    width:100%;
+    object-fit: cover; /* 비디오 꽉 채움 */
+    /*width: 750px;*/
+    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
+}
+
+.main-video-stop{
+    width: 750px;
+    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
+    background-color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.sub-videoWrapper{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    width:100%;
+    overflow:hidden;
+}
+.sub-videos-arrow{
+    width:30px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink:0;
+}
+.sub-videos-arrow > img{
+    width:30px;
+    cursor:pointer;
+}
+
+.sub-videos-container{
+    flex:1;
+    overflow-x:hidden;
+}
+
+.sub-videos{
+    flex:1;
+    display:flex;
+    gap:15px;
+    overflow-x:hidden;
+    transition: transform 0.3s ease;
+}
+
+.sub-video{
+    flex-shrink:0;
+    width:200px;
+    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
+}
+
+.sub-video>video{
+    width:100%;
+    object-fit: cover;
+}
+
+.chatWrap{
+    /*width:30%;*/
+    width:400px;
+    background-color:black;
 }
