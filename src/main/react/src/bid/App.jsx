@@ -526,7 +526,6 @@ export default function App() {
                 <div className="titleWrap">
                     <p className="title">매물명:{"루이암스트롱"}</p>
                     <p className="price">현재최고가:{"100,000"}원</p>
-                    <p>{hostId}</p>
                 </div>
                 <button onClick={toggleStreaming} className="streaming-btn">
                     {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}

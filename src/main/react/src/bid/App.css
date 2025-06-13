@@ -72,20 +72,26 @@
 .sub-videos-container{
     flex:1;
     overflow-x:hidden;
+    position:relative;
 }
 
 .sub-videos{
-    flex:1;
     display:flex;
     gap:15px;
-    overflow-x:hidden;
     transition: transform 0.3s ease;
+    will-change:transform;
 }
 
 .sub-video{
     flex-shrink:0;
     width:200px;
     aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
+}
+
+.sub-video > .guestId{
+    font-size:8px;
+    color:red;
+    text-align:center;
 }
 
 .sub-video>video{

@@ -1,75 +1,42 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 const VideoGrid = ({peers, hostId, myId}) => {
-    const [mainStreamId, setMainStreamId] = useState(null);
-    // useEffect(() => {
-    //     // 아직 메인 스트림이 설정되지 않았다면
-    //     console.log('useEffect called:', {mainStreamId, hostId, hasPeer: !!peers[hostId]});
-    //     if (!mainStreamId && hostId && peers[hostId]) {
-    //
-    //         setMainStreamId(hostId); // hostId를 메인으로 설정
-    //         console.log("메인스트림아이디 설정")
-    //         console.log(mainStreamId);
-    //     }
-    // }, [peers, hostId, mainStreamId]);
+    const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
+    const [scrollX, setScrollX] = useState(0); // 서브 비디오 영역의 스크롤 위치
+    const [maxScrollX, setMaxScrollX] = useState(0); // 스크롤 가능한 최대 길이
+    const subVideosRef = useRef(); // 서브 비디오들을 감싸는 div 참조
 
+
+    // 메인스트림 자동 설정
     useEffect(() => {
         if (!hostId) return;
 
-        console.log("여기!!!!")
-        console.log(peers);
-        console.log(hostId);
         const hostStream = peers[hostId];
         const hostHasVideo = hostStream && hostStream.getVideoTracks().length > 0;
 
-        // 메인 스트림이 없고 호스트가 있다면 무조건 설정
+        // 메인 스트림이 없고 호스트가 영상을 보낸다면 메인화면으로 설정
         if (!mainStreamId && hostHasVideo) {
             setMainStreamId(hostId);
         }
 
-        // 호스트 영상이 없으면 null 처리
+        // 호스트 영상이 중단되었으면 메인화면 제거
         if (!hostHasVideo && mainStreamId === hostId) {
             setMainStreamId(null);
-            console.log("메인스트림아이디 지움");
             return;
         }
-        setMainStreamId(hostId);
+
+        // 항상 메인화면을 호스트로 고정
+        // setMainStreamId(hostId);
 
     }, [peers, hostId]);
 
 
-    useEffect(() => {
-        const newPeers = {...peers}; // 얕은 복사
-        let updated = false;
-
-        for (const [id, stream] of Object.entries(peers)) {
-            const tracks = stream?.getTracks() || [];
-            const allStopped = tracks.every(track => track.readyState === 'ended');
-
-            if (allStopped) {
-                delete newPeers[id];
-                updated = true;
-            }
-        }
-
-        if (updated) {
-            // setPeers가 부모에서 내려온 props라면 따로 제거 로직 필요
-            // 또는 peers 상태 관리하는 곳에서 이런 스트림은 제거하도록 설계 필요
-            console.log("⛔️ 중단된 스트림 제거됨");
-        }
-    }, [peers]);
-
-// mainStreamId가 바뀔 때 로그 찍는 용도로 useEffect 추가 (필요하면)
-    useEffect(() => {
-        console.log('mainStreamId changed to:', mainStreamId);
-        console.log(peers);
-        console.log(peers[mainStreamId]);
-    }, [mainStreamId]);
-
+    // 서브 화면 클릭시 메인화면과 교체
     const handleSwap = (id) => {
-        setMainStreamId(id); // 서브 화면 클릭시 메인화면과 교체
+        setMainStreamId(id);
     };
 
+    // mainstream(영상) 설정
     const mainStream = peers ? peers[mainStreamId] : null;
     const subPeers = Object.entries(peers).filter(
         ([id, stream]) =>
@@ -78,57 +45,85 @@ const VideoGrid = ({peers, hostId, myId}) => {
             stream.getVideoTracks().length > 0
     );
 
+
+    useEffect(() => {
+        // 스크롤 가능한 최대 길이 계산
+        const updateMaxScroll = () => {
+            const container = subVideosRef.current?.parentElement;
+            if (!container || !subVideosRef.current) return;
+
+            const max = Math.max(0, subVideosRef.current.scrollWidth - container.clientWidth);
+            setMaxScrollX(max);
+        };
+
+        updateMaxScroll();
+        window.addEventListener('resize', updateMaxScroll);
+        return () => window.removeEventListener('resize', updateMaxScroll);
+    }, [subPeers]);
+
+    const scrollAmount = 220;
+
+    const scrollLeft = () => {
+        setScrollX(prev => {
+            const newX = Math.max(prev - scrollAmount, 0);
+            return newX;
+        });
+    };
+
+    const scrollRight = () => {
+        setScrollX(prev => {
+            const newX = Math.min(prev + scrollAmount, maxScrollX);
+            return newX;
+        });
+    };
+
+    useEffect(() => {
+        if (subVideosRef.current) {
+            subVideosRef.current.style.transform = `translateX(-${scrollX}px)`;
+        }
+    }, [scrollX]);
+
     return (
         <div className="videoWrapper">
-            {/* 메인 화면 */}
             <div className="main-videoWrapper">
-                <h1>메인화면 {hostId}</h1>
+                <h1>메인화면 {mainStreamId}</h1>
                 {mainStream ? (
                     <Video id={mainStreamId} stream={mainStream} muted={mainStreamId === myId}/>
                 ) : (
-                    <div className="main-video-stop">
-                        방송이 중단되었습니다.
-                    </div>
+                    <div className="main-video-stop">방송이 중단되었습니다.</div>
                 )}
             </div>
 
             <h1>서브화면</h1>
-            {/* 서브 화면들 */}
             <div className="sub-videoWrapper">
-                {
-                    subPeers.some(([_, stream]) => (stream?.getVideoTracks()?.length ?? 0) > 0) ? (
-                        <>
-                            <div className="sub-videos-arrow">
-                                <img src="/img/arrow_left.png" alt="arrow-left"/>
-                            </div>
+                {subPeers.length > 0 ? (
+                    <>
+                        <div className="sub-videos-arrow left">
+                            {scrollX > 0 && (
+                                <img src="/img/arrow_left.png" alt="arrow-left" onClick={scrollLeft}/>
+                            )}
+                        </div>
 
-                            {/*<div className="sub-videos-container">*/}
-                                <div className="sub-videos">
-                                    {subPeers.map(([id, stream]) => {
-                                        const videoTracks = stream?.getVideoTracks() || [];
-                                        if (videoTracks.length === 0) return null;
-                                        return (
-                                            <div key={id} className="sub-video" onClick={() => handleSwap(id)}>
-                                                <Video id={id} stream={stream} muted={id === myId}/>
-                                                <p style={{
-                                                    color: 'red',
-                                                    textAlign: 'center',
-                                                    fontSize: 8
-                                                }}>{JSON.stringify(id)}</p>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            {/*</div>*/}
-
-                            <div className="sub-videos-arrow">
-                                <img src="/img/arrow_right.png" alt="arrow-right"/>
+                        <div className="sub-videos-container">
+                            <div className="sub-videos" ref={subVideosRef}>
+                                {subPeers.map(([id, stream]) => (
+                                    <div key={id} className="sub-video" onClick={() => handleSwap(id)}>
+                                        <Video id={id} stream={stream} muted={id === myId}/>
+                                        <p className="guestId">{id}</p>
+                                    </div>
+                                ))}
                             </div>
-                        </>
-                    ) : (
-                        <div className="no-participants">참가 중인 인원이 없습니다.</div>
-                    )
-                }
+                        </div>
+
+                        <div className="sub-videos-arrow right">
+                            {scrollX < maxScrollX && (
+                                <img src="/img/arrow_right.png" alt="arrow-right" onClick={scrollRight}/>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <div className="no-participants">참가 중인 인원이 없습니다.</div>
+                )}
             </div>
         </div>
     );
@@ -137,15 +132,9 @@ const VideoGrid = ({peers, hostId, myId}) => {
 const Video = ({id, stream, muted}) => {
     const videoRef = useRef();
 
-    console.log('Stream for', id, ':', stream);
     useEffect(() => {
         const videoEl = videoRef.current;
         if (!videoEl) return;
-
-        // videoEl.onloadedmetadata = () => console.log('✅ metadata loaded');
-        // videoEl.onplaying = () => console.log('▶️ playing');
-        // videoEl.onwaiting = () => console.log('⏳ waiting');
-        // videoEl.onerror = (e) => console.error('❌ error', e);
 
         if (stream) {
             videoEl.srcObject = stream;
