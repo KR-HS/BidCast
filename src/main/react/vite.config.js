@@ -18,8 +18,9 @@ export default defineConfig({
         login: path.resolve(__dirname, 'src/login/login.jsx'),
         searchId: path.resolve(__dirname, 'src/search_id/searchId.jsx'),
         searchPw: path.resolve(__dirname, 'src/search_pw/searchPw.jsx'),
-        myPage:path.resolve(__dirname, "src/my_page/myPage.jsx")
-
+        myPage:path.resolve(__dirname, "src/my_page/myPage.jsx"),
+        bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
+        auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx")
       },
       preserveEntrySignatures: 'strict',
       output: {
