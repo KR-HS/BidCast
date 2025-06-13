@@ -66,21 +66,27 @@
     box-shadow: 0 1px 8px rgba(0,0,0,0.06);
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding: 20px 0 14px 0;
 }
 
+.my-page{
+    font-size: 8px;
+    margin-left: 10px;
+
+}
+
 .btn.login {
+    align-items: center;
     background: #EA6946;
     color: #fff;
     border: none;
     border-radius: 17px;
     font-size: 18px;
     font-weight: 700;
-    padding: 20px 120px;
+    padding: 17px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(243,109,59,0.08);
-    margin-bottom: 10px;
+    box-shadow: 0 2px 8px #f36d3b14;
+    margin: 10px;
 }
 
 .signup-row {

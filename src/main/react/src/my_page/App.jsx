@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react'
 import './myPage.css'
 
+
 const items = [
     { id: 1, img: '/img/img2.jpeg', title: '모자' },
     { id: 2, img: '/img/img2.jpeg', title: '모자' },
@@ -9,6 +10,10 @@ const items = [
 
 export default function myPage() {
     const [activeTab, setActiveTab] = useState('경매이력');
+
+    const handleCardClick = (id) => {
+        window.location.href = `/auctionDetail.do?id=${items.id}`;
+    };
 
     return (
         <div className="my-page-container">
@@ -46,7 +51,7 @@ export default function myPage() {
                         </div>
                     <div className="item-list">
                         {items.map(item => (
-                            <div className="item-card" key={item.id}>
+                            <div className="item-card" key={item.id} onClick={() => handleCardClick(item.id)} >
                                 <img src={item.img} alt={item.title} className="item-img" />
                                 <div className="item-title">{item.title}</div>
                             </div>
