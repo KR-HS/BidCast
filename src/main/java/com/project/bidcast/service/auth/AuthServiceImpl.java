@@ -1,6 +1,7 @@
 package com.project.bidcast.service.auth;
 
 import com.project.bidcast.mapper.AuthMapper;
+import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,17 @@ public class AuthServiceImpl implements AuthService {
         String nickName = userInfo.get("nickName");
         authMapper.createUser(id, name, birthday, phoneNumber, email, pw, nickName);
     }
+
+//    @Override
+//    public UsersDTO getUserByLoginId(String loginId, String pw) {
+//        UsersDTO user = authMapper.getUserByLoginId(loginId);
+//
+//        if (user != null && passwordEncoder.matches(pw, user.getPw())) {
+//            return user;
+//        }
+//
+//        return null;
+//    }
 
 
 }

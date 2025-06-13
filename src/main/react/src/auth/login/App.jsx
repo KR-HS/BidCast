@@ -6,6 +6,28 @@ export default function App() {
 
 
     useEffect(() => {
+        const checkLogin = async () => {
+            try {
+                const response = await fetch('/api/v1/auth/check', {
+                    method: 'GET',
+                    credentials: 'include', // 쿠키를 포함해서 보내기
+                });
+
+                if (response.ok) {
+                    window.location.href="/home.do";
+                } else {
+                    console.log('Not authenticated');
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+            }
+        };
+        checkLogin();
+
+    }, []);
+
+
+    useEffect(() => {
 
         const checkNaverLoginCallback = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +42,9 @@ export default function App() {
         };
 
         checkNaverLoginCallback();
+
+
+
 
         const loadNaverSDK = () => {
             // 이미 로드된 경우 건너뛰기
@@ -125,29 +150,46 @@ export default function App() {
 
         //값 보내기
         const formData = new URLSearchParams();
-        formData.append("id", id);
-        formData.append("pw", pw);
+        formData.append("username", id);
+        formData.append("password", pw);
 
-
-            const response = await fetch("http://localhost:8888/api/v1/login",{
+        try{
+            const response = await fetch("/login",{
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: formData
+                body: formData,
+                credentials: "include"
             })
-        if(response.status === 401){
-            alert("아이디와 비밀번호를 확인하세요");
-        }else{
-            const data = await response.json();
-            sessionStorage.setItem('token', data.token);
+        if(response.redirected){
+            window.location.href = response.url;
+        }else if (response.status === 401) {
+            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        } else {
+            console.log("로그인 응답 상태:", response.status);
         }
+    } catch (error) {
+        console.error("로그인 요청 실패:", error);
+    }}
 
 
+    const logoutHandler = async () => {
+        const response = await fetch("/logout", {
+            method: "POST",
+            credentials: "include", // 쿠키 전달
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
 
-        // 로그인 처리 로직 추가
-        console.log(`로그인 시도: 아이디=${id}, 비밀번호=${pw}`);
-    }
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            window.location.href = "/login.do"; // 또는 원하는 경로
+        }
+    };
+
 
 
 
@@ -157,19 +199,27 @@ export default function App() {
           <div>
               <img src="./img/logo.png" alt="Logo" width="200px" height="200px" />
           </div>
-              <form>
-
-
+              <form onSubmit={loginBtn}>
           <div className="ip-box">
               <input type="text" placeholder="아이디"
                     value={id}
                     onChange={handleId}
+                     onKeyDown={(e)=>{
+                         if(e.key === 'Enter') {
+                             loginBtn(e);//
+                         }
+                     }}
               />
               <br/>
               <input type="password"
                      placeholder="비밀번호"
                      value={pw}
                      onChange={handlePw}
+                     onKeyDown={(e)=>{
+                         if(e.key === 'Enter') {
+                             loginBtn(e);//
+                         }
+                     }}
               />
           </div>
               </form>
@@ -179,7 +229,7 @@ export default function App() {
               <a href="join.do">회원가입</a>
           </div>
           <div>
-              <button type="button"
+              <button type="submit"
                       className="login-btn"
                       onClick={loginBtn}
               >로그인</button>
@@ -188,6 +238,7 @@ export default function App() {
               <div id="naverIdLogin"></div>
 
           </div>
+          <button onClick={logoutHandler}>로그아웃</button>
       </section>
       )
 }
