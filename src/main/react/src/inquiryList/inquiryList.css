@@ -1,5 +1,5 @@
-body {
-    height: 1400px;
+.box {
+    width: 100%;
 }
 
 .box {
@@ -10,20 +10,19 @@ body {
     background: #EA6946;
     padding: 60px 0 60px;
     text-align: center;
-
-
 }
+
 .head h1 {
     font-size: 50px;
     margin-bottom: 20px;
     color: white;
     font-weight: 700;
 }
+
 .head p {
     font-size: 20px;
     margin-bottom: 20px;
     color: white;
-
 }
 
 .nav {
@@ -57,16 +56,19 @@ body {
     margin: 0 auto;
     padding: 30px 16px 60px 16px;
 }
+
 .board-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
+
 .total {
     font-size: 1rem;
     color: #222;
 }
+
 .search-bar {
     position: relative;
     width: 100%;
@@ -93,7 +95,7 @@ body {
     height: 30px;
     border: none;
     border-radius: 50%;
-    background: #fff;
+    background: #ea6946;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,8 +109,8 @@ body {
 }
 
 .search-btn img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     object-fit: contain;
 }
 
@@ -129,16 +131,18 @@ body {
     transition: box-shadow 0.2s;
     width: 100%;
 }
-.board-list a {
-    text-decoration: none;
 
+.board-list li:hover {
+    box-shadow: 0 0 0 1.5px #EA6946 inset;
 }
+
 .board-list .num {
     width: 32px;
     font-weight: 600;
     color: #EA6946;
     text-align: center;
 }
+
 .board-list .title {
     flex: 1;
     font-size: 18px;
@@ -147,16 +151,18 @@ body {
     align-items: center;
     gap: 10px;
 }
+
 .board-list .badge {
     display: inline-block;
     background: #EA6946;
     color: #fff;
     border-radius: 6px;
-    padding: 2px 10px 5px;;
+    padding: 2px 10px 5px;
     font-size: 0.92rem;
     font-weight: 500;
     margin-top: 5px;
 }
+
 .board-list .date {
     width: 110px;
     text-align: right;
@@ -206,3 +212,11 @@ body {
     border: 1.5px solid #EA6946;
 }
 
+@media (max-width: 600px) {
+    .container {
+        padding: 18px 4px 40px 4px;
+    }
+    .head h1 {
+        font-size: 2rem;
+    }
+}
