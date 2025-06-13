@@ -8,7 +8,6 @@ export default defineConfig({
   root: 'src/main/react',
   build: {
     outDir: '../resources/static/bundle',
-    chunkSizeWarningLimit:1500,
     emptyOutDir: true,
     cssCodeSplit: true,  // CSS 분리 유지
     rollupOptions: {
@@ -28,6 +27,8 @@ export default defineConfig({
         changePw: path.resolve(__dirname, 'src/auth/change_pw/changePw.jsx'),
         findComplete: path.resolve(__dirname, 'src/auth/findcomplete/findComplete.jsx'),
         schedule: path.resolve(__dirname, 'src/schedule/schedule.jsx'),
+          bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
+          auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx")
       },
       preserveEntrySignatures: 'strict',
       output: {
