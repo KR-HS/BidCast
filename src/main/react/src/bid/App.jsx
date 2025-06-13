@@ -32,20 +32,43 @@ export default function App() {
     const socket = useRef(null)
 
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get("userId");
-    const roomId = params.get("roomId");
+    const [roomId, setRoomId] = useState(null);
+    const [userId, setUserId] = useState(null);
+
 
     // const [producerIdToSocketId, setProducerIdToSocketId] = useState({});
     const [socketIdToProducerId, setSocketIdToProducerId] = useState({});
     const socketIdToProducerIdRef = useRef({});
 
+
+    // 화면 첫 접속시 한번만 실행됨
+
+    const roomIdRef = useRef(null);
+    const userIdRef = useRef(null);
+
     useEffect(() => {
+        roomIdRef.current = roomId;
+        userIdRef.current = userId;
+    }, [roomId, userId]);
+
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setRoomId(params.get("roomId"));
+        setUserId(params.get("userId"));
+        console.log("룸아이디, 유저아이디 설정됨",roomId,userId)
+    }, []);
+
+    useEffect(() => {
+        if (!roomId || !userId) return;
+
         // 서버와 WebSocket 연결, websocket 전송 방식만 사용
         socket.current = io('https://bidcastserver.kro.kr', {transports: ['websocket']})
 
         socket.current.on('connect', () => {
             setMySocketId(socket.current.id)
         })
+
 
         // 로그인한 사용자 ID 등록 (로그인 되어 있다고 가정)
         socket.current.emit('register-login-id', {
@@ -58,6 +81,11 @@ export default function App() {
             setHostId(hostSocketId)
             console.log("호스트소켓아이디" + hostSocketId);
         })
+
+        socket.current.on('host-available', ({ auctionId, hostSocketId }) => {
+            setHostId(hostSocketId);
+            console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
+        });
 
         // 초기 시작 함수: mediasoup 라우터 연결 및 송수신 준비
         async function start() {
@@ -91,21 +119,21 @@ export default function App() {
                         })
 
                         // 송신용 Transport가 produce 요청할 때 서버에 전송
-                        sendTransport.current.on('produce', ({kind, rtpParameters}, callback, errback) => {
+                        sendTransport.current.on('produce', ({kind, rtpParameters}, callback) => {
                             socket.current.emit('produce', {
                                 kind, // 영상인지, 오디오인지 종류
                                 rtpParameters,
                                 transportId: sendTransport.current.id,
-                                roomId:roomId
+                                roomId: roomId
                             }, ({id}) => {
                                 // 받은 producerId를 내 producer 집합에 추가해서 추적
                                 myProducerIds.current.add(id)
                                 // console.log('Added producer id:', id);
                                 // console.log('myProducerIds size:', myProducerIds.current.size);
                                 // console.log('myProducerIds entries:', Array.from(myProducerIds.current));
-                                // ✅ 직접 socketIdToProducerId에 등록
                                 setSocketIdToProducerId(prev => {
                                     const existing = prev[socket.current.id] || {}
+                                    console.log("이미 가지고 있는 것들",existing)
                                     return {
                                         ...prev,
                                         [socket.current.id]: {
@@ -114,6 +142,7 @@ export default function App() {
                                         }
                                     };
                                 });
+                                console.log("프로듀서아이디들",socketIdToProducerId)
                                 callback({id})
                             })
                         })
@@ -135,12 +164,16 @@ export default function App() {
                         })
 
                         // 기존에 존재하는 producer 리스트 요청
-                        socket.current.emit('get-existing-producers', {roomId: roomId}, (existingProducers) => {
+                        socket.current.emit('get-existing-producers', {roomId: roomId}, ({existingProducers,hostSocketId}) => {
+                            console.log("프로듀서 리스트 받아옴",existingProducers);
+                            console.log("호스트아이디도 받아옴",hostSocketId);
+                            // setHostId(hostSocketId);
                             existingProducers
                                 .filter(({producerId}) => !myProducerIds.current.has(producerId))
                                 .forEach(({socketId, producerId, kind}) => {
                                     setSocketIdToProducerId(prev => {
                                         const existing = prev[socketId] || {}
+                                        console.log("이미 존재!!!!",existing)
                                         return {
                                             ...prev,
                                             [socketId]: {
@@ -149,14 +182,17 @@ export default function App() {
                                             }
                                         }
                                     })
+                                    console.log("11111111",socketIdToProducerId[socketId])
                                     consume(producerId, socketId);
                                 });
+
+                            console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!",socketIdToProducerId);
                         });
                     })
                 })
 
                 // 새로운 producer
-                socket.current.on('new-producer', ({producerId, socketId:remoteSocketId, kind}) => {
+                socket.current.on('new-producer', ({producerId, socketId: remoteSocketId, kind}) => {
                     console.log('new-producer received:', producerId, remoteSocketId);
                     if (remoteSocketId === socket.current.id) return; // 내 producer면 무시
 
@@ -172,10 +208,10 @@ export default function App() {
                         };
                     });
                     console.log('New producer from other:', producerId)
-                    consume(producerId)
+                    consume(producerId, remoteSocketId)
 
 
-                    console.log(hostId)
+                    console.log("hostId:" + hostId)
                     console.log(socketIdToProducerId)
                 })
 
@@ -215,20 +251,37 @@ export default function App() {
                     })
                 })
 
+
             } catch (err) {
                 console.error('Start error:', err)
             }
         }
 
+        ////////////////////////////////////////////
+        //   다른 화면에 접속했을떄 기존 소켓 종료      //
+        ////////////////////////////////////////////
+        socket.current.on('force-disconnect', () => {
+            alert('다른 기기에서 로그인되어 연결이 종료되었습니다.');
+            // 소켓 연결은 서버가 이미 끊었기 때문에 여기선 안내만 해주면 됨
+
+            // 로컬 미디어 스트림 중지
+            if (localStream.current) {
+                localStream.current.getTracks().forEach(track => track.stop());
+                localStream.current = null;
+            }
+
+            // 소켓 강제 종료
+            socket.current.disconnect();
+
+        });
 
         // 상대방 producer 스트림을 consume 하는 함수
-        async function consume(producerId) {
-            // 장치, 수신 transport, 이미 소비중인지 체크
-            console.log('consume 호출 여부 체크 전:', producerId, consumers.current[producerId])
+        async function consume(producerId, socketId) {
 
+            const myProducers = socketIdToProducerIdRef.current[socket.current.id] || {};
 
             // ✅ 자기 자신의 producerId는 무시
-            if (producerId === socketIdToProducerId[socket.current.id]) {
+            if (producerId === myProducers.video || producerId === myProducers.audio) {
                 console.log('👤 자기 자신의 producerId, consume 생략:', producerId);
                 return;
             }
@@ -292,11 +345,50 @@ export default function App() {
         // 시작 함수 호출
         start()
 
+
         // 컴포넌트 언마운트 시 소켓 연결 끊음
         return () => {
+
+            // 방송 중이면 중단
+            if (isStreaming) {
+                // 방송 중단 시그널 및 정리
+                if (videoProducer.current) {
+                    videoProducer.current.close()
+                    myProducerIds.current.delete(videoProducer.current.id)
+                    videoProducer.current = null
+                }
+
+                if (audioProducer.current) {
+                    audioProducer.current.close()
+                    myProducerIds.current.delete(audioProducer.current.id)
+                    audioProducer.current = null
+                }
+
+                if (localStream.current) {
+                    localStream.current.getTracks().forEach(track => track.stop())
+                    localStream.current = null
+                }
+
+                if (roomId) {
+                    socket.current.emit('close-producer', { roomId:roomIdRef.current });
+                } else {
+                    console.warn('roomId is undefined, skipping close-producer emit');
+                }
+                setIsStreaming(false)
+            }
+
+            socketIdToProducerIdRef.current = {};
+            setSocketIdToProducerId({});
+
             if (socket.current) socket.current.disconnect()
         }
-    }, [])
+    }, [roomId,userId])
+
+
+    // socketIdToProducerIdRef 상태 동기화
+    useEffect(() => {
+        socketIdToProducerIdRef.current = socketIdToProducerId;
+    }, [socketIdToProducerId]);
 
 
     // 🔘 방송 시작/중단 토글 함수
@@ -338,9 +430,7 @@ export default function App() {
                 }
 
                 if (audioTrack) {
-                    console.log(11111)
                     audioProducer.current = await sendTransport.current.produce({track: audioTrack})
-                    console.log(22222)
                     myProducerIds.current.add(audioProducer.current.id)
                     setSocketIdToProducerId(prev => {
                         const existing = prev[socket.current.id] || {};
@@ -410,33 +500,43 @@ export default function App() {
             });
 
             // videoProducerId가 null이 아니라면 peers 상태에서 내 화면 제거
-            if (videoProducerId) {
-                setPeers(prev => {
-                    const updated = { ...prev };
+            setPeers(prev => {
+                const updated = {...prev};
+                if (videoProducerId) {
                     delete updated[videoProducerId];
-                    return updated;
-                });
-            }
+                }
+                return updated;
+            });
 
             setIsStreaming(false)
-            socket.current.emit('close-producer');
+            if (roomId) {
+                socket.current.emit('close-producer', { roomId });
+            } else {
+                console.warn('roomId is undefined, skipping close-producer emit');
+            }
         }
     }
 
     const isHost = mySocketId === hostId
 
+
     return (
-        <div>
-            <h1>🎥 Bidcast Streaming</h1>
-            <p>Room ID: {roomId} | User ID: {userId}</p>
-            <p>내 소켓 ID: {mySocketId} | 호스트 ID: {hostId}</p>
-            <button onClick={toggleStreaming} className="streaming-btn">
-                {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
-            </button>
+        <div className="contentWrap">
+            <div className="videoContent">
+                <div className="titleWrap">
+                    <p className="title">매물명:{"루이암스트롱"}</p>
+                    <p className="price">현재최고가:{"100,000"}원</p>
+                    <p>{hostId}</p>
+                </div>
+                <button onClick={toggleStreaming} className="streaming-btn">
+                    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
+                </button>
+                <VideoGrid peers={peers} hostId={socketIdToProducerId[hostId]?.video}
+                           myId={socketIdToProducerId[mySocketId]?.video}/>
+            </div>
+            <div className="chatWrap">
 
-
-            <VideoGrid peers={peers} hostId={socketIdToProducerId[hostId]?.video}
-                       myId={socketIdToProducerId[mySocketId]?.video}/>
+            </div>
         </div>
     )
 }
