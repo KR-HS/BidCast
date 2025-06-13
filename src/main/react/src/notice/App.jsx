@@ -5,16 +5,16 @@ import './notice.css'
 export default function Notice() {
   return (
 
-      <div>
+      <div className="box">
           <div className="head">
               <h1>고객센터</h1>
               <p>
-                  BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!
+                  BidCast에 대해 궁금하신 점이 있다면<br/>무엇이든 물어보세요!
               </p>
               <div className="nav">
-                  <a href="#">FAQ  </a>
-                  <a href="#">1:1문의</a>
-                  <a href="#" className="active">
+                  <a href="faq.do" className="faq">FAQ</a>
+                  <a href="inquiry.do">1:1문의</a>
+                  <a href="notice.do" className="active">
                       공지사항
                   </a>
               </div>
@@ -22,13 +22,16 @@ export default function Notice() {
           <div className="container">
               <div className="board-top">
                   <div className="total">총1건</div>
-                  <div className="search-box">
-                      <input type="text" placeholder="검색어를 입력해주세요." />
-                      <button className="search-btn" aria-label="검색"></button>
+                  <div className="search-bar">
+                      <input type="text" className="search-input" placeholder="검색어를 입력해주세요"/>
+                      <button className="search-btn" aria-label="검색">
+                          <img src="./img/search2.png" alt="검색" />
+                      </button>
                   </div>
+
               </div>
               <ul className="board-list">
-                  <a href="#">
+                  <a href="noticeDetail.do">
                   <li>
                       <div className="num">1</div>
                       <div className="title">
@@ -37,10 +40,38 @@ export default function Notice() {
                       </div>
                       <div className="date">2025.06.09</div>
                   </li>
-                  </a>
-              </ul>
-              <ul className="board-list">
-                  <a href="#">
+                      <li>
+                          <div className="num">1</div>
+                          <div className="title">
+                              <span className="badge">공지</span>
+                              경매 개장시간 안내
+                          </div>
+                          <div className="date">2025.06.09</div>
+                      </li>
+                      <li>
+                          <div className="num">1</div>
+                          <div className="title">
+                              <span className="badge">공지</span>
+                              경매 개장시간 안내
+                          </div>
+                          <div className="date">2025.06.09</div>
+                      </li>
+                      <li>
+                          <div className="num">1</div>
+                          <div className="title">
+                              <span className="badge">공지</span>
+                              경매 개장시간 안내
+                          </div>
+                          <div className="date">2025.06.09</div>
+                      </li>
+                      <li>
+                          <div className="num">1</div>
+                          <div className="title">
+                              <span className="badge">공지</span>
+                              경매 개장시간 안내
+                          </div>
+                          <div className="date">2025.06.09</div>
+                      </li>
                       <li>
                           <div className="num">1</div>
                           <div className="title">
@@ -51,54 +82,7 @@ export default function Notice() {
                       </li>
                   </a>
               </ul>
-              <ul className="board-list">
-                  <a href="#">
-                      <li>
-                          <div className="num">1</div>
-                          <div className="title">
-                              <span className="badge">공지</span>
-                              경매 개장시간 안내
-                          </div>
-                          <div className="date">2025.06.09</div>
-                      </li>
-                  </a>
-              </ul>
-              <ul className="board-list">
-                  <a href="#">
-                      <li>
-                          <div className="num">1</div>
-                          <div className="title">
-                              <span className="badge">공지</span>
-                              경매 개장시간 안내
-                          </div>
-                          <div className="date">2025.06.09</div>
-                      </li>
-                  </a>
-              </ul>
-              <ul className="board-list">
-                  <a href="#">
-                      <li>
-                          <div className="num">1</div>
-                          <div className="title">
-                              <span className="badge">공지</span>
-                              경매 개장시간 안내
-                          </div>
-                          <div className="date">2025.06.09</div>
-                      </li>
-                  </a>
-              </ul>
-              <ul className="board-list">
-                  <a href="#">
-                      <li>
-                          <div className="num">1</div>
-                          <div className="title">
-                              <span className="badge">공지</span>
-                              경매 개장시간 안내
-                          </div>
-                          <div className="date">2025.06.09</div>
-                      </li>
-                  </a>
-              </ul>
+
               <div className="pagination">
                   <button className="prev" disabled>
                       &lt;

@@ -1,18 +1,19 @@
 .my-page-container{
-    max-width: 1100px;
-    width: 100%;
     margin: 0 auto;
     min-height: 100vh;
-    padding: 0 32px;
 
 }
 .header {
     background: #EA6946;
-    padding: 36px 0 24px 0;
+    padding: 60px 0;
     text-align: center;
-    border-radius: 20px;
 }
 
+.content-box{
+    width: 60%;
+    margin: 0 auto;
+    padding-left: 4%;
+}
 .header-title {
     font-size: 32px;
     font-weight: 800;
@@ -53,31 +54,41 @@
     border: 1px solid #EA6946;
 }
 
+.content-box {
+
+}
 
 .section-title {
     font-size: 20px;
     font-weight: 700;
-    margin: 18px 0 18px 40px;
-    color: #222;
+    margin: 30px 0 18px 0;
 }
+
+.all-btn {
+    border: none;
+    background-color: #fff;
+    color: #ea6946;
+    margin-left: 87%;
+
+}
+
 
 .item-list {
     display: flex;
     justify-content: flex-start;
     gap: 28px;
-    margin-left: 40px;
     margin-bottom: 60px;
 }
 
 .item-card {
-    background: #fff4ed;
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(243,109,59,0.06);
     width: 210px;
     padding: 14px 14px 18px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: 1px solid #d5d5d5;
+    cursor: pointer;
 }
 
 .item-img {

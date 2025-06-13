@@ -11,7 +11,7 @@ export default function App() {
         email2: '',
         name: '',
         birthday: '',
-        phone1: '',
+        phone1: '010',
         phone2: '',
         phone3: '',
         nickName: ''

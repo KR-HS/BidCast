@@ -72,6 +72,7 @@ export default function App() {
                                 src="https://cdn-icons-png.flaticon.com/512/751/751463.png"
                                 alt="경매검색"
                                 className="action-icon"
+                                onClick={()=>{window.location.href="#"}}
                             />
                             <div className="action-label">경매검색</div>
                         </div>
@@ -80,14 +81,16 @@ export default function App() {
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
                                 className="action-icon"
+                                onClick={()=>{window.location.href="./schedule.do"}}
                             />
                             <div className="action-label">경매일정</div>
                         </div>
                     </div>
                     <div className="login-section">
-                        <button className="btn login">로그인</button>
+                        <div className="my-page">마이페이지</div>
+                        <button className="btn login" onClick={()=> {window.location.href="login.do"}}>로그인</button>
                         <div className="signup-row">
-                            <span className="signup-link">회원가입</span>
+                            <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
                         </div>
                         <div className="login-desc">
                             지금 로그인하세요!<br />
@@ -115,7 +118,7 @@ export default function App() {
                             {formatDate(selectedDate)}
                             {isToday(selectedDate) && <span className="today-label"> (오늘)</span>}
                         </span>
-                        <span className="auction-dropdown">경매일정 전체보기 &gt;</span>
+                        <span className="auction-dropdown" onClick={()=>{window.location.href="./schedule.do"}}>경매일정 전체보기 &gt;</span>
                     </div>
                     <h3>경매리스트</h3>
                     <ul>
