@@ -81,7 +81,7 @@ export default function App() {
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
                                 className="action-icon"
-                                onClick={()=>{window.location.href="#"}}
+                                onClick={()=>{window.location.href="./schedule.do"}}
                             />
                             <div className="action-label">경매일정</div>
                         </div>

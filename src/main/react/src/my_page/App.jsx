@@ -29,7 +29,7 @@ export default function myPage() {
                             if (tab === '문의') {
                                 window.location.href = '/inquiryList.do';
                             } else if (tab === '내 정보수정') {
-                                window.location.href = '/membermodify.do';
+                                window.location.href = '/memberModify.do';
                             } else {
                                 setActiveTab(tab);
                             }
