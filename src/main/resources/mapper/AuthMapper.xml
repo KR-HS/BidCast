@@ -15,4 +15,7 @@
         VALUES (#{loginId}, #{userName}, #{birth}, #{phone}, #{email}, #{pw}, #{nickname})
     </insert>
 
+    <select id="getUserByLoginId" resultType="com.project.bidcast.vo.UsersDTO">
+        SELECT * FROM users WHERE login_id = #{loginId}
+    </select>
 </mapper>

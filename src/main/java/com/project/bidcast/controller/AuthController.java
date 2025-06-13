@@ -3,12 +3,14 @@ package com.project.bidcast.controller;
 
 import com.project.bidcast.config.JWTConfig;
 import com.project.bidcast.service.auth.AuthService;
+import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,33 +37,37 @@ public class AuthController {
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
 
-    //로그인
-    @CrossOrigin("*")
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam("id") String id,
-                                                     @RequestParam("pw") String pw,
-                                                     HttpSession session) {
-        if (!id.isBlank() && !pw.isBlank()) {
-            if (id.equals("db에서가져올값") && pw.equals("1234")) {
-
-                String token = jwtConfig.createToken(id);
-
-                HashMap<String, String> map = new HashMap<>();
-                map.put("token", token);
-                map.put("username", "데이터!");
-
-                session.setAttribute("id", id);
-                session.setAttribute("token", token);
-                session.setAttribute("pw", pw);
-
-                System.out.println(session.getAttribute("id"));
-                System.out.println(session.getAttribute("token"));
-
-                return new ResponseEntity<>(map, HttpStatus.OK);
-            }
+    @GetMapping("/auth/check")
+    public ResponseEntity<?> checkLogin(Principal principal) {
+        if (principal != null) {
+            return ResponseEntity.ok().body("authenticated");
+        } else {
+            return ResponseEntity.status(401).body("unauthenticated");
         }
-        return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
     }
+
+//    //로그인
+//    @CrossOrigin("*")
+//    @PostMapping("/login")
+//    public ResponseEntity<Map<String, String>> login(@RequestParam("id") String id,
+//                                                     @RequestParam("pw") String pw,
+//                                                     HttpSession session) {
+//
+//        if (!id.isBlank() && !pw.isBlank()) {
+//            if(authService.getUserByLoginId(id, pw) == null) {
+//                return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
+//            }else {
+////                String token = jwtConfig.createToken(id);
+////                HashMap<String, String> map = new HashMap<>();
+////                map.put("token", token);
+////                map.put("id", id);
+//                session.setAttribute("id", id);
+//
+//                return new ResponseEntity<>(HttpStatus.OK);
+//            }
+//        }
+//        return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
+//    }
 
     //네이버로그인
     @CrossOrigin("*")

@@ -4,12 +4,10 @@ import React, {useState} from 'react'
 export default function App() {
 
     const [formData, setFormData] = useState({
-        id: '',
         pw: '',
         vpw: '',
         email1: '',
         email2: '',
-        name: '',
         birthday: '',
         phone1: '010',
         phone2: '',
@@ -54,23 +52,13 @@ export default function App() {
     return (
         <section>
             <div className="sec">
-                <h1>환영합니다!</h1>
+                <h1>회원정보수정</h1>
                 <div>
                     <form>
                     <table>
                         <tbody>
                         <tr>
-                            <td>아이디</td> 
-                            <td>
-                                <input type="text"
-                                       name="id"
-                                value={formData.id}
-                                onChange={handleChange}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>비밀번호</td>
+                            <td>비밀번호 변경</td>
                             <td>
                                 <input type="password"
                                        name="pw"
@@ -116,15 +104,6 @@ export default function App() {
                                     <option value="daum.net">daum.net</option>
                                     <option value="nate.com">nate.com</option>
                                 </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>이름</td>
-                            <td>
-                                <input type="text"
-                                       name="name"
-                                value={formData.name}
-                                onChange={handleChange}/>
                             </td>
                         </tr>
                         <tr>
@@ -176,14 +155,21 @@ export default function App() {
                                 />
                             </td>
                         </tr>
+                        <tr>
+                            <td colSpan="2">
+                                <a href={'#'} className="del-mem">회원탈퇴</a>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                     </form>
                 </div>
-                <div className="join-btn">
+
+
+                <div className="modify-btn">
                 <button type="submit"
                         onClick={handleSubmit}
-                >회원가입</button>
+                >정보수정</button>
                 </div>
             </div>
         </section>
