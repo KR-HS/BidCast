@@ -1,0 +1,222 @@
+.box {
+    width: 100%;
+}
+
+.box {
+    width: 100%;
+}
+
+.head {
+    background: #EA6946;
+    padding: 60px 0 60px;
+    text-align: center;
+}
+
+.head h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: white;
+    font-weight: 700;
+}
+
+.head p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.nav a {
+    color: #ffffffa8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 20px;
+    transition: background 0.2s, color 0.2s;
+    margin: 0 12px;
+    padding: 6px 18px;
+    border-radius: 20px;
+}
+
+.nav a.active {
+    background: #fff;
+    color: #EA6946;
+    font-weight: 600;
+}
+.nav a.faq {
+    margin-top: 6px;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 16px 60px 16px;
+}
+
+.board-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.total {
+    font-size: 1rem;
+    color: #222;
+}
+
+.search-bar {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 48px 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+    margin-left: 41px;
+}
+
+.search-btn {
+    position: absolute;
+    top: 50%;
+    right: -30px;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: #ea6946;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s;
+}
+
+.search-btn:hover {
+    background: #d65a38;
+}
+
+.search-btn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.board-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0;
+}
+
+.board-list li {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #B3B2B2;
+    border-radius: 6px;
+    padding: 20px 20px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: box-shadow 0.2s;
+    width: 100%;
+}
+
+.board-list li:hover {
+    box-shadow: 0 0 0 1.5px #EA6946 inset;
+}
+
+.board-list .num {
+    width: 32px;
+    font-weight: 600;
+    color: #EA6946;
+    text-align: center;
+}
+
+.board-list .title {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.board-list .badge {
+    display: inline-block;
+    background: #EA6946;
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 10px 5px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+.board-list .date {
+    width: 110px;
+    text-align: right;
+    color: #888;
+    font-size: 0.98rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 100px;
+}
+.pagination button,
+.pagination span {
+    border: none;
+    background: none;
+    color: #444;
+    font-size: 1rem;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.pagination .active {
+    background: #EA6946;
+    color: #fff;
+    font-weight: 700;
+}
+.pagination button:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+.pagination button {
+    font-size: 1.2rem;
+    background: #fff;
+    border: 1.5px solid #ddd;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border 0.2s;
+}
+.pagination button:not(:disabled):hover {
+    border: 1.5px solid #EA6946;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 18px 4px 40px 4px;
+    }
+    .head h1 {
+        font-size: 2rem;
+    }
+}

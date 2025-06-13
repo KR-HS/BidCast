@@ -1,0 +1,112 @@
+body {
+    height: 1400px;
+}
+
+.box {
+    width: 100%;
+}
+
+.head {
+    background: #EA6946;
+    padding: 60px 0 60px;
+    text-align: center;
+
+
+}
+.head h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: white;
+    font-weight: 700;
+}
+.head p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: white;
+
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.nav a {
+    color: #ffffffa8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 20px;
+    transition: background 0.2s, color 0.2s;
+    margin: 0 12px;
+    padding: 6px 18px;
+    border-radius: 20px;
+}
+
+.nav a.active {
+    background: #fff;
+    color: #EA6946;
+    font-weight: 600;
+}
+.nav a.faq {
+    margin-top: 6px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 16px 60px 16px;
+}
+
+/* 공지 제목 */
+.notice-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 48px 0 32px 0;
+}
+
+/* 날짜 */
+.notice-date {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #888;
+}
+
+/* 본문 박스 */
+.notice-content {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    padding: 28px 32px;
+    margin: 0 auto 32px auto;
+    font-size: 1rem;
+    color: #222;
+    line-height: 1.7;
+}
+
+
+/* 버튼 영역 */
+.notice-btn-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.notice-list-btn {
+    border: 1.5px solid #EA6946;
+    background: #fff;
+    color: #EA6946;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 10px 36px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+}
+.notice-list-btn:hover {
+    background: #EA6946;
+    color: #fff;
+}
