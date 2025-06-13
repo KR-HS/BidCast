@@ -1,0 +1,57 @@
+/*로그인 css*/
+section{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 142px;
+    margin-top: 80px;
+}
+.login-btn{
+    width: 340px;
+    height: 40px;
+    background-color: #EA6946;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+}
+.side-btn{
+    margin-bottom: 15px;
+    color : #DBD5D5;
+}
+
+.side-btn a{
+    text-decoration: none;
+    margin: 0 10px;
+    color : #DBD5D5;
+}
+
+.sec{
+    text-align: center;
+
+}
+.ip-box input{
+    width: 320px;
+    height: 35px;
+    font-size: 15px;
+    padding-left: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc ;
+}
+
+/*.nav-btn{*/
+/*    margin-top: 20px;*/
+/*    border: none;*/
+/*    background: url("/img/btnG.png");*/
+/*    width: 150px;*/
+/*    height: 40px;*/
+/*    background-position: center;*/
+/*    background-size: cover;*/
+/*    cursor: pointer;*/
+/*}*/
+
+#naverIdLogin{
+    margin-top: 20px;
+}
+
