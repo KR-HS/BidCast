@@ -1,0 +1,126 @@
+body {
+    min-height: 100vh;
+    background: #fff;
+}
+
+.box {
+    width: 100%;
+}
+
+.head {
+    background: #EA6946;
+    padding: 60px 0 60px;
+    text-align: center;
+}
+
+.head h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: white;
+    font-weight: 700;
+}
+
+.head p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.nav a {
+    color: #ffffffa8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 20px;
+    transition: background 0.2s, color 0.2s;
+    margin: 0 12px;
+    padding: 6px 18px;
+    border-radius: 20px;
+}
+
+.nav a.active {
+    background: #fff;
+    color: #EA6946;
+    font-weight: 600;
+}
+
+.nav a.faq {
+    margin-top: 6px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 16px 60px 16px;
+}
+
+.inquiry-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.form-input,
+.form-textarea {
+    background: #fbe9e4;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 1rem;
+    resize: none;
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    box-shadow: 0 0 0 2px #ea69466c;
+}
+
+.form-textarea {
+    min-height: 160px;
+}
+
+.form-guide {
+    font-size: 0.93rem;
+    color: #888;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.submit-btn {
+    width: 120px;
+    margin: 0 auto;
+    background: #EA6946;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: block;
+}
+
+.submit-btn:hover {
+    background: #d65a38;
+}

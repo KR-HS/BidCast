@@ -18,7 +18,11 @@ export default defineConfig({
         join: path.resolve(__dirname, 'src/join/join.jsx'),
         searchId: path.resolve(__dirname, 'src/search_id/searchId.jsx'),
         searchPw: path.resolve(__dirname, 'src/search_pw/searchPw.jsx'),
-
+        notice: path.resolve(__dirname, 'src/notice/notice.jsx'),
+        noticeDetail: path.resolve(__dirname, 'src/notice_detail/noticeDetail.jsx'),
+        faq: path.resolve(__dirname, 'src/faq/faq.jsx'),
+        inquiry: path.resolve(__dirname, 'src/inquiry/inquiry.jsx'),
+        inquiryList: path.resolve(__dirname, 'src/inquiryList/inquiryList.jsx'),
       },
       preserveEntrySignatures: 'strict',
       output: {
