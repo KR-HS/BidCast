@@ -96,7 +96,7 @@ body {
 }
 
 .form-textarea {
-    min-height: 160px;
+    min-height: 300px;
 }
 
 .form-guide {
@@ -122,5 +122,34 @@ body {
 }
 
 .submit-btn:hover {
-    background: #d65a38;
+    background: #EA6946;
 }
+.centered-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.nav-text {
+    color: #888;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.nav-dot {
+    color: #888;
+    font-size: 20px;
+    margin: 0 8px;
+}
+
+.nav-link {
+    color: #EA6946;
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-position: under;
+    cursor: pointer;
+}
+

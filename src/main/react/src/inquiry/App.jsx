@@ -9,12 +9,17 @@ export default function CustomerCenter() {
                 <p>BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!</p>
                 <div className="nav">
                     <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inauiryList.do" className="active">1:1문의</a>
+                    <a href="inquiry.do" className="active">1:1문의</a>
                     <a href="notice.do">공지사항</a>
                 </div>
             </div>
             <div className="container">
-                <h2 style={{ textAlign: 'center', margin: '40px 0 30px', fontSize: '2rem', fontWeight: 700 }}>1:1문의</h2>
+                <div className="centered-nav-row">
+                    <a href="inquiryList.do" className="nav-text">내가 문의한 내역</a>
+                    {/*<span className="nav-dot">·</span>*/}
+                    <img src="./img/dot.png" alt="검색" />
+                    <a href="inquiry.do" className="nav-link">1:1 문의하기</a>
+                </div>
                 <form className="inquiry-form">
                     <div className="form-group">
                         <label htmlFor="title" className="form-label">제목</label>

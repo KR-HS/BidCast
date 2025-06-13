@@ -157,7 +157,8 @@ body {
     background: none;
     border-radius: 4px;
     padding: 2px 8px;
-    font-size: 0.97rem;
+    font-size: 17px;
+    margin-bottom: 4px;
 }
 
 .faq-icon.q {
@@ -231,13 +232,17 @@ body {
 }
 
 .faq-question {
-    font-size: 1.07rem;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
     color: #222;
 }
 
 .faq-answer {
-    font-size: 1.07rem;
+    font-size: 15px;
+    font-weight: 500;
     color: #222;
+    margin-top: 3px;
 }
 .pagination {
     display: flex;
