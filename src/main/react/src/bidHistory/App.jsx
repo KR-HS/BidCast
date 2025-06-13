@@ -8,8 +8,9 @@ export default function App() {
             <div
                 className="history-card"
                 style={{ cursor: 'pointer' }} // 클릭 가능한 UI 개선
+                onClick={()=> {window.location.href='./auctionDetail.do'}}
             >
-                <div className="card-header" onClick={()=>{window.location.href='./auctionDetail.do'}}>
+                <div className="card-header">
                     <div className="left-section">
                         <span className="round-number">1회차</span>
                         <div className="bid-title">경매 제목: 오늘 엄청난 물건 나옵니다!!</div>
