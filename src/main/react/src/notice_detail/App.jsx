@@ -12,7 +12,7 @@ export default function Notice() {
                 </p>
                 <div className="nav">
                     <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inquiryList.do">1:1문의</a>
+                    <a href="inquiry.do">1:1문의</a>
                     <a href="notice.do" className="active">공지사항</a>
                 </div>
             </div>
@@ -33,7 +33,7 @@ export default function Notice() {
                     감사합니다.
                 </div>
                 <div className="notice-btn-wrap">
-                    <button className="notice-list-btn">목록</button>
+                    <a href="notice.do"><button className="notice-list-btn">목록</button></a>
                 </div>
             </div>
         </div>

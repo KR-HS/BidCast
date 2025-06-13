@@ -1,8 +1,5 @@
-// App.jsx
 import React, { useState } from 'react';
-
 import './faq.css';
-
 
 const faqData = [
     {
@@ -16,30 +13,59 @@ const faqData = [
         member: true,
     },
     {
-        q: '회원가입이 어떻게해요?',
-        a: '몰라요',
+        q: '배송은 얼마나 걸리나요?',
+        a: '평균 2~3일 소요됩니다.',
         member: true,
     },
     {
-        q: '회원가입이 어떻게해요?',
-        a: '몰라요',
+        q: '반품은 어떻게 하나요?',
+        a: '고객센터에 문의해주세요.',
+        member: true,
+    },
+    {
+        q: '입찰은 실시간인가요?',
+        a: '네, 실시간 라이브 입찰입니다.',
+        member: true,
+    },
+    {
+        q: '주소 변경은 어떻게 하나요?',
+        a: '마이페이지에서 변경 가능합니다.',
         member: true,
     },
 ];
 
-export default function Notice() {
-    // 여러 토글 동시 오픈
+export default function Faq() {
     const [openList, setOpenList] = useState([]);
     const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3;
 
+    // 필터링된 FAQ 목록
     const filteredFaqs = faqData
         .map((item, idx) => ({ ...item, idx }))
         .filter(faq => faq.q.toLowerCase().includes(search.toLowerCase()));
+
+    const totalPages = Math.ceil(filteredFaqs.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentFaqs = filteredFaqs.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleToggle = idx => {
         setOpenList(list =>
             list.includes(idx) ? list.filter(i => i !== idx) : [...list, idx]
         );
+    };
+
+    const handleClickPage = pageNum => {
+        setCurrentPage(pageNum);
+    };
+
+    const handlePrev = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
+
+    const handleNext = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
     };
 
     return (
@@ -52,7 +78,7 @@ export default function Notice() {
                 </p>
                 <div className="nav">
                     <a href="faq.do" className="active">FAQ</a>
-                    <a href="inquiryList.do">1:1문의</a>
+                    <a href="inquiry.do">1:1문의</a>
                     <a href="notice.do">공지사항</a>
                 </div>
             </div>
@@ -65,7 +91,10 @@ export default function Notice() {
                             type="text"
                             placeholder="검색어를 입력해주세요."
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            onChange={e => {
+                                setSearch(e.target.value);
+                                setCurrentPage(1); // 검색 시 1페이지로 초기화
+                            }}
                         />
                         <button className="search-btn" aria-label="검색">
                             <img src="./img/search2.png" alt="검색" />
@@ -73,7 +102,7 @@ export default function Notice() {
                     </div>
                 </div>
                 <ul className="board-list">
-                    {filteredFaqs.map((faq, idx) => {
+                    {currentFaqs.map(faq => {
                         const isOpen = openList.includes(faq.idx);
                         return (
                             <li
@@ -85,12 +114,9 @@ export default function Notice() {
                                     <span className="faq-icon q">Q</span>
                                     <span className="faq-badge">[회원]</span>
                                     <span className="faq-question">{faq.q}</span>
-                                    <span
-                                        className={`faq-arrow${isOpen ? ' open' : ''}`}
-                                        aria-label="화살표"
-                                    >
-                    ▼
-                  </span>
+                                    <span className={`faq-arrow${isOpen ? ' open' : ''}`}>
+                                        ▼
+                                    </span>
                                 </div>
                                 {isOpen && faq.a && (
                                     <div className="faq-a">
@@ -103,20 +129,21 @@ export default function Notice() {
                     })}
                 </ul>
                 <div className="pagination">
-                    <button className="prev" disabled>
+                    <button className="prev" onClick={handlePrev} disabled={currentPage === 1}>
                         &lt;
                     </button>
-                    <span className="active">1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                    <span>5</span>
-                    <span>6</span>
-                    <span>7</span>
-                    <span>8</span>
-                    <span>9</span>
-                    <span>10</span>
-                    <button className="next">&gt;</button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+                        <span
+                            key={num}
+                            className={num === currentPage ? 'active' : ''}
+                            onClick={() => handleClickPage(num)}
+                        >
+                            {num}
+                        </span>
+                    ))}
+                    <button className="next" onClick={handleNext} disabled={currentPage === totalPages}>
+                        &gt;
+                    </button>
                 </div>
             </div>
         </div>

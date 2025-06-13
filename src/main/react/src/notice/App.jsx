@@ -9,11 +9,11 @@ export default function Notice() {
           <div className="head">
               <h1>고객센터</h1>
               <p>
-                  BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!
+                  BidCast에 대해 궁금하신 점이 있다면<br/>무엇이든 물어보세요!
               </p>
               <div className="nav">
-                  <a href="faq.do" className="faq">FAQ  </a>
-                  <a href="inquiryList.do">1:1문의</a>
+                  <a href="faq.do" className="faq">FAQ</a>
+                  <a href="inquiry.do">1:1문의</a>
                   <a href="notice.do" className="active">
                       공지사항
                   </a>
@@ -31,7 +31,7 @@ export default function Notice() {
 
               </div>
               <ul className="board-list">
-                  <a href="#">
+                  <a href="noticeDetail.do">
                   <li>
                       <div className="num">1</div>
                       <div className="title">
