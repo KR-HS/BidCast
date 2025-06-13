@@ -13,7 +13,7 @@
 }
 
 .auction-end-button {
-    padding: 0px 18px;
+    padding: 0 18px;
     background-color: red;
     color: #fff;
     border: none;
@@ -42,7 +42,7 @@
 .auction-details > div {
     margin-bottom: 4px;
     font-size: 14px;
-    color: #666;
+    color: #666666;
 }
 
 .auction-table {
