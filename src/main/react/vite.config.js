@@ -15,6 +15,11 @@ export default defineConfig({
       input: {
         bid: path.resolve(__dirname, 'src/bid/bid.jsx'),
         home: path.resolve(__dirname, 'src/home/home.jsx'),
+        notice: path.resolve(__dirname, 'src/notice/notice.jsx'),
+        noticeDetail: path.resolve(__dirname, 'src/notice_detail/noticeDetail.jsx'),
+        faq: path.resolve(__dirname, 'src/faq/faq.jsx'),
+        inquiry: path.resolve(__dirname, 'src/inquiry/inquiry.jsx'),
+        inquiryList: path.resolve(__dirname, 'src/inquiryList/inquiryList.jsx'),
         join: path.resolve(__dirname, 'src/auth/join/join.jsx'),
         login: path.resolve(__dirname, 'src/auth/login/login.jsx'),
         searchId: path.resolve(__dirname, 'src/auth/search_id/searchId.jsx'),
