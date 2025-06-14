@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './inquiryList.css';
+import Loader from "../Loader/Loader";
 
 const inquiryData = [
     { id: 1, title: '경매 입찰 방법이 궁금합니다', status: '답변완료', date: '2025-06-01' },
@@ -16,6 +17,26 @@ const inquiryData = [
 ];
 
 export default function InquiryList() {
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
+            }
+
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -41,6 +62,11 @@ export default function InquiryList() {
         if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
     };
 
+    if (isLoading) {
+        return (
+            <Loader/>
+        );
+    }
     return (
         <div className="box">
             <div className="head">

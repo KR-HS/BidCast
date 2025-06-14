@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './faq.css';
+import Loader from "../Loader/Loader";
 
 const faqData = [
     {
@@ -35,6 +36,26 @@ const faqData = [
 ];
 
 export default function Faq() {
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
+            }
+
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     const [openList, setOpenList] = useState([]);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +89,11 @@ export default function Faq() {
         if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
     };
 
+    if (isLoading) {
+        return (
+            <Loader/>
+        );
+    }
     return (
         <div className="box">
             <div className="head">

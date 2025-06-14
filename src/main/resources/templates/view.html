@@ -10,46 +10,52 @@
     <link rel="stylesheet" href="/css/common.css">
 </head>
 <body>
-<header>
-    <div class="header-left">
-        <div class="logo">
-            <a href="home.do"><img src="/img/BidLogo.png" alt="Logo"></a>
+
+<div id="loader" class="loader">
+</div>
+
+
+<div id="view-wrapper" style="display:flex; flex-direction:column; min-height:100vh;">
+    <header>
+        <div class="header-left">
+            <div class="logo">
+                <a href="home.do"><img src="/img/BidLogo.png" alt="Logo"></a>
+            </div>
+
+            <ul class="menuList">
+                <li><a href="introduce.do">소개</a></li>
+                <li><a href="bid.do">경매</a></li>
+                <li><a href="notice.do">고객센터</a></li>
+            </ul>
         </div>
-
-        <ul class="menuList">
-            <li><a href="introduce.do">소개</a></li>
-            <li><a href="bid.do">경매</a></li>
-            <li><a href="notice.do">고객센터</a></li>
-        </ul>
-    </div>
-    <div class="header-right">
-        <div class="searchWrap">
-            <input type="text" class="searchInput">
-            <a href='#' class="searchIcon">
-                <img src="/img/searchIcon.png" alt="검색">
-            </a>
+        <div class="header-right">
+            <div class="searchWrap">
+                <input type="text" class="searchInput">
+                <a href='#' class="searchIcon">
+                    <img src="/img/searchIcon.png" alt="검색">
+                </a>
+            </div>
+            <a href="#" class="alarm"><img src="/img/alarmIcon.png" alt="알람"></a>
+            <a href="notice.do" class="announce"><img src="/img/announceIcon.png" alt="공지사항"></a>
         </div>
-        <a href="#" class="alarm"><img src="/img/alarmIcon.png" alt="알람"></a>
-        <a href="notice.do" class="announce"><img src="/img/announceIcon.png" alt="공지사항"></a>
-    </div>
-</header>
+    </header>
 
-<div id="root"></div>
+    <div id="root"></div>
 
-<footer>
-    <div class="line"></div>
-    <p class="company">BIDCAST</p>
-    <p class="company-detail">
-        (주)우겅넴 | 대표: 김현수 | 주소: 서울특별시 강남구 테헤란로7길 7 에스코빌딩 5층<br>
-        MAIL:abcd1234@gmail.com<br>
-        대표번호:1511-1234<br>
-        사업자번호:123-45-67890 | 통신판매업신고: 제2025-서울강남구-1234호<br>
-        Copyright @2025-2025 Woogeungnem, Inc. All rights reserved<br>
-        네이버 블로그 유튜브 인스타그램 페이스북
-    </p>
-    <div class="line"></div>
-</footer>
-
+    <footer>
+        <div class="line"></div>
+        <p class="company">BIDCAST</p>
+        <p class="company-detail">
+            (주)우겅넴 | 대표: 김현수 | 주소: 서울특별시 강남구 테헤란로7길 7 에스코빌딩 5층<br>
+            MAIL:abcd1234@gmail.com<br>
+            대표번호:1511-1234<br>
+            사업자번호:123-45-67890 | 통신판매업신고: 제2025-서울강남구-1234호<br>
+            Copyright @2025-2025 Woogeungnem, Inc. All rights reserved<br>
+            네이버 블로그 유튜브 인스타그램 페이스북
+        </p>
+        <div class="line"></div>
+    </footer>
+</div>
 <script type="module" th:src="@{'/bundle/js/' + ${pageName} + '.bundle.js'}"></script>
 
 </body>

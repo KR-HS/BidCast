@@ -16,6 +16,14 @@ input:focus {
     box-shadow: none;
 }
 
+#view-wrapper{
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+}
+
+
+
 /*---------------------*/
 /*상단부 메뉴바*/
 header{
@@ -24,7 +32,6 @@ header{
     display:flex;
     box-sizing:border-box;
     justify-content: center;
-    margin-bottom:20px;
     gap:320px;
 }
 
@@ -116,13 +123,42 @@ header>.header-right>.alarm>img,header>.header-right>.announce>img{
 /*---------------------------------*/
 /* 내용 부분*/
 #root{
+    flex:1;
+    min-height:600px;
     width:100%;
     margin:0 auto;
     /*border:1px solid black;*/
     padding:10px;
     box-sizing:border-box;
 }
+#loader{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
 
+#loader.fade-loader {
+    transition: opacity 2s ease, transform 2s ease;
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 로딩 영역 높이 지정 */
+}
+
+#loader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px); /* 위로 살짝 올라가며 사라지게 */
+}
 /*--------------------------------*/
 /*하단부 footer*/
 footer{

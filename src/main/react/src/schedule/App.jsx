@@ -1,9 +1,31 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Calendar from "./calendar";
+import Loader from "../Loader/Loader";
 
 const today = new Date();
 
 export default function App() {
+
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
+            }
+
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     const [selectedDate, setSelectedDate] = useState(today);
 
     const formatDate = (date) =>
@@ -16,6 +38,13 @@ export default function App() {
             date.getFullYear() === today.getFullYear()
         );
     };
+
+    if (isLoading) {
+        return (
+            <Loader/>
+        );
+    }
+
     return (
         <section>
             <div className="calender">

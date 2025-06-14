@@ -3,11 +3,37 @@ import React, {useEffect, useState, useRef} from 'react'
 import io from 'socket.io-client'
 import {Device} from 'mediasoup-client'
 import VideoGrid from './VideoGrid'
+import Loader from "../Loader/Loader";
 
 
 export default function App() {
+
+    const [bidItems, setBidItems] = useState({}); // key:item , value:{currentBidAmount,finalUserId}
+
+    const [msg, setMsg] = useState("");
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
+            }
+
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
+
+
     // peers 상태: { self: MediaStream(내화면), producerId: MediaStream(상대화면) ... }
-    const [peers, setPeers] = useState({}) // producerId > MediaStream
+    const [peers, setPeers] = useState({}) // { socketId: { video: producerId, audio: producerId, stream: MediaStream } }
     // 스트리밍 상태(중단, 송출)
     const [isStreaming, setIsStreaming] = useState(false)
     // 호스트 식별자
@@ -56,8 +82,9 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
         setUserId(params.get("userId"));
-        console.log("룸아이디, 유저아이디 설정됨",roomId,userId)
+        console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
     }, []);
+
 
     useEffect(() => {
         if (!roomId || !userId) return;
@@ -82,7 +109,7 @@ export default function App() {
             console.log("호스트소켓아이디" + hostSocketId);
         })
 
-        socket.current.on('host-available', ({ auctionId, hostSocketId }) => {
+        socket.current.on('host-available', ({auctionId, hostSocketId}) => {
             setHostId(hostSocketId);
             console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
         });
@@ -133,7 +160,7 @@ export default function App() {
                                 // console.log('myProducerIds entries:', Array.from(myProducerIds.current));
                                 setSocketIdToProducerId(prev => {
                                     const existing = prev[socket.current.id] || {}
-                                    console.log("이미 가지고 있는 것들",existing)
+                                    console.log("이미 가지고 있는 것들", existing)
                                     return {
                                         ...prev,
                                         [socket.current.id]: {
@@ -142,7 +169,7 @@ export default function App() {
                                         }
                                     };
                                 });
-                                console.log("프로듀서아이디들",socketIdToProducerId)
+                                console.log("프로듀서아이디들", socketIdToProducerId)
                                 callback({id})
                             })
                         })
@@ -164,16 +191,19 @@ export default function App() {
                         })
 
                         // 기존에 존재하는 producer 리스트 요청
-                        socket.current.emit('get-existing-producers', {roomId: roomId}, ({existingProducers,hostSocketId}) => {
-                            console.log("프로듀서 리스트 받아옴",existingProducers);
-                            console.log("호스트아이디도 받아옴",hostSocketId);
+                        socket.current.emit('get-existing-producers', {roomId: roomId}, ({
+                                                                                             existingProducers,
+                                                                                             hostSocketId
+                                                                                         }) => {
+                            console.log("프로듀서 리스트 받아옴", existingProducers);
+                            console.log("호스트아이디도 받아옴", hostSocketId);
                             // setHostId(hostSocketId);
                             existingProducers
                                 .filter(({producerId}) => !myProducerIds.current.has(producerId))
                                 .forEach(({socketId, producerId, kind}) => {
                                     setSocketIdToProducerId(prev => {
                                         const existing = prev[socketId] || {}
-                                        console.log("이미 존재!!!!",existing)
+                                        console.log("이미 존재!!!!", existing)
                                         return {
                                             ...prev,
                                             [socketId]: {
@@ -182,11 +212,11 @@ export default function App() {
                                             }
                                         }
                                     })
-                                    console.log("11111111",socketIdToProducerId[socketId])
+                                    console.log("11111111", socketIdToProducerId[socketId])
                                     consume(producerId, socketId);
                                 });
 
-                            console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!",socketIdToProducerId);
+                            console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!", socketIdToProducerId);
                         });
                     })
                 })
@@ -228,7 +258,7 @@ export default function App() {
                     // 2. peers 상태에서 해당 producerId의 비디오 스트림 삭제
                     setPeers(prev => {
                         const updated = {...prev}
-                        delete updated[producerId]
+                        delete updated[socketId]
                         return updated
                     })
 
@@ -326,10 +356,22 @@ export default function App() {
                     // peers 상태에 새 스트림 추가, producerId가 key
                     // console.log("consume 호출, 추가전 peers:", peers);
 
-                    setPeers(prev => ({
-                        ...prev,
-                        [producerId]: stream
-                    }));
+                    // setPeers(prev => ({
+                    //     ...prev,
+                    //     [producerId]: stream
+                    // }));
+
+                    setPeers(prev => {
+                        const existing = prev[socketId] || {};
+                        return {
+                            ...prev,
+                            [socketId]: {
+                                ...existing,
+                                [kind]: producerId,  // kind가 'video'/'audio'로 자동 할당
+                                stream
+                            }
+                        };
+                    });
 
                     // console.log("consume 호출, setPeers 호출 후 peers:", peers);
 
@@ -370,7 +412,7 @@ export default function App() {
                 }
 
                 if (roomId) {
-                    socket.current.emit('close-producer', { roomId:roomIdRef.current });
+                    socket.current.emit('close-producer', {roomId: roomIdRef.current});
                 } else {
                     console.warn('roomId is undefined, skipping close-producer emit');
                 }
@@ -382,7 +424,7 @@ export default function App() {
 
             if (socket.current) socket.current.disconnect()
         }
-    }, [roomId,userId])
+    }, [roomId, userId])
 
 
     // socketIdToProducerIdRef 상태 동기화
@@ -393,8 +435,11 @@ export default function App() {
 
     // 🔘 방송 시작/중단 토글 함수
     const toggleStreaming = async () => {
+
+        event.target.classList.toggle('active');
         // 조건을 만족하지 않으면 함수 중단
         if (!sendTransport.current) return
+
 
         // 스트리밍상태(방송중)가 아니라면
         if (!isStreaming) {
@@ -427,6 +472,22 @@ export default function App() {
                             }
                         };
                     });
+
+                    // 비디오 트랙만 담은 MediaStream 생성 후 peers에 추가
+                    const videoStream = new MediaStream();
+                    videoStream.addTrack(videoTrack);
+                    // setPeers(prev => ({
+                    //     ...prev,
+                    //     [videoProducer.current.id]: videoStream
+                    // }));
+                    setPeers(prev => ({
+                        ...prev,
+                        [socket.current.id]: {
+                            ...prev[socket.current.id],
+                            video: videoProducer.current.id,
+                            stream: localStream.current
+                        }
+                    }));
                 }
 
                 if (audioTrack) {
@@ -442,21 +503,34 @@ export default function App() {
                             }
                         };
                     });
+
+                    // 오디오 트랙만 담은 MediaStream 생성 후 peers에 추가
+                    const audioStream = new MediaStream();
+                    audioStream.addTrack(audioTrack);
+                    // setPeers(prev => ({ ...prev, [audioProducer.current.id]: audioStream }));
+                    setPeers(prev => ({
+                        ...prev,
+                        [socket.current.id]: {
+                            ...prev[socket.current.id],
+                            audio: audioProducer.current.id,
+                            stream: localStream.current
+                        }
+                    }));
                 }
 
 
-                console.log("내 프로듀서 아이디" + videoProducer.current.id)
-                console.log("호스트 아이디" + hostId)
-                console.log("호스트 프로듀서 아이디" + socketIdToProducerId[hostId])
-                console.log("내 아이디" + userId)
-                console.log("내 프로듀서 아이디" + socketIdToProducerId[mySocketId])
-                setPeers(prev => ({...prev, [videoProducer.current.id]: localStream.current}))
+                // console.log("내 프로듀서 아이디" ,videoProducer.current.id)
+                // console.log("호스트 아이디" ,hostId)
+                // console.log("내 오디오 프로듀서 아이디",audioProducer.current.id)
+                // console.log("호스트 프로듀서 아이디 (객체):", socketIdToProducerId[hostId]);
+                // console.log("호스트 비디오 프로듀서 아이디:", socketIdToProducerId[hostId]?.video);
+                // console.log("호스트 오디오 프로듀서 아이디:", socketIdToProducerId[hostId]?.audio);
+                // console.log("내 아이디" ,userId)
+                // setPeers(prev => ({...prev, [videoProducer.current.id]: localStream.current}))
 
                 // 현재 스트리밍상태 설정
                 setIsStreaming(true)
 
-                const hostProducerId = hostId && socketIdToProducerId[hostId]?.video ? socketIdToProducerId[hostId].video : null;
-                const myProducerId = mySocketId && socketIdToProducerId[mySocketId]?.video ? socketIdToProducerId[mySocketId].video : null;
 
             } catch (err) {
                 console.error('Error starting stream:', err)
@@ -465,7 +539,7 @@ export default function App() {
         // 스트리밍상태 아니라면
         else {
             // 방송 중단
-            const videoProducerId = videoProducer.current?.id;
+            const socketId = socket.current?.id;
 
 
             if (videoProducer.current) {
@@ -502,15 +576,15 @@ export default function App() {
             // videoProducerId가 null이 아니라면 peers 상태에서 내 화면 제거
             setPeers(prev => {
                 const updated = {...prev};
-                if (videoProducerId) {
-                    delete updated[videoProducerId];
+                if (socketId) {
+                    delete updated[socketId];
                 }
                 return updated;
             });
 
             setIsStreaming(false)
             if (roomId) {
-                socket.current.emit('close-producer', { roomId });
+                socket.current.emit('close-producer', {roomId});
             } else {
                 console.warn('roomId is undefined, skipping close-producer emit');
             }
@@ -519,23 +593,164 @@ export default function App() {
 
     const isHost = mySocketId === hostId
 
+    const handleSend = () =>{
+        alert(msg);
+
+        setMsg("");
+    }
+
+    if (isLoading) {
+        return (
+            <Loader/>
+        );
+    }
 
     return (
+        <>
         <div className="contentWrap">
             <div className="videoContent">
+                {/*<button onClick={toggleStreaming} className="streaming-btn">*/}
+                {/*    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}*/}
+                {/*</button>*/}
                 <div className="titleWrap">
                     <p className="title">매물명:{"루이암스트롱"}</p>
                     <p className="price">현재최고가:{"100,000"}원</p>
                 </div>
-                <button onClick={toggleStreaming} className="streaming-btn">
-                    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
-                </button>
-                <VideoGrid peers={peers} hostId={socketIdToProducerId[hostId]?.video}
-                           myId={socketIdToProducerId[mySocketId]?.video}/>
+                <VideoGrid peers={peers}
+                           hostSocketId={hostId}
+                           mySocketId={mySocketId}
+                >
+                    <div onClick={toggleStreaming} className="streaming-btn">
+                        {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
+                    </div>
+                </VideoGrid>
+                <div className="video-bottom-wrap">
+                    <p className="auctionTitle">경매제목</p>
+                    <div className="bid-button-wrap">
+                        <div className="bid-button">
+                            <span className="bid-button-content">입찰 </span>
+                            <span className="bidAmount">{101000}원</span>
+                        </div>
+
+                        <div className="complete-bidItem-list">
+                            <img src="/img/menubar.png" alt="메뉴바"/>
+                            <span>낙찰상품</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="countTagWrap">
+                    <p className="guestCount">{Object.keys(peers).length}명 시청중</p>
+                    <div className="tagWrap">
+                        {() => ( // 태그리스트받기
+                            <span className="tag">태그1</span>
+                        )}
+                        <span className="tag">태그2</span>
+                        <span className="tag">태그3</span>
+                    </div>
+                </div>
             </div>
             <div className="chatWrap">
+                <div className="chatList-wrap">
+                    <p className="chatTitle">실시간 채팅</p>
+                    <div className="lineMaker"></div>
+                    <div className="userChatList" >
+                        <table >
+                            <tr className="userChat">
+                                <td className="userName">김형섭</td>
+                                <td className="chatContent">와 진짜 비싸네</td>
+                            </tr>
+                            <tr className="userChat">
+                                <td className="userName">dsddf1123ff</td>
+                                <td className="chatContent">와 진짜 비싸네</td>
+                            </tr>
+                            <tr className="userChat">
+                                <td className="userName">qqqe23</td>
+                                <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
+                            </tr>
 
+                            <tr className="userChat">
+                                <td className="userName">qqqe23</td>
+                                <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div className="message-Wrap">
+                    {/*<span className="userName">hs8316</span>*/}
+                    {/*<span className="inputSplit"></span>*/}
+                    <input type="text"
+                           placeholder="채팅을 입력해주세요"
+                           className="message"
+                           value={msg} onChange={e => setMsg(e.target.value)}
+                           onKeyDown={e => {
+                               if (e.key === "Enter" && msg !== "") {
+                                   handleSend();
+                               }
+                           }}
+                    />
+                    <button type="button"
+                            className={`chatBtn${msg !== "" ? " send" : ""}`}
+                            disabled={msg === ""}
+                            onClick={handleSend}
+                    >채팅</button>
+                </div>
             </div>
         </div>
+
+        <div className="other-auctions-wrapper">
+            <p className="guideWording">다른 경매</p>
+            <div className="other-auctions">
+                <div className="other-auction">
+                    <div className="other-video"></div>
+                    <p>다른 경매 회차</p>
+                    <ul>
+                        <li>태그1</li>
+                        <li>태그2</li>
+                        <li>태그33</li>
+                    </ul>
+                </div>
+
+                <div className="other-auction">
+                    <div className="other-video"></div>
+                    <p className="other-video-title">다른 경매 회차</p>
+                    <ul>
+                        <li>태그1</li>
+                        <li>태그2</li>
+                        <li>태그33</li>
+                    </ul>
+                </div>
+                <div className="other-auction">
+                    <div className="other-video"></div>
+                    <p className="other-video-title">다른 경매 회차</p>
+                    <ul>
+                        <li>태그1</li>
+                        <li>태그2</li>
+                        <li>태그33</li>
+                    </ul>
+                </div>
+
+                <div className="other-auction">
+                    <div className="other-video"></div>
+                    <p className="other-video-title">다른 경매 회차</p>
+                    <ul>
+                        <li>태그1</li>
+                        <li>태그2</li>
+                        <li>태그33</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </>
     )
 }

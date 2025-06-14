@@ -1,5 +1,6 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import './myPage.css'
+import Loader from "../Loader/Loader";
 
 
 const items = [
@@ -9,12 +10,37 @@ const items = [
 ];
 
 export default function myPage() {
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
+            }
+
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     const [activeTab, setActiveTab] = useState('경매이력');
 
     const handleCardClick = (id) => {
         window.location.href = `/auctionDetail.do?id=${items.id}`;
     };
 
+    if (isLoading) {
+        return (
+            <Loader/>
+        );
+    }
     return (
         <div className="my-page-container">
             <div className="header">
