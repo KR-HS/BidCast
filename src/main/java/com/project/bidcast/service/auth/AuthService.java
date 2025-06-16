@@ -7,5 +7,5 @@ import java.util.Map;
 public interface AuthService {
 
     void createUser(Map<String, String> userInfo);
-//    UsersDTO getUserByLoginId(String loginId, String pw);
+    UsersDTO getUserByLoginId(String loginId, String pw);
 }

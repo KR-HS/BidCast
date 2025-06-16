@@ -7,6 +7,12 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
     const subVideosRef = useRef(); // 서브 비디오들을 감싸는 div 참조
 
 
+    useEffect(() => {
+        console.log('Current peers:', peers);
+        console.log(peers[hostSocketId]);
+        console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
+    }, [peers]);
+
     // 메인스트림(호스트 소켓)  설정
     useEffect(() => {
         if (!hostSocketId) return;
@@ -19,16 +25,15 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
         if (hostHasVideo && mainStreamId !== hostSocketId) {
             setMainStreamId(hostSocketId);
         }
-
         // 호스트 영상이 중단되었으면 메인화면 제거
-        if (!hostHasVideo && mainStreamId === hostSocketId) {
+        else if (!hostHasVideo && mainStreamId === hostSocketId) {
             setMainStreamId(null);
         }
 
         // 항상 메인화면을 호스트로 고정
         // setMainStreamId(hostVideoId);
 
-    }, [peers, hostSocketId, mainStreamId]);
+    }, [peers, hostSocketId]);
 
 
     // 서브 화면 클릭시 메인화면과 교체
@@ -150,6 +155,13 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
     const [isSpeaking, setIsSpeaking] = useState(false);
 
     useEffect(() => {
+        const videoEl = videoRef.current;
+        if (videoEl && stream) {
+            videoEl.srcObject = stream;
+        }
+    }, [stream]);
+
+    useEffect(() => {
         if (muted) {
             setIsSpeaking(false);
         }
@@ -164,12 +176,17 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
 
 
     useEffect(() => {
+        console.log(`Video ${id} stream changed`, stream, videoRef.current);
         const videoEl = videoRef.current;
         if (!videoEl) return;
-
         if (stream) {
             videoEl.srcObject = stream;
-            videoEl.play().catch(e => console.warn('video play error:', e));
+
+            videoEl.play().catch(e => {
+                if (e.name !== 'AbortError') {
+                    console.warn('video play error:', e);
+                }
+            });
 
             // 오디오 분석 초기화 (마이크나 오디오가 없는 경우 대비)
             if (!audioContextRef.current) {
@@ -224,6 +241,9 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
             if (analyserRef.current) {
                 analyserRef.current.disconnect();
                 analyserRef.current = null;
+            }
+            if (videoEl) {
+                videoEl.srcObject = null;
             }
         };
 

@@ -46,28 +46,28 @@ public class AuthController {
         }
     }
 
-//    //로그인
-//    @CrossOrigin("*")
-//    @PostMapping("/login")
-//    public ResponseEntity<Map<String, String>> login(@RequestParam("id") String id,
-//                                                     @RequestParam("pw") String pw,
-//                                                     HttpSession session) {
-//
-//        if (!id.isBlank() && !pw.isBlank()) {
-//            if(authService.getUserByLoginId(id, pw) == null) {
-//                return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
-//            }else {
-////                String token = jwtConfig.createToken(id);
-////                HashMap<String, String> map = new HashMap<>();
-////                map.put("token", token);
-////                map.put("id", id);
-//                session.setAttribute("id", id);
-//
-//                return new ResponseEntity<>(HttpStatus.OK);
-//            }
-//        }
-//        return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
-//    }
+    //로그인
+    @CrossOrigin("*")
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestParam("id") String id,
+                                                     @RequestParam("pw") String pw,
+                                                     HttpSession session) {
+
+        if (!id.isBlank() && !pw.isBlank()) {
+            if(authService.getUserByLoginId(id, pw) == null) {
+                return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
+            }else {
+//                String token = jwtConfig.createToken(id);
+//                HashMap<String, String> map = new HashMap<>();
+//                map.put("token", token);
+//                map.put("id", id);
+                session.setAttribute("id", id);
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(Map.of("msg", "아이디 비밀번호를 확인하세요"), HttpStatus.UNAUTHORIZED);
+    }
 
     //네이버로그인
     @CrossOrigin("*")

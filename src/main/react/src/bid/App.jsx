@@ -191,33 +191,30 @@ export default function App() {
                         })
 
                         // 기존에 존재하는 producer 리스트 요청
-                        socket.current.emit('get-existing-producers', {roomId: roomId}, ({
-                                                                                             existingProducers,
-                                                                                             hostSocketId
-                                                                                         }) => {
-                            console.log("프로듀서 리스트 받아옴", existingProducers);
-                            console.log("호스트아이디도 받아옴", hostSocketId);
-                            // setHostId(hostSocketId);
-                            existingProducers
-                                .filter(({producerId}) => !myProducerIds.current.has(producerId))
-                                .forEach(({socketId, producerId, kind}) => {
-                                    setSocketIdToProducerId(prev => {
-                                        const existing = prev[socketId] || {}
-                                        console.log("이미 존재!!!!", existing)
-                                        return {
-                                            ...prev,
-                                            [socketId]: {
-                                                ...existing,
-                                                [kind]: producerId
+                        socket.current.emit('get-existing-producers', {roomId: roomId},
+                            ({existingProducers, hostSocketId}) => {
+                                console.log("프로듀서 리스트 받아옴", existingProducers);
+                                console.log("호스트아이디도 받아옴", hostSocketId);
+                                // setHostId(hostSocketId);
+                                existingProducers
+                                    .filter(({producerId}) => !myProducerIds.current.has(producerId))
+                                    .forEach(({socketId, producerId, kind}) => {
+                                        setSocketIdToProducerId(prev => {
+                                            const existing = prev[socketId] || {}
+                                            return {
+                                                ...prev,
+                                                [socketId]: {
+                                                    ...existing,
+                                                    [kind]: producerId
+                                                }
                                             }
-                                        }
-                                    })
-                                    console.log("11111111", socketIdToProducerId[socketId])
-                                    consume(producerId, socketId);
-                                });
+                                        })
+                                        console.log("consuming producer", producerId, "from", socketId);
+                                        consume(producerId, socketId);
+                                    });
 
-                            console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!", socketIdToProducerId);
-                        });
+                                console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!", socketIdToProducerId);
+                            });
                     })
                 })
 
@@ -240,9 +237,6 @@ export default function App() {
                     console.log('New producer from other:', producerId)
                     consume(producerId, remoteSocketId)
 
-
-                    console.log("hostId:" + hostId)
-                    console.log(socketIdToProducerId)
                 })
 
                 // 상대 유저가 연결을 끊었을 때 처리
@@ -352,23 +346,24 @@ export default function App() {
                     //   console.log('🔊 enabled:', track.enabled);
                     // });
 
-
-                    // peers 상태에 새 스트림 추가, producerId가 key
-                    // console.log("consume 호출, 추가전 peers:", peers);
-
-                    // setPeers(prev => ({
-                    //     ...prev,
-                    //     [producerId]: stream
-                    // }));
-
+                    // ✅ 기존 peers에서 stream 재활용 (없으면 새로 생성)
                     setPeers(prev => {
-                        const existing = prev[socketId] || {};
+                        const existingPeer = prev[socketId] || {};
+                        const existingStream = existingPeer.stream || new MediaStream();
+
+                        // ✅ 중복 트랙 방지 후 추가
+                        const track = consumer.track;
+                        const trackAlreadyExists = existingStream.getTracks().some(t => t.id === track.id);
+                        if (!trackAlreadyExists) {
+                            existingStream.addTrack(track);
+                        }
+
                         return {
                             ...prev,
                             [socketId]: {
-                                ...existing,
-                                [kind]: producerId,  // kind가 'video'/'audio'로 자동 할당
-                                stream
+                                ...existingPeer,
+                                [kind]: producerId,
+                                stream: existingStream,
                             }
                         };
                     });
@@ -446,90 +441,47 @@ export default function App() {
             try {
 
                 // 🎯 localStream이 비어 있다면 새로 미디어 요청
-                console.log(localStream.current);
                 if (!localStream.current) {
-                    localStream.current = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                    localStream.current = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
                 }
-                // 가장 처음에 있는 track = 내 트랙
-                const videoTrack = localStream.current.getVideoTracks()[0]
-                const audioTrack = localStream.current.getAudioTracks()[0]
+                const videoTrack = localStream.current.getVideoTracks()[0];
+                const audioTrack = localStream.current.getAudioTracks()[0];
 
-
-                // 비디오 트랙이 있다면
+                // 비디오와 오디오 producer 등록
                 if (videoTrack) {
-                    // mediasoup에서 실제 미디어 송출을 시작하는 함수를 실행
-                    videoProducer.current = await sendTransport.current.produce({track: videoTrack})
-
-                    // myProducerIds는 새로운 유저가 들어올때 내 화면인지 판단하기 위해 사용
-                    myProducerIds.current.add(videoProducer.current.id)
-                    setSocketIdToProducerId(prev => {
-                        const existing = prev[socket.current.id] || {};
-                        return {
-                            ...prev,
-                            [socket.current.id]: {
-                                ...existing,
-                                video: videoProducer.current.id
-                            }
-                        };
-                    });
-
-                    // 비디오 트랙만 담은 MediaStream 생성 후 peers에 추가
-                    const videoStream = new MediaStream();
-                    videoStream.addTrack(videoTrack);
-                    // setPeers(prev => ({
-                    //     ...prev,
-                    //     [videoProducer.current.id]: videoStream
-                    // }));
-                    setPeers(prev => ({
-                        ...prev,
-                        [socket.current.id]: {
-                            ...prev[socket.current.id],
-                            video: videoProducer.current.id,
-                            stream: localStream.current
-                        }
-                    }));
+                    videoProducer.current = await sendTransport.current.produce({track: videoTrack});
+                    myProducerIds.current.add(videoProducer.current.id);
                 }
 
                 if (audioTrack) {
-                    audioProducer.current = await sendTransport.current.produce({track: audioTrack})
-                    myProducerIds.current.add(audioProducer.current.id)
-                    setSocketIdToProducerId(prev => {
-                        const existing = prev[socket.current.id] || {};
-                        return {
-                            ...prev,
-                            [socket.current.id]: {
-                                ...existing,
-                                audio: audioProducer.current.id
-                            }
-                        };
-                    });
-
-                    // 오디오 트랙만 담은 MediaStream 생성 후 peers에 추가
-                    const audioStream = new MediaStream();
-                    audioStream.addTrack(audioTrack);
-                    // setPeers(prev => ({ ...prev, [audioProducer.current.id]: audioStream }));
-                    setPeers(prev => ({
-                        ...prev,
-                        [socket.current.id]: {
-                            ...prev[socket.current.id],
-                            audio: audioProducer.current.id,
-                            stream: localStream.current
-                        }
-                    }));
+                    audioProducer.current = await sendTransport.current.produce({track: audioTrack});
+                    myProducerIds.current.add(audioProducer.current.id);
                 }
 
+                // 소켓 ID 기준으로 producerId 매핑 및 peers 등록
+                setSocketIdToProducerId(prev => {
+                    const existing = prev[socket.current.id] || {};
+                    return {
+                        ...prev,
+                        [socket.current.id]: {
+                            ...existing,
+                            video: videoProducer.current?.id,
+                            audio: audioProducer.current?.id,
+                        }
+                    };
+                });
 
-                // console.log("내 프로듀서 아이디" ,videoProducer.current.id)
-                // console.log("호스트 아이디" ,hostId)
-                // console.log("내 오디오 프로듀서 아이디",audioProducer.current.id)
-                // console.log("호스트 프로듀서 아이디 (객체):", socketIdToProducerId[hostId]);
-                // console.log("호스트 비디오 프로듀서 아이디:", socketIdToProducerId[hostId]?.video);
-                // console.log("호스트 오디오 프로듀서 아이디:", socketIdToProducerId[hostId]?.audio);
-                // console.log("내 아이디" ,userId)
-                // setPeers(prev => ({...prev, [videoProducer.current.id]: localStream.current}))
+                setPeers(prev => ({
+                    ...prev,
+                    [socket.current.id]: {
+                        ...prev[socket.current.id],
+                        video: videoProducer.current?.id,
+                        audio: audioProducer.current?.id,
+                        stream: localStream.current
+                    }
+                }));
 
-                // 현재 스트리밍상태 설정
-                setIsStreaming(true)
+                setIsStreaming(true);
 
 
             } catch (err) {
@@ -593,7 +545,7 @@ export default function App() {
 
     const isHost = mySocketId === hostId
 
-    const handleSend = () =>{
+    const handleSend = () => {
         alert(msg);
 
         setMsg("");
@@ -607,150 +559,152 @@ export default function App() {
 
     return (
         <>
-        <div className="contentWrap">
-            <div className="videoContent">
-                {/*<button onClick={toggleStreaming} className="streaming-btn">*/}
-                {/*    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}*/}
-                {/*</button>*/}
-                <div className="titleWrap">
-                    <p className="title">매물명:{"루이암스트롱"}</p>
-                    <p className="price">현재최고가:{"100,000"}원</p>
-                </div>
-                <VideoGrid peers={peers}
-                           hostSocketId={hostId}
-                           mySocketId={mySocketId}
-                >
-                    <div onClick={toggleStreaming} className="streaming-btn">
-                        {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
+            <div className="contentWrap">
+                <div className="videoContent">
+                    {/*<button onClick={toggleStreaming} className="streaming-btn">*/}
+                    {/*    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}*/}
+                    {/*</button>*/}
+                    <div className="titleWrap">
+                        <p className="title">매물명:{"루이암스트롱"}</p>
+                        <p className="price">현재최고가:{"100,000"}원</p>
                     </div>
-                </VideoGrid>
-                <div className="video-bottom-wrap">
-                    <p className="auctionTitle">경매제목</p>
-                    <div className="bid-button-wrap">
-                        <div className="bid-button">
-                            <span className="bid-button-content">입찰 </span>
-                            <span className="bidAmount">{101000}원</span>
+                    <VideoGrid peers={peers}
+                               hostSocketId={hostId}
+                               mySocketId={mySocketId}
+                    >
+                        <div onClick={toggleStreaming} className="streaming-btn">
+                            {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
                         </div>
+                    </VideoGrid>
+                    <div className="video-bottom-wrap">
+                        <p className="auctionTitle">경매제목</p>
+                        <div className="bid-button-wrap">
+                            <div className="bid-button">
+                                <span className="bid-button-content">입찰 </span>
+                                <span className="bidAmount">{101000}원</span>
+                            </div>
 
-                        <div className="complete-bidItem-list">
-                            <img src="/img/menubar.png" alt="메뉴바"/>
-                            <span>낙찰상품</span>
+                            <div className="complete-bidItem-list">
+                                <img src="/img/menubar.png" alt="메뉴바"/>
+                                <span>낙찰상품</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="countTagWrap">
+                        <p className="guestCount">{Object.keys(peers).length}명 시청중</p>
+                        <div className="tagWrap">
+                            {() => ( // 태그리스트받기
+                                <span className="tag">태그1</span>
+                            )}
+                            <span className="tag">태그2</span>
+                            <span className="tag">태그3</span>
                         </div>
                     </div>
                 </div>
-                <div className="countTagWrap">
-                    <p className="guestCount">{Object.keys(peers).length}명 시청중</p>
-                    <div className="tagWrap">
-                        {() => ( // 태그리스트받기
-                            <span className="tag">태그1</span>
-                        )}
-                        <span className="tag">태그2</span>
-                        <span className="tag">태그3</span>
+                <div className="chatWrap">
+                    <div className="chatList-wrap">
+                        <p className="chatTitle">실시간 채팅</p>
+                        <div className="lineMaker"></div>
+                        <div className="userChatList">
+                            <table>
+                                <tr className="userChat">
+                                    <td className="userName">김형섭</td>
+                                    <td className="chatContent">와 진짜 비싸네</td>
+                                </tr>
+                                <tr className="userChat">
+                                    <td className="userName">dsddf1123ff</td>
+                                    <td className="chatContent">와 진짜 비싸네</td>
+                                </tr>
+                                <tr className="userChat">
+                                    <td className="userName">qqqe23</td>
+                                    <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
+                                </tr>
+
+                                <tr className="userChat">
+                                    <td className="userName">qqqe23</td>
+                                    <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div className="message-Wrap">
+                        {/*<span className="userName">hs8316</span>*/}
+                        {/*<span className="inputSplit"></span>*/}
+                        <input type="text"
+                               placeholder="채팅을 입력해주세요"
+                               className="message"
+                               value={msg} onChange={e => setMsg(e.target.value)}
+                               onKeyDown={e => {
+                                   if (e.key === "Enter" && msg !== "") {
+                                       handleSend();
+                                   }
+                               }}
+                        />
+                        <button type="button"
+                                className={`chatBtn${msg !== "" ? " send" : ""}`}
+                                disabled={msg === ""}
+                                onClick={handleSend}
+                        >채팅
+                        </button>
                     </div>
                 </div>
             </div>
-            <div className="chatWrap">
-                <div className="chatList-wrap">
-                    <p className="chatTitle">실시간 채팅</p>
-                    <div className="lineMaker"></div>
-                    <div className="userChatList" >
-                        <table >
-                            <tr className="userChat">
-                                <td className="userName">김형섭</td>
-                                <td className="chatContent">와 진짜 비싸네</td>
-                            </tr>
-                            <tr className="userChat">
-                                <td className="userName">dsddf1123ff</td>
-                                <td className="chatContent">와 진짜 비싸네</td>
-                            </tr>
-                            <tr className="userChat">
-                                <td className="userName">qqqe23</td>
-                                <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
-                            </tr>
 
-                            <tr className="userChat">
-                                <td className="userName">qqqe23</td>
-                                <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
-                            </tr>
-                        </table>
+            <div className="other-auctions-wrapper">
+                <p className="guideWording">다른 경매</p>
+                <div className="other-auctions">
+                    <div className="other-auction">
+                        <div className="other-video"></div>
+                        <p>다른 경매 회차</p>
+                        <ul>
+                            <li>태그1</li>
+                            <li>태그2</li>
+                            <li>태그33</li>
+                        </ul>
+                    </div>
+
+                    <div className="other-auction">
+                        <div className="other-video"></div>
+                        <p className="other-video-title">다른 경매 회차</p>
+                        <ul>
+                            <li>태그1</li>
+                            <li>태그2</li>
+                            <li>태그33</li>
+                        </ul>
+                    </div>
+                    <div className="other-auction">
+                        <div className="other-video"></div>
+                        <p className="other-video-title">다른 경매 회차</p>
+                        <ul>
+                            <li>태그1</li>
+                            <li>태그2</li>
+                            <li>태그33</li>
+                        </ul>
+                    </div>
+
+                    <div className="other-auction">
+                        <div className="other-video"></div>
+                        <p className="other-video-title">다른 경매 회차</p>
+                        <ul>
+                            <li>태그1</li>
+                            <li>태그2</li>
+                            <li>태그33</li>
+                        </ul>
                     </div>
                 </div>
-                <div className="message-Wrap">
-                    {/*<span className="userName">hs8316</span>*/}
-                    {/*<span className="inputSplit"></span>*/}
-                    <input type="text"
-                           placeholder="채팅을 입력해주세요"
-                           className="message"
-                           value={msg} onChange={e => setMsg(e.target.value)}
-                           onKeyDown={e => {
-                               if (e.key === "Enter" && msg !== "") {
-                                   handleSend();
-                               }
-                           }}
-                    />
-                    <button type="button"
-                            className={`chatBtn${msg !== "" ? " send" : ""}`}
-                            disabled={msg === ""}
-                            onClick={handleSend}
-                    >채팅</button>
-                </div>
             </div>
-        </div>
-
-        <div className="other-auctions-wrapper">
-            <p className="guideWording">다른 경매</p>
-            <div className="other-auctions">
-                <div className="other-auction">
-                    <div className="other-video"></div>
-                    <p>다른 경매 회차</p>
-                    <ul>
-                        <li>태그1</li>
-                        <li>태그2</li>
-                        <li>태그33</li>
-                    </ul>
-                </div>
-
-                <div className="other-auction">
-                    <div className="other-video"></div>
-                    <p className="other-video-title">다른 경매 회차</p>
-                    <ul>
-                        <li>태그1</li>
-                        <li>태그2</li>
-                        <li>태그33</li>
-                    </ul>
-                </div>
-                <div className="other-auction">
-                    <div className="other-video"></div>
-                    <p className="other-video-title">다른 경매 회차</p>
-                    <ul>
-                        <li>태그1</li>
-                        <li>태그2</li>
-                        <li>태그33</li>
-                    </ul>
-                </div>
-
-                <div className="other-auction">
-                    <div className="other-video"></div>
-                    <p className="other-video-title">다른 경매 회차</p>
-                    <ul>
-                        <li>태그1</li>
-                        <li>태그2</li>
-                        <li>태그33</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </>
+        </>
     )
 }
