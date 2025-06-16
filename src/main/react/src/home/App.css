@@ -19,7 +19,7 @@
 
 .slide-image {
     width: 750px;
-    height: 330px;
+    height: 358px;
 }
 
 .action-buttons {
@@ -70,9 +70,8 @@
 }
 
 .my-page{
-    font-size: 8px;
-    margin-left: 10px;
-
+    font-size: 11px;
+    margin-left: 27px;
 }
 
 .btn.login {
@@ -127,7 +126,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    width: 90%;
+    width: 89%;
     padding: 40px 60px;
     border: 1px solid #e3e5e8;
     background-color: #fff;
@@ -136,8 +135,8 @@
 
 .calendar-section {
     width: 40%;
-    border-right: 1px solid #d5d5d5;
     padding: 0 0 0 24px;
+    border-right: 1px solid #d5d5d5;
 }
 
 .calendar-tab {
@@ -159,7 +158,6 @@
 .auction-list {
     flex: 1;
     padding: 0 32px;
-    /* 배경색, 테두리 등은 필요시 추가 */
 }
 
 .auction-list-header {
@@ -204,17 +202,52 @@
     color: #111;
 }
 
-.auction-list ul {
-    margin: 0;
-    padding-left: 0;
-    font-size: 17px;
+
+.auction-two-column-list {
+    display: flex;
+    gap: 32px;
+    margin-top: 20px;
+}
+
+.auction-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.auction-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auction-icon {
+    border: 1px solid #777;
+    border-radius:7px;
+    padding: 6px;
+}
+.auction-icon .calendar-img {
+    width: 40px;
+    height: 40px;
+}
+
+.auction-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auction-title {
+    font-weight: 600;
+    font-size: 1.08em;
     color: #222;
 }
 
-.auction-list ul li {
-    margin-bottom: 12px;
-    padding-left: 2px;
-    list-style: none;
+.auction-time {
+    font-size: 0.98em;
+    color: #888;
+    margin-top: 2px;
 }
 
 
