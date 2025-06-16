@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 import Calendar from "../calendar/calendar";
+import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
 
 
@@ -38,6 +39,41 @@ export default function App() {
     const [current, setCurrent] = useState(0);
     const [selectedDate, setSelectedDate] = useState(today);
     const [btnBottom, setBtnBottom] = useState(20); // 버튼 bottom 위치 상태 관리
+    const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
+
+// App.jsx 최상단
+    const scrollYRef = useRef(0);
+
+// useEffect 내부
+    useEffect(() => {
+        if (showRegAuction) {
+            // 스크롤 고정
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollYRef.current}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.overflowY = 'scroll'; // 스크롤바 유지
+        } else {
+            // 고정 해제 및 스크롤 위치 복원
+            const scrollY = scrollYRef.current;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.overflowY = '';
+            window.scrollTo(0, scrollY);
+        }
+
+        return () => {
+            const scrollY = scrollYRef.current;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.overflowY = '';
+            window.scrollTo(0, scrollY);
+        };
+    }, [showRegAuction]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -82,6 +118,23 @@ export default function App() {
     };
 
 
+
+    //경매장 등록
+    const regAuc = (e) => {
+        scrollYRef.current = window.scrollY;
+        setShowRegAuction(true);
+
+    };
+    const containerRef = useRef(null);
+    const handleContainerClick = (e) => {
+        // 클릭된 요소나 그 부모가 modal 클래스를 가진 요소가 아닐 경우에만 모달 닫기
+        if (showRegAuction && containerRef.current && !e.target.closest('.modal')) {
+            setShowRegAuction(false);
+        }
+    };
+
+
+
     if (isLoading) {
         return (
             <Loader/>
@@ -89,7 +142,28 @@ export default function App() {
     }
 
     return (
-        <div className="dashboard-container">
+        <div className="dashboard-container"
+        ref={containerRef}
+        onClick={handleContainerClick}>
+
+            {/*경매장 등록버튼 클릭시 활성*/}
+            {showRegAuction && (
+                <>
+                    <div
+                        className="modal-backdrop"
+                        onClick={() => setShowRegAuction(false)}
+                    />
+                    <div className="modal-container">
+                        <div
+                            className="modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <RegAuction onClose={() => setShowRegAuction(false)} />
+                        </div>
+                    </div>
+                </>
+            )}
+
             <div className="top-section">
                 <img
                     src={images[current]}
@@ -141,6 +215,7 @@ export default function App() {
             </div>
             <div className="main-section">
                 <div className="calendar-section">
+
                     <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
                 </div>
                 <div className="auction-list">
@@ -158,7 +233,11 @@ export default function App() {
                     </ul>
                 </div>
             </div>
-            <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}>＋</button>
+            {!showRegAuction &&(
+                <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
+                onClick={regAuc}
+            >＋</button>
+            )}
         </div>
 
     )
