@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {MdSwapHoriz} from "react-icons/md";
 
-const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
+const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
     const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
     const [scrollX, setScrollX] = useState(0); // 서브 비디오 영역의 스크롤 위치
     const [maxScrollX, setMaxScrollX] = useState(0); // 스크롤 가능한 최대 길이
@@ -24,6 +25,9 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
         // 메인 스트림이 없고 호스트가 영상을 보낸다면 메인화면으로 설정
         if (hostHasVideo && mainStreamId !== hostSocketId) {
             setMainStreamId(hostSocketId);
+        }
+        if(!hostHasVideo && mainStreamId && peers[mainStreamId]?.stream && peers[mainStreamId]?.stream.getVideoTracks().length > 0){
+            setMainStreamId(null);
         }
         // 호스트 영상이 중단되었으면 메인화면 제거
         else if (!hostHasVideo && mainStreamId === hostSocketId) {
@@ -89,6 +93,11 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
         }
     }, [scrollX]);
 
+    const [subMutedStates, setSubMutedStates] = useState({}); // key: id, value: muted
+
+    const onSubMuteChange = (id, muted) => {
+        setSubMutedStates(prev => ({ ...prev, [id]: muted }));
+    };
 
     // ----
     return (
@@ -99,9 +108,11 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
                     <Video id={mainStreamId}
                            stream={mainStream}
                            initialMuted={mainStreamId === mySocketId}
-                           showMuteButton={false}/>
+                           showMuteButton={false}
+                           isMain={true}
+                    />
                 ) : (
-                    <div className="videoBox" style={{border:'2px solid transparent'}}>
+                    <div className="videoBox" style={{border: '2px solid transparent'}}>
                         <div className="main-video-stop">방송이 중단되었습니다.</div>
                     </div>
                 )}
@@ -123,12 +134,15 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
                         <div className="sub-videos-container">
                             <div className="sub-videos" ref={subVideosRef}>
                                 {subPeers.map(([id, peer]) => (
-                                    <div key={id} className="sub-video" onClick={() => handleSwap(id)}>
+                                    <div key={id} className="sub-video">
                                         <p className="guestId">{id}</p>
-                                        <Video id={id}
+                                        <Video
+                                               key={id}
+                                               id={id}
                                                stream={peer.stream}
-                                               initialMuted={true}
-                                               showMuteButton={true}
+                                               muted={subMutedStates[id] ?? true}
+                                               onMuteChange={(muted)=>onSubMuteChange(id,muted)}
+                                               onSwap={handleSwap}
                                         />
                                     </div>
                                 ))}
@@ -149,17 +163,77 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,children}) => {
     );
 };
 
-const Video = ({id, stream, initialMuted, showMuteButton}) => {
+const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwap}) => {
     const videoRef = useRef();
-    const [muted, setMuted] = useState(initialMuted);
+    const [muted, setMuted] = useState(mutedProp ?? true);
+    const [volume, setVolume] = useState(1); // 기본 볼륨 100%
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [hovered, setHovered] = useState(false);
+
+    // mutedProp이 바뀌면 내부 상태도 동기화
+    useEffect(() => {
+        if (mutedProp !== undefined && mutedProp !== muted) {
+            setMuted(mutedProp);
+        }
+    }, [mutedProp]);
 
     useEffect(() => {
         const videoEl = videoRef.current;
-        if (videoEl && stream) {
+        if (!videoEl || !stream) return;
+
+        if (videoEl.srcObject !== stream) {
             videoEl.srcObject = stream;
+            videoEl.play().catch(e => {
+                if (e.name !== 'AbortError') {
+                    console.warn('video play error:', e);
+                }
+            });
         }
+
+        videoEl.volume = volume;
+
     }, [stream]);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = muted;
+            videoRef.current.volume = muted ? 0 : volume;
+        }
+    }, [volume, muted]);
+
+
+    // 볼륨 조절 핸들러
+    const handleVolumeChange = (e) => {
+        e.stopPropagation();  // 부모로 이벤트 전파 차단!
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        
+        // 볼륨이 0보다 크고 현재 음소거 상태라면 자동으로 해제
+        if (muted && newVolume > 0) {
+            setMuted(false);
+            onMuteChange && onMuteChange(false);
+        }
+        
+        // 비디오 요소의 볼륨 업데이트
+        if (videoRef.current) {
+            videoRef.current.volume = newVolume;
+        }
+    };
+
+
+    // 전체화면 핸들러
+    const handleFullscreen = () => {
+        const videoEl = videoRef.current;
+        if (videoEl) {
+            if (videoEl.requestFullscreen) {
+                videoEl.requestFullscreen();
+            } else if (videoEl.webkitRequestFullscreen) {
+                videoEl.webkitRequestFullscreen();
+            } else if (videoEl.msRequestFullscreen) {
+                videoEl.msRequestFullscreen();
+            }
+        }
+    };
 
     useEffect(() => {
         if (muted) {
@@ -180,13 +254,15 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
         const videoEl = videoRef.current;
         if (!videoEl) return;
         if (stream) {
-            videoEl.srcObject = stream;
+            if (videoEl.srcObject !== stream) {
+                videoEl.srcObject = stream;
 
-            videoEl.play().catch(e => {
-                if (e.name !== 'AbortError') {
-                    console.warn('video play error:', e);
-                }
-            });
+                videoEl.play().catch(e => {
+                    if (e.name !== 'AbortError') {
+                        console.warn('video play error:', e);
+                    }
+                });
+            }
 
             // 오디오 분석 초기화 (마이크나 오디오가 없는 경우 대비)
             if (!audioContextRef.current) {
@@ -197,7 +273,7 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
                 sourceRef.current.disconnect();
             }
 
-            if (stream.getAudioTracks().length > 0) {
+            if (stream.getAudioTracks().length > 0 ) {
                 sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
                 analyserRef.current = audioContextRef.current.createAnalyser();
                 analyserRef.current.fftSize = 256;
@@ -215,6 +291,7 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
 
                     analyserRef.current.getByteFrequencyData(dataArrayRef.current);
                     const avg = dataArrayRef.current.reduce((a, b) => a + b, 0) / bufferLength;
+
                     setIsSpeaking(avg > 15);
                     rafIdRef.current = requestAnimationFrame(checkVolume);
                 };
@@ -247,29 +324,82 @@ const Video = ({id, stream, initialMuted, showMuteButton}) => {
             }
         };
 
-    }, [stream, muted]);
+    }, [stream]);
+
+    useEffect(() => {
+        if (muted) {
+            setIsSpeaking(false);
+        }
+    }, [muted]);
+
 
     // 음소거 토글 함수
     const toggleMute = (e) => {
         e.stopPropagation(); // 부모 클릭 이벤트 방지
-        setMuted(prev => !prev);
+        const newMuted = !muted;
+        setMuted(newMuted);
+        onMuteChange && onMuteChange(newMuted);
     };
 
+    const onMouseEnter = () => setHovered(true);
+    const onMouseLeave = () => setHovered(false);
+
+    const handleSwapClick = (e) => {
+        e.stopPropagation();
+        if (onSwap) {
+            onSwap(id);
+        }
+    };
+
+    document.querySelectorAll('.volume-slider').forEach(slider => {
+        updateVolumeSliderBackground(slider);
+
+        slider.addEventListener('input', () => {
+            updateVolumeSliderBackground(slider);
+            slider.parentElement.parentElement.querySelector('video').muted = false;
+        });
+    });
+
+    function updateVolumeSliderBackground(slider) {
+        const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+        slider.style.background = `linear-gradient(to right, #00ffcc 0%, #00ffcc ${value}%, #ccc ${value}%, #ccc 100%)`;
+    }
+
     return (
-        <div className="videoBox" style={{border: isSpeaking ? '4px solid limegreen' : '2px solid transparent'}}>
+        <div className={`videoBox${!isMain ? ' small' : ''}${isSpeaking ? ' speaking' : ''}`}
+             style={{border: isSpeaking && !isMain ? '4px solid limegreen' : '2px solid transparent'}}
+             onMouseEnter={onMouseEnter}
+             onMouseLeave={onMouseLeave}
+        >
             <video
                 className="video"
                 ref={videoRef}
                 autoPlay
                 playsInline
-                muted={muted}
             />
-            {showMuteButton && (
-                <button className="muteButton"
-                        style={{backgroundColor: muted ? 'rgba(255,0,0,0.7)' : 'rgba(0,0,0,0.5)'}}
-                        onClick={toggleMute}
-                        title={muted ? '음소거해제' : '음소거'}>
-                    {muted ? '🔇' : '🔊'}
+
+            <div className="video-controls">
+                <button className="icon-button" onClick={toggleMute} title={muted ? '음소거 해제' : '음소거'}>
+                    {muted || volume === 0 ? '🔇' : '🔊'}
+                </button>
+                <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    style={{ fill: 'red' }}
+                    className="volume-slider"
+                    title="볼륨 조절"
+                />
+                <button className="icon-button" onClick={handleFullscreen} title="전체화면">
+                    ⛶
+                </button>
+            </div>
+            {!isMain && hovered && (
+                <button className="swap-btn" onClick={handleSwapClick} title="메인으로 전환">
+                    <MdSwapHoriz size={12} />
                 </button>
             )}
         </div>

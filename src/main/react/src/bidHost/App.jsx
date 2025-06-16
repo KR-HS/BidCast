@@ -1,4 +1,4 @@
-import './App.css'
+import './bidHost.css'
 import React, {useEffect, useState, useRef} from 'react'
 import io from 'socket.io-client'
 import {Device} from 'mediasoup-client'
@@ -60,7 +60,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const [roomId, setRoomId] = useState(null);
     const [userId, setUserId] = useState(null);
-
+    const [userCount,setUserCount] = useState(0);
 
     // const [producerIdToSocketId, setProducerIdToSocketId] = useState({});
     const [socketIdToProducerId, setSocketIdToProducerId] = useState({});
@@ -83,7 +83,10 @@ export default function App() {
         setRoomId(params.get("roomId"));
         setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
+
     }, []);
+
+
 
 
     useEffect(() => {
@@ -103,7 +106,7 @@ export default function App() {
             auctionId: roomId
         })
 
-        socket.current.emit('join-auction', {auctionId: roomId}, ({hostSocketId}) => {
+        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount}) => {
             console.log("경매사이트 입장")
             setHostId(hostSocketId)
             console.log("호스트소켓아이디" + hostSocketId);
@@ -112,6 +115,12 @@ export default function App() {
         socket.current.on('host-available', ({auctionId, hostSocketId}) => {
             setHostId(hostSocketId);
             console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
+        });
+
+        socket.current.on('user-count-update', ({ roomId, userCount }) => {
+            console.log(`Auction ${roomId} current users: ${userCount}`);
+            // 화면에 인원수 표시 업데이트
+            setUserCount(userCount);
         });
 
         // 초기 시작 함수: mediasoup 라우터 연결 및 송수신 준비
@@ -591,7 +600,7 @@ export default function App() {
                         </div>
                     </div>
                     <div className="countTagWrap">
-                        <p className="guestCount">{Object.keys(peers).length}명 시청중</p>
+                        <p className="guestCount">{userCount}명 시청중</p>
                         <div className="tagWrap">
                             {() => ( // 태그리스트받기
                                 <span className="tag">태그1</span>
