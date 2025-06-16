@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import Loader from "../../Loader/Loader";
+import {Navigate, useNavigate} from "react-router-dom";
 export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
@@ -35,29 +36,35 @@ export default function App() {
         setFormData({...formData,[name]:value});
     }
 
+    const navigate = useNavigate();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        await fetch('api/v1/searchId',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/findcomplete.do';
-                } else {
-                    alert('회원을 찾을 수 없습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('오류 발생:', error);
-                alert('오류가 발생했습니다.');
-            })
+        try {
+            const response = await fetch('api/v1/searchId', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
 
-    }
+            if (response.ok) {
+                const result = await response.json(); // 예: { success: true, userId: "abc123" }
+                //return <Navigate to={'/findComplete.do'}/>
+                //navigate('', { state: { userId: result.userId } });
+                console.log('sdfsdf')
+                location.href=`/findComplete.do?userId=${result.userId}`;
+            } else {
+                alert('회원을 찾을 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('오류 발생:', error);
+            alert('오류가 발생했습니다.');
+        }
+    };
+
     if (isLoading) {
         return (
             <Loader/>
@@ -65,6 +72,8 @@ export default function App() {
     }
 
     return (
+
+
         <section>
             <div className="sec">
             <img src="./img/search1.png" alt="Logo" width="120px" height="120px" />

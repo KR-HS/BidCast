@@ -17,7 +17,7 @@ public class UsersDTO {
     private String grade;
     private String email;
     private String pw;
-    private String nickname;
+    private String nickName;
 
 
 }

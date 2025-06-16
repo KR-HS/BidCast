@@ -4,27 +4,9 @@ export default function App() {
 
     const [id, setId] = useState('');
     const [pw, setPw] = useState();
-    // 로딩 창
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        // 예: 1초 후에 로딩 끝난 걸로 처리
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 500); // CSS transition과 동일 시간
-            }
-
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
 
 
+    //로그인 상태 확인
     useEffect(() => {
         const checkLogin = async () => {
             try {
@@ -46,7 +28,7 @@ export default function App() {
 
     }, []);
 
-
+    //네이버로그인 초기화
     useEffect(() => {
 
         const checkNaverLoginCallback = () => {
@@ -129,8 +111,9 @@ export default function App() {
         };
 
 
-    }, []);
+        }, []);
 
+    //네이버로그인
     const handleNaverLogin = async (email, name, nickName, birthyear, birthday, mobile) => {
         try {
             const response = await fetch("http://localhost:8888/api/v1/naver-login", {
@@ -155,16 +138,7 @@ export default function App() {
         }
     };
 
-    const handleId = (e) => {
-        setId(e.target.value);
-        console.log(id);
-    }
-
-    const handlePw = (e) => {
-        setPw(e.target.value);
-        console.log(pw);
-    }
-
+    //로그인버튼
     const loginBtn = async (e) => {
         e.preventDefault();
 
@@ -194,23 +168,24 @@ export default function App() {
     }}
 
 
-    const logoutHandler = async () => {
-        const response = await fetch("/logout", {
-            method: "POST",
-            credentials: "include", // 쿠키 전달
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+    // 로딩 창
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => {
+        // 예: 1초 후에 로딩 끝난 걸로 처리
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // CSS transition과 동일 시간
             }
-        });
 
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else {
-            window.location.href = "/login.do"; // 또는 원하는 경로
-        }
-    };
-
-
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     if (isLoading) {
         return (
@@ -228,7 +203,9 @@ export default function App() {
           <div className="ip-box">
               <input type="text" placeholder="아이디"
                     value={id}
-                    onChange={handleId}
+                    onChange={(e) => {
+                        setId(e.target.value);
+                    }}
                      onKeyDown={(e)=>{
                          if(e.key === 'Enter') {
                              loginBtn(e);//
@@ -239,7 +216,9 @@ export default function App() {
               <input type="password"
                      placeholder="비밀번호"
                      value={pw}
-                     onChange={handlePw}
+                     onChange={(e) => {
+                         setPw(e.target.value);
+                     }}
                      onKeyDown={(e)=>{
                          if(e.key === 'Enter') {
                              loginBtn(e);//
@@ -263,7 +242,6 @@ export default function App() {
               <div id="naverIdLogin"></div>
 
           </div>
-          <button onClick={logoutHandler}>로그아웃</button>
       </section>
       )
 }

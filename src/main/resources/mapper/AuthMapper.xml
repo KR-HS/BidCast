@@ -18,4 +18,8 @@
     <select id="getUserByLoginId" resultType="com.project.bidcast.vo.UsersDTO">
         SELECT * FROM users WHERE login_id = #{loginId}
     </select>
+
+    <select id="searchId" resultType="com.project.bidcast.vo.UsersDTO">
+        SELECT * FROM users WHERE user_name = #{userName} AND email = #{email} AND phone = #{phone}
+    </select>
 </mapper>
