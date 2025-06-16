@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +47,12 @@ public class AuthController {
         }
         System.out.println(user);
 
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/getUserInfo")
+    public ResponseEntity<UsersDTO> getUserInfo(){
+        UsersDTO user = GetSession.getUser();
         return ResponseEntity.ok(user);
     }
 
@@ -103,11 +110,12 @@ public class AuthController {
     //아이디찾기
     @PostMapping("/searchId")
     public ResponseEntity<?> searchId(@RequestBody Map<String, String> searchInfo) {
-        String id = searchInfo.get("name");
-        String email = searchInfo.get("email1") + "@" + searchInfo.get("email2");
-        String phone = searchInfo.get("phone1") + "-" + searchInfo.get("phone2") + "-" + searchInfo.get("phone3");
+        UsersDTO dto = authService.searchId(searchInfo);
+        if(dto == null) {
+            return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 아이디가 없습니다."), HttpStatus.NOT_FOUND);
+        }
 
-        System.out.println(id + "" + email + "" + phone);
+
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
 

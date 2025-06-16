@@ -8,4 +8,5 @@ public interface AuthMapper {
 
     UsersDTO getUserByLoginId(String loginId);
     void createUser(String loginId, String userName, String birth, String phone, String email, String pw, String nickname);
+    UsersDTO searchId(String email, String userName, String phone);
 }

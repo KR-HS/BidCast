@@ -112,6 +112,31 @@
     line-height: 1.6;
 }
 
+.welcome-message {
+    text-align: center;
+    font-size: 15px;
+    padding: 10px 0;
+}
+
+.logout-wrap{
+    text-align: right;
+    margin-right: 20px;
+}
+
+.logout-btn {
+    height: 25px;
+    width: 50px;
+    background-color: #EA6946;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+
 .notice {
     background: #f7f7f7;
     padding: 12px 18px;

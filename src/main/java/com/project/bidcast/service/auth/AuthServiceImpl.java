@@ -31,14 +31,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UsersDTO getUserByLoginId(String loginId, String pw) {
-        UsersDTO user = authMapper.getUserByLoginId(loginId);
+    public UsersDTO searchId(Map<String, String> userInfo) {
 
-        if (user != null && passwordEncoder.matches(pw, user.getPw())) {
-            return user;
-        }
+        String email = userInfo.get("email1") + "@" + userInfo.get("email2");
+        String name = userInfo.get("name");
+        String phoneNumber = userInfo.get("phone1") + "-" + userInfo.get("phone2") + "-" + userInfo.get("phone3");
 
-        return null;
+
+        return authMapper.searchId(email, name, phoneNumber);
     }
 
 

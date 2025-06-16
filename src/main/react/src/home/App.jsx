@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 import Calendar from "../calendar/calendar";
+import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
 import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
-import RegAuction from "../regauction/regauction";
 
 
 const images = [
@@ -211,6 +211,32 @@ export default function App() {
         fetchUserInfo();
 
     }, []);
+    //세션 데이터
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`서버 오류: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUser(data);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
+
+    }, []);
 
     useEffect(() => {
 
@@ -295,6 +321,7 @@ export default function App() {
                             <div className="action-label">경매검색</div>
                         </div>
                         <div className="action">
+
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
@@ -407,6 +434,6 @@ export default function App() {
             )}
         </div>
 
-
     )
+
 }
