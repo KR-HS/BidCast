@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 import Calendar from "../calendar/calendar";
-import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
 import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
+import RegAuction from "../regauction/regauction";
 
 
 const images = [
@@ -24,6 +24,9 @@ export default function App() {
     const [current, setCurrent] = useState(0);
     const [selectedDate, setSelectedDate] = useState(today);
     const [btnBottom, setBtnBottom] = useState(20); // 버튼 bottom 위치 상태 관리
+    const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
+    const [user, setUser] = useState(null);
+
 
     // 날짜 포맷: "YYYY-MM-DD"
     const formatDate = (date) =>
@@ -87,15 +90,10 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
-    const [current, setCurrent] = useState(0);
-    const [selectedDate, setSelectedDate] = useState(today);
-    const [btnBottom, setBtnBottom] = useState(20); // 버튼 bottom 위치 상태 관리
-    const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
-
-// App.jsx 최상단
+    // App.jsx 최상단
     const scrollYRef = useRef(0);
 
-// useEffect 내부
+    // useEffect 내부
     useEffect(() => {
         if (showRegAuction) {
             // 스크롤 고정
@@ -187,6 +185,36 @@ export default function App() {
     const leftColumn = visibleAuctions.filter((_, idx) => idx % 2 === 0);
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
 
+    //세션 데이터
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`서버 오류: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUser(data);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
+
+    }, []);
+
+    useEffect(() => {
+
+    }, [user]);
 
     //경매장 등록
     const regAuc = (e) => {
@@ -202,7 +230,22 @@ export default function App() {
         }
     };
 
+    //로그아웃
+    const logoutHandler = async () => {
+        const response = await fetch("/logout", {
+            method: "POST",
+            credentials: "include", // 쿠키 전달
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
 
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            window.location.href = "/home.do"; // 또는 원하는 경로
+        }
+    };
 
     if (isLoading) {
         return (
@@ -214,9 +257,8 @@ export default function App() {
 
     return (
         <div className="dashboard-container"
-        ref={containerRef}
-        onClick={handleContainerClick}>
-
+             ref={containerRef}
+             onClick={handleContainerClick}>
             {/*경매장 등록버튼 클릭시 활성*/}
             {showRegAuction && (
                 <>
@@ -264,17 +306,37 @@ export default function App() {
                     </div>
                     <div className="login-section">
                         <div className="my-page">마이페이지</div>
-                        <button className="btn login" onClick={()=> {window.location.href="login.do"}}>로그인</button>
-                        <div className="signup-row">
-                            <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
-                        </div>
-                        <div className="login-desc">
-                            지금 로그인하세요!<br />
-                            경매를 실시간으로 즐길 수 있습니다<span role="img" aria-label="smile">😊</span>
-                        </div>
+                        {/*로그인이 여부 확인*/}
+                        {user === null?(
+                            <>
+                                <button className="btn login" onClick={()=> {window.location.href="login.do"}}>로그인</button>
+                                <div className="signup-row">
+                                    <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
+                                </div>
+                                <div className="login-desc">
+                                    지금 로그인하세요!<br />
+                                    경매를 실시간으로 즐길 수 있습니다<span role="img" aria-label="smile">😊</span>
+                                </div>
+                            </>
+                        ):(
+                            <>
+                                <div className="welcome-message">
+                                    <h2>{user.nickName}님 환영합니다!</h2>
+                                </div>
+                                <div className="logout-wrap">
+                                    <span className="signup-link" onClick={logoutHandler}>로그아웃</span>
+                                </div>
+                                <div className="login-desc">
+                                    이제 경매를 즐길 시간이에요!<br />
+                                    {user.nickName}님,  지금 바로 둘러보세요. <span role="img" aria-label="smile">🔍</span>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </div>
             </div>
+
 
             <div className="notice">
                 <span role="img" aria-label="notice">📢</span>
@@ -286,7 +348,6 @@ export default function App() {
             </div>
             <div className="main-section">
                 <div className="calendar-section">
-
                     <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
                 </div>
                 <div className="auction-list">
@@ -341,10 +402,11 @@ export default function App() {
             </div>
             {!showRegAuction &&(
                 <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
-                onClick={regAuc}
-            >＋</button>
+                        onClick={regAuc}
+                >＋</button>
             )}
         </div>
+
 
     )
 }
