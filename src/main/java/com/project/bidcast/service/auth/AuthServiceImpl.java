@@ -30,16 +30,16 @@ public class AuthServiceImpl implements AuthService {
         authMapper.createUser(id, name, birthday, phoneNumber, email, pw, nickName);
     }
 
-//    @Override
-//    public UsersDTO getUserByLoginId(String loginId, String pw) {
-//        UsersDTO user = authMapper.getUserByLoginId(loginId);
-//
-//        if (user != null && passwordEncoder.matches(pw, user.getPw())) {
-//            return user;
-//        }
-//
-//        return null;
-//    }
+    @Override
+    public UsersDTO getUserByLoginId(String loginId, String pw) {
+        UsersDTO user = authMapper.getUserByLoginId(loginId);
+
+        if (user != null && passwordEncoder.matches(pw, user.getPw())) {
+            return user;
+        }
+
+        return null;
+    }
 
 
 }

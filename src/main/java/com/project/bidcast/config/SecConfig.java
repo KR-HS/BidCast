@@ -60,7 +60,7 @@ public class SecConfig {
                         .permitAll() //
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // 🔥 변경 필요
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/home.do")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")

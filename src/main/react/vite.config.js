@@ -29,7 +29,6 @@ export default defineConfig({
         schedule: path.resolve(__dirname, 'src/schedule/schedule.jsx'),
         memberModify: path.resolve(__dirname, 'src/membermodify/membermodify.jsx'),
         pwverify: path.resolve(__dirname, 'src/pw_verify/pwverify.jsx'),
-        regauction: path.resolve(__dirname, 'src/regauction/regauction.jsx'),
           bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
           auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx")
       },

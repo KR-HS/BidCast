@@ -3,14 +3,13 @@ package com.project.bidcast.controller;
 
 import com.project.bidcast.config.JWTConfig;
 import com.project.bidcast.service.auth.AuthService;
+import com.project.bidcast.util.GetSession;
 import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,13 +36,17 @@ public class AuthController {
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
 
+    //로그인할 시 로그인창으로 접속 안되게하는 컨트롤러
     @GetMapping("/auth/check")
-    public ResponseEntity<?> checkLogin(Principal principal) {
-        if (principal != null) {
-            return ResponseEntity.ok().body("authenticated");
-        } else {
-            return ResponseEntity.status(401).body("unauthenticated");
+    public ResponseEntity<?> checkLogin() {
+
+        UsersDTO user = GetSession.getUser();
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
         }
+        System.out.println(user);
+
+        return ResponseEntity.ok(user);
     }
 
 //    //로그인
