@@ -1,47 +1,37 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import './inquiryList.css';
 import Loader from "../Loader/Loader";
 
-const inquiryData = [
-    { id: 1, title: '경매 입찰 방법이 궁금합니다', status: '답변완료', date: '2025-06-01' },
-    { id: 2, title: '계정 정보 변경 안내', status: '답변대기', date: '2025-06-05' },
-    { id: 3, title: '결제 오류 문의', status: '답변완료', date: '2025-06-10' },
-    { id: 4, title: '문의 제목 예시 1', status: '답변대기', date: '2025-06-11' },
-    { id: 5, title: '문의 제목 예시 2', status: '답변완료', date: '2025-06-12' },
-    { id: 6, title: '문의 제목 예시 3', status: '답변완료', date: '2025-06-13' },
-    { id: 7, title: '문의 제목 예시 4', status: '답변대기', date: '2025-06-13' },
-    { id: 8, title: '문의 제목 예시 5', status: '답변완료', date: '2025-06-13' },
-    { id: 9, title: '문의 제목 예시 6', status: '답변완료', date: '2025-06-13' },
-    { id: 10, title: '문의 제목 예시 7', status: '답변완료', date: '2025-06-13' },
-    { id: 11, title: '문의 제목 예시 8', status: '답변완료', date: '2025-06-13' }
-];
-
 export default function InquiryList() {
-    // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        // 예: 1초 후에 로딩 끝난 걸로 처리
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 500); // CSS transition과 동일 시간
-            }
-
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
-
+    const [inquiries, setInquiries] = useState([]);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const filteredInquiries = inquiryData.filter(inquiry =>
+    useEffect(() => {
+        const fetchInquiries = async () => {
+            try {
+                const res = await fetch('http://localhost:8888/api/inquiryList');
+                const data = await res.json();
+                setInquiries(data);
+            } catch (err) {
+                alert('문의 목록을 불러오지 못했습니다.');
+            } finally {
+                setIsLoading(false);
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.classList.add('fade-out');
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 500);
+                }
+            }
+        };
+        fetchInquiries();
+    }, []);
+
+    const filteredInquiries = inquiries.filter(inquiry =>
         inquiry.title.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -50,23 +40,12 @@ export default function InquiryList() {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredInquiries.slice(indexOfFirstItem, indexOfLastItem);
 
-    const handleClick = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
+    const handleClick = (pageNumber) => setCurrentPage(pageNumber);
+    const handlePrev = () => currentPage > 1 && setCurrentPage(prev => prev - 1);
+    const handleNext = () => currentPage < totalPages && setCurrentPage(prev => prev + 1);
 
-    const handlePrev = () => {
-        if (currentPage > 1) setCurrentPage(prev => prev - 1);
-    };
+    if (isLoading) return <Loader />;
 
-    const handleNext = () => {
-        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-    };
-
-    if (isLoading) {
-        return (
-            <Loader/>
-        );
-    }
     return (
         <div className="box">
             <div className="head">
@@ -80,8 +59,7 @@ export default function InquiryList() {
             </div>
             <div className="container">
                 <div className="centered-nav-row">
-                    <a href="iquiryList.do" className="nav-link">내가 문의한 내역</a>
-                    {/*<span className="nav-dot">·</span>*/}
+                    <a href="inquiryList.do" className="nav-link">내가 문의한 내역</a>
                     <img src="./img/dot.png" alt="검색" />
                     <a href="inquiry.do" className="nav-text">1:1 문의하기</a>
                 </div>
@@ -109,11 +87,11 @@ export default function InquiryList() {
                             <div className="num">{item.id}</div>
                             <div className="title">
                                 {item.title}
-                                <span className="badge" style={{ background: item.status === '답변완료' ? '#EA6946' : '#B3B2B2' }}>
-                                    {item.status}
+                                <span className="badge" style={{ background: item.reply === '답변완료' ? '#EA6946' : '#B3B2B2' }}>
+                                    {item.reply}
                                 </span>
                             </div>
-                            <div className="date">{item.date}</div>
+                            <div className="date">{new Date(item.createDate).toLocaleDateString()}</div>
                         </li>
                     ))}
                 </ul>
