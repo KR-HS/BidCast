@@ -3,6 +3,7 @@ import './App.css'
 import Calendar from "../calendar/calendar";
 import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
+import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
 
 
 const images = [
@@ -16,8 +17,6 @@ export default function App() {
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
-
-
 
     //경매리스트 불러옴
     const [auctions, setAuctions] = useState([]);
@@ -74,7 +73,6 @@ export default function App() {
     };
 
 
-
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {
@@ -127,6 +125,7 @@ export default function App() {
         };
     }, [showRegAuction]);
 
+    //이미지 슬라이드
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrent(prev => (prev + 1) % images.length);
@@ -135,6 +134,7 @@ export default function App() {
         return () => clearInterval(timer);
     }, []);
 
+    // 스크롤 버튼 위치
     useEffect(() => {
         function handleScroll() {
             const footer = document.querySelector('footer'); // 실제 푸터 선택자에 맞게 수정
@@ -158,8 +158,13 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const formatDate = (date) =>
-        `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+    // 경매 데이터 불러오기
+    useEffect(() => {
+        fetch('/api/auctions/top6')
+            .then(res => res.json())
+            .then(data => setAuctions(Array.isArray(data) ? data : []))
+            .catch(() => setAuctions([]));
+    }, []);
 
     const isToday = (date) => {
         return (
@@ -169,7 +174,6 @@ export default function App() {
         );
     };
 
-<<<<<<< HEAD
     // 선택한 날짜에 해당하는 경매만 필터링
     const selectedDateStr = formatDate(selectedDate); // "YYYY-MM-DD"
     const filteredAuctions = auctions.filter(item =>
@@ -180,46 +184,6 @@ export default function App() {
     const visibleAuctions = filteredAuctions.slice(0, 6);
     const leftColumn = visibleAuctions.filter((_, idx) => idx % 2 === 0);
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
-
-=======
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
-    //세션 데이터
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const response = await fetch("/api/v1/getUserInfo", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-<<<<<<< HEAD
-
-                if (!response.ok) {
-                    throw new Error(`서버 오류: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log("사용자 정보:", data);
-                setUser(data);
-            } catch (error) {
-                // console.error("사용자 정보 요청 실패:", error);
-            }
-        };
-        fetchUserInfo();
-
-    }, []);
-=======
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
-
-
-
-<<<<<<< HEAD
-=======
-    }, []);
-
-    useEffect(() => {
 
 
     //세션 데이터
@@ -254,7 +218,7 @@ export default function App() {
 
 
     }, [user]);
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
+
 
     //경매장 등록
     const regAuc = (e) => {
@@ -327,22 +291,20 @@ export default function App() {
                 />
                 <div className="action-buttons">
                     <div className="main-actions">
-                        <div className="action">
+                        <div className="action" onClick={()=>{window.location.href="./search.do"}}>
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/751/751463.png"
                                 alt="경매검색"
                                 className="action-icon"
-                                onClick={()=>{window.location.href="#"}}
                             />
                             <div className="action-label">경매검색</div>
                         </div>
-                        <div className="action">
+                        <div className="action" onClick={()=>{window.location.href="./schedule.do"}}>
 
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
                                 className="action-icon"
-                                onClick={()=>{window.location.href="./schedule.do"}}
                             />
                             <div className="action-label">경매일정</div>
                         </div>
@@ -402,11 +364,46 @@ export default function App() {
                         </span>
                         <span className="auction-dropdown" onClick={()=>{window.location.href="./schedule.do"}}>경매일정 전체보기 &gt;</span>
                     </div>
-                    <h3>경매리스트</h3>
-                    <ul>
-                        <li>상품1</li>
-                        <li>상품2</li>
-                    </ul>
+                    <div className="auction-two-column-list">
+                        {filteredAuctions.length === 0 ? (
+                            <div className="no-auction">등록된 경매가 없습니다</div>
+                        ) : (
+                            <>
+                                <div className="auction-column">
+                                    {leftColumn.map((item, idx) => {
+                                        const status = getAuctionStatus(item.startTime, item.endTime);
+                                        return (
+                                            <div className="auction-item" key={item.auctionId || idx}>
+                                                <div className="auction-icon">
+                                                    {getStatusImage(status)}
+                                                </div>
+                                                <div className="auction-info">
+                                                    <div className="auction-title">{item.title}</div>
+                                                    <div className="auction-time">{formatTime(item.startTime)}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="auction-column">
+                                    {rightColumn.map((item, idx) => {
+                                        const status = getAuctionStatus(item.startTime, item.endTime);
+                                        return (
+                                            <div className="auction-item" key={item.auctionId || idx}>
+                                                <div className="auction-icon">
+                                                    {getStatusImage(status)}
+                                                </div>
+                                                <div className="auction-info">
+                                                    <div className="auction-title">{item.title}</div>
+                                                    <div className="auction-time">{formatTime(item.startTime)}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
             {!showRegAuction &&(
