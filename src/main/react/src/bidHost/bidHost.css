@@ -11,14 +11,19 @@
     /*width:60%;*/
 }
 
-.titleWrap{
+.participants{
     display:flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap:5px;
 }
-.titleWrap >p{
-    font-size:18px;
+.participants > .title{
+    font-size:20px;
+    font-weight:700;
+}
+.participants > .guestCount{
+    font-size:15px;
     font-weight:600;
-    color:black;
 }
 
 .steaming-btn{
@@ -369,13 +374,7 @@ video {
     gap:8px;
     margin-top:5px;
 }
-.countTagWrap>.guestCount {
-    display: flex;
-    justify-content: center;  /* 가로 가운데 */
-    align-items: center;
-    font-size:12px;
-    min-width:60px;
-}
+
 .countTagWrap>.tagWrap {
     display:flex;
     gap:5px;

@@ -211,36 +211,9 @@ export default function App() {
         fetchUserInfo();
 
     }, []);
-    //세션 데이터
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const response = await fetch("/api/v1/getUserInfo", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
 
-                if (!response.ok) {
-                    throw new Error(`서버 오류: ${response.status}`);
-                }
 
-                const data = await response.json();
-                console.log("사용자 정보:", data);
-                setUser(data);
-            } catch (error) {
-                // console.error("사용자 정보 요청 실패:", error);
-            }
-        };
-        fetchUserInfo();
 
-    }, []);
-
-    useEffect(() => {
-
-    }, [user]);
 
     //경매장 등록
     const regAuc = (e) => {

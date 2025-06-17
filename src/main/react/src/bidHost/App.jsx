@@ -8,6 +8,9 @@ import Loader from "../Loader/Loader";
 
 export default function App() {
 
+
+
+
     const [bidItems, setBidItems] = useState({}); // key:item , value:{currentBidAmount,finalUserId}
 
     const [msg, setMsg] = useState("");
@@ -30,6 +33,10 @@ export default function App() {
         }, 1500);
         return () => clearTimeout(timer);
     }, []);
+
+
+
+
 
 
     // peers 상태: { self: MediaStream(내화면), producerId: MediaStream(상대화면) ... }
@@ -81,9 +88,34 @@ export default function App() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
-        setUserId(params.get("userId"));
+        // setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
+
+        // 세션데이터
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    location.href='/login.do';
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUserId(data.loginId);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
     }, []);
 
 
@@ -106,10 +138,15 @@ export default function App() {
             auctionId: roomId
         })
 
-        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount}) => {
+        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount,hostLoginId}) => {
+            if(hostLoginId!==userId){
+                location.href=`/bidGuest.do?roomId=${roomId}`
+                return;
+            }
             console.log("경매사이트 입장")
             setHostId(hostSocketId)
             console.log("호스트소켓아이디" + hostSocketId);
+            setUserCount(userCount);
         })
 
         socket.current.on('host-available', ({auctionId, hostSocketId}) => {
@@ -566,16 +603,15 @@ export default function App() {
         );
     }
 
+
     return (
         <>
+gid
             <div className="contentWrap">
                 <div className="videoContent">
-                    {/*<button onClick={toggleStreaming} className="streaming-btn">*/}
-                    {/*    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}*/}
-                    {/*</button>*/}
-                    <div className="titleWrap">
-                        <p className="title">매물명:{"루이암스트롱"}</p>
-                        <p className="price">현재최고가:{"100,000"}원</p>
+                    <div className="participants">
+                        <p className="title">참여자목록</p>
+                        <p className="guestCount">{userCount}명 시청중</p>
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}

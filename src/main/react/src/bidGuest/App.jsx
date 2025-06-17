@@ -81,9 +81,33 @@ export default function App() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
-        setUserId(params.get("userId"));
+        // setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
+        // 세션데이터
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    location.href='/login.do';
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUserId(data.loginId);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
     }, []);
 
 
@@ -106,9 +130,16 @@ export default function App() {
             auctionId: roomId
         })
 
-        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount}) => {
+        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount,hostLoginId}) => {
+
+            if(hostLoginId===userId){
+                location.href=`/bidHost.do?roomId=${roomId}`;
+                return;
+            }
+
             console.log("경매사이트 입장")
             setHostId(hostSocketId)
+            setUserCount(userCount);
             console.log("호스트소켓아이디" + hostSocketId);
         })
 
