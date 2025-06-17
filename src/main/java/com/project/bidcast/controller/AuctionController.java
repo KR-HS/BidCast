@@ -20,10 +20,11 @@ public class AuctionController {
     AuctionService auctionService;
 
 
-    @GetMapping("/top5")
+    @GetMapping("/top6")
     public List<AuctionDTO> getFirst6Auctions() {
-        System.out.println("데이터" + auctionService.toString());
-        return auctionService.getFirst6ByStartTime();
+        List<AuctionDTO> auctions = auctionService.getFirst6ByStartTime();
+        System.out.println("Top6 리스트: " + auctions);
+        return auctions;
     }
 }
 

@@ -27,6 +27,24 @@ export default function App() {
     const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
     const [user, setUser] = useState(null);
 
+    const [notices, setNotices] = useState([]);
+    const [noticeIdx, setNoticeIdx] = useState(0);
+
+
+    // 공지사항 목록을 DB에서 fetch
+    useEffect(() => {
+        fetch('/api/notices') // 공지사항을 반환하는 엔드포인트 필요
+            .then(res => res.json())
+            .then(data => setNotices(Array.isArray(data) ? data : []));
+    }, []);
+
+    useEffect(() => {
+        if (notices.length === 0) return;
+        const timer = setInterval(() => {
+            setNoticeIdx(prev => (prev + 1) % notices.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [notices]);
 
     // 날짜 포맷: "YYYY-MM-DD"
     const formatDate = (date) =>
@@ -234,6 +252,14 @@ export default function App() {
         }
     };
 
+    const handleMyPageClick = () => {
+        if (user === null) {
+            window.location.href = "login.do";
+        } else {
+            window.location.href = "myPage.do";
+        }
+    };
+
     //로그아웃
     const logoutHandler = async () => {
         const response = await fetch("/logout", {
@@ -310,7 +336,7 @@ export default function App() {
                         </div>
                     </div>
                     <div className="login-section">
-                        <div className="my-page">마이페이지</div>
+                        <div className="my-page" onClick={handleMyPageClick}>마이페이지</div>
 
                         {/*로그인이 여부 확인*/}
                         {user === null?(
@@ -346,8 +372,12 @@ export default function App() {
 
             <div className="notice">
                 <span role="img" aria-label="notice">📢</span>
-                &nbsp;경매 시작은 항상 오전 9시에 오픈됩니다. 일정 없이 변동될 수 있습니다.
+                &nbsp;
+                {notices.length > 0
+                    ? notices[noticeIdx].title // 공지사항 내용 컬럼명에 맞게 수정
+                    : "공지사항이 없습니다."}
             </div>
+
 
             <div className="calendar-header">
                 <button className="calendar-tab active">경매일정</button>
