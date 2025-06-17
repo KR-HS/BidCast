@@ -12,7 +12,8 @@ export default defineConfig({
     cssCodeSplit: true,  // CSS 분리 유지
     rollupOptions: {
       input: {
-        bid: path.resolve(__dirname, 'src/bid/bid.jsx'),
+        bidGuest: path.resolve(__dirname, 'src/bidGuest/bidGuest.jsx'),
+        bidHost: path.resolve(__dirname, 'src/bidHost/bidHost.jsx'),
         home: path.resolve(__dirname, 'src/home/home.jsx'),
         notice: path.resolve(__dirname, 'src/notice/notice.jsx'),
         noticeDetail: path.resolve(__dirname, 'src/notice_detail/noticeDetail.jsx'),

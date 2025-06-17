@@ -17,6 +17,64 @@ export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
 
+
+
+    //경매리스트 불러옴
+    const [auctions, setAuctions] = useState([]);
+
+    const [current, setCurrent] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(today);
+    const [btnBottom, setBtnBottom] = useState(20); // 버튼 bottom 위치 상태 관리
+    const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
+    const [user, setUser] = useState(null);
+
+
+    // 날짜 포맷: "YYYY-MM-DD"
+    const formatDate = (date) =>
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+    // 시간 포맷: "08:00"
+    const formatTime = (isoString) => {
+        if (!isoString) return "";
+        // "2025-06-16T08:30:00" → "08:30:00"
+        const timePart = isoString.split("T")[1];
+        if (!timePart) return "";
+        const [hourStr, minute] = timePart.split(":");
+        let hour = parseInt(hourStr, 10);
+        const ampm = hour < 12 ? "오전" : "오후";
+        let hour12 = hour % 12;
+        if (hour12 === 0) hour12 = 12;
+        return `${ampm} ${hour12}:${minute}`;
+    };
+
+
+    // 경매 상태 판단
+    const getAuctionStatus = (startTimeStr, endTimeStr) => {
+        const now = new Date();
+        const start = startTimeStr ? new Date(startTimeStr) : null;
+        const end = endTimeStr ? new Date(endTimeStr) : null;
+        if (start && end && now >= start && now <= end) return "진행중";
+        if (end && now > end) return "종료";
+        if (start && now < start) return "예정";
+        return "예정";
+    };
+
+    // 상태별 아이콘
+    const getStatusImage = (status) => {
+        switch (status) {
+            case "예정":
+                return <TbCalendarTime size={25}/>;
+            case "진행중":
+                return <TbCalendarPause size={25}/>;
+            case "종료":
+                return <TbCalendarX size={25}/>;
+            default:
+                return null;
+        }
+    };
+
+
+
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {
@@ -34,18 +92,11 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
+    // App.jsx 최상단
 
-
-    const [current, setCurrent] = useState(0);
-    const [selectedDate, setSelectedDate] = useState(today);
-    const [btnBottom, setBtnBottom] = useState(20); // 버튼 bottom 위치 상태 관리
-    const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
-    const [user, setUser] = useState(null);
-
-// App.jsx 최상단
     const scrollYRef = useRef(0);
 
-// useEffect 내부
+    // useEffect 내부
     useEffect(() => {
         if (showRegAuction) {
             // 스크롤 고정
@@ -147,6 +198,38 @@ export default function App() {
 
     useEffect(() => {
 
+
+    //세션 데이터
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`서버 오류: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUser(data);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
+
+    }, []);
+    
+
+    useEffect(() => {
+
+
     }, [user]);
 
     //경매장 등록
@@ -173,13 +256,14 @@ export default function App() {
             }
         });
 
+
+
         if (response.redirected) {
             window.location.href = response.url;
         } else {
             window.location.href = "/home.do"; // 또는 원하는 경로
         }
     };
-
 
     if (isLoading) {
         return (
@@ -273,6 +357,7 @@ export default function App() {
                 </div>
             </div>
 
+
             <div className="notice">
                 <span role="img" aria-label="notice">📢</span>
                 &nbsp;경매 시작은 항상 오전 9시에 오픈됩니다. 일정 없이 변동될 수 있습니다.
@@ -283,7 +368,6 @@ export default function App() {
             </div>
             <div className="main-section">
                 <div className="calendar-section">
-
                     <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
                 </div>
                 <div className="auction-list">
@@ -309,4 +393,5 @@ export default function App() {
         </div>
 
     )
+
 }

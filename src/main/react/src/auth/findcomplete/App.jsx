@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import Loader from "../../Loader/Loader";
+import {useLocation} from "react-router-dom";
 export default function App() {
+
+    const userId = location.params ?.userId;
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +24,10 @@ export default function App() {
         }, 500);
         return () => clearTimeout(timer);
     }, []);
+
+
+
+
     const btn = (e) => {
         if(e.target.className === 'button1'){
             window.location.href="login.do";
@@ -51,7 +58,7 @@ export default function App() {
                         <tr>
                             <td>아이디</td>
                             <td>
-                                <span>hshshshs</span>
+                                <span>{userId}</span>
                             </td>
                         </tr>
                         <tr>
