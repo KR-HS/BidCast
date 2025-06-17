@@ -73,6 +73,7 @@
 .my-page{
     font-size: 11px;
     margin-left: 27px;
+    cursor: pointer;
 }
 
 .btn.login {
