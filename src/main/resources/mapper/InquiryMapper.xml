@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.bidcast.mapper.InquiryMapper">
+    <insert id="registerInquiry" parameterType="com.project.bidcast.vo.InquiryDTO">
+        INSERT INTO inquiry
+            (user_key, title, content, reply, create_date)
+        VALUES
+            (#{userKey}, #{title}, #{content}, #{reply}, DEFAULT)
+    </insert>
+
+    <select id="getAllInquiries" resultType="com.project.bidcast.vo.InquiryDTO">
+        SELECT inquiry_key, title, content, reply, create_date
+        FROM inquiry
+        ORDER BY create_date DESC
+
+    </select>
+</mapper>
