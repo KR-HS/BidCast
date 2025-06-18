@@ -158,8 +158,6 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const formatDate = (date) =>
-        `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
     const isToday = (date) => {
         return (
@@ -169,7 +167,6 @@ export default function App() {
         );
     };
 
-<<<<<<< HEAD
     // 선택한 날짜에 해당하는 경매만 필터링
     const selectedDateStr = formatDate(selectedDate); // "YYYY-MM-DD"
     const filteredAuctions = auctions.filter(item =>
@@ -181,8 +178,7 @@ export default function App() {
     const leftColumn = visibleAuctions.filter((_, idx) => idx % 2 === 0);
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
 
-=======
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
+
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -194,7 +190,6 @@ export default function App() {
                         "Content-Type": "application/json"
                     }
                 });
-<<<<<<< HEAD
 
                 if (!response.ok) {
                     throw new Error(`서버 오류: ${response.status}`);
@@ -210,16 +205,7 @@ export default function App() {
         fetchUserInfo();
 
     }, []);
-=======
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
 
-
-
-<<<<<<< HEAD
-=======
-    }, []);
-
-    useEffect(() => {
 
 
     //세션 데이터
@@ -250,11 +236,6 @@ export default function App() {
     }, []);
     
 
-    useEffect(() => {
-
-
-    }, [user]);
->>>>>>> f1df24a8523b5dcf862d61779411ce6b6515126b
 
     //경매장 등록
     const regAuc = (e) => {

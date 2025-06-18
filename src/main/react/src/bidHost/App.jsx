@@ -4,11 +4,12 @@ import io from 'socket.io-client'
 import {Device} from 'mediasoup-client'
 import VideoGrid from './VideoGrid'
 import Loader from "../Loader/Loader";
+import ChatTable from "./ChatTable";
+import MainVideo from "./MainVideo";
+import BidInfo from "./BidInfo";
 
 
 export default function App() {
-
-
 
 
     const [bidItems, setBidItems] = useState({}); // key:item , value:{currentBidAmount,finalUserId}
@@ -33,10 +34,6 @@ export default function App() {
         }, 1500);
         return () => clearTimeout(timer);
     }, []);
-
-
-
-
 
 
     // peers 상태: { self: MediaStream(내화면), producerId: MediaStream(상대화면) ... }
@@ -67,7 +64,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const [roomId, setRoomId] = useState(null);
     const [userId, setUserId] = useState(null);
-    const [userCount,setUserCount] = useState(0);
+    const [userCount, setUserCount] = useState(0);
 
     // const [producerIdToSocketId, setProducerIdToSocketId] = useState({});
     const [socketIdToProducerId, setSocketIdToProducerId] = useState({});
@@ -79,6 +76,11 @@ export default function App() {
     const roomIdRef = useRef(null);
     const userIdRef = useRef(null);
 
+
+    // 채팅 목록
+    const [chats, setChats] = useState([]);
+    const MAX_CHAT_COUNT = 20;
+
     useEffect(() => {
         roomIdRef.current = roomId;
         userIdRef.current = userId;
@@ -88,37 +90,35 @@ export default function App() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
-        // setUserId(params.get("userId"));
+        setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
 
-        // 세션데이터
-        const fetchUserInfo = async () => {
-            try {
-                const response = await fetch("/api/v1/getUserInfo", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (!response.ok) {
-                    location.href='/login.do';
-                    return;
-                }
-
-                const data = await response.json();
-                console.log("사용자 정보:", data);
-                setUserId(data.loginId);
-            } catch (error) {
-                // console.error("사용자 정보 요청 실패:", error);
-            }
-        };
-        fetchUserInfo();
+        // // 세션데이터
+        // const fetchUserInfo = async () => {
+        //     try {
+        //         const response = await fetch("/api/v1/getUserInfo", {
+        //             method: "POST",
+        //             credentials: "include",
+        //             headers: {
+        //                 "Content-Type": "application/json"
+        //             }
+        //         });
+        //
+        //         if (!response.ok) {
+        //             location.href = '/login.do';
+        //             return;
+        //         }
+        //
+        //         const data = await response.json();
+        //         console.log("사용자 정보:", data);
+        //         setUserId(data.loginId);
+        //     } catch (error) {
+        //         // console.error("사용자 정보 요청 실패:", error);
+        //     }
+        // };
+        // fetchUserInfo();
     }, []);
-
-
 
 
     useEffect(() => {
@@ -138,23 +138,52 @@ export default function App() {
             auctionId: roomId
         })
 
-        socket.current.emit('join-auction', {auctionId: roomId}, ({joined,hostSocketId,userCount,hostLoginId}) => {
-            if(hostLoginId!==userId){
-                location.href=`/bidGuest.do?roomId=${roomId}`
-                return;
+        socket.current.emit('join-auction', {auctionId: roomId}, (response) => {
+            const {joined, hostSocketId, userCount, hostLoginId, chats} = response
+            if (joined) {
+                console.log("채팅내역 가져오기", chats)
+
+                const formattedChats = response.chats.map(chat => ({
+                    username: chat.nickname,
+                    contents: chat.contents,
+                    regdate: chat.regdate,
+                }));
+
+                console.log("채팅내역 설정")
+                setChats(prevChats => {
+                    const combinedChats = [...prevChats, ...formattedChats];
+                    const trimmedChats = combinedChats.slice(-20); // 뒤에서 20개만
+                    return trimmedChats;
+                });
+                // if (hostLoginId !== userId) {
+                //     location.href = `/bidGuest.do?roomId=${roomId}`
+                //     return;
+                // }
+                console.log("경매사이트 입장")
+                setHostId(hostSocketId)
+                console.log("호스트소켓아이디" + hostSocketId);
+                setUserCount(userCount);
             }
-            console.log("경매사이트 입장")
-            setHostId(hostSocketId)
-            console.log("호스트소켓아이디" + hostSocketId);
-            setUserCount(userCount);
         })
+
+        // 새로운 메시지 받기
+        socket.current.on('chat-message', chat => {
+            setChats(prevChats => {
+                const newChats = [...prevChats, {
+                    username: chat.nickname,
+                    contents: chat.contents,
+                    regdate: chat.regdate,
+                }];
+                return newChats.slice(-20); // 최신 20개 유지
+            });
+        });
 
         socket.current.on('host-available', ({auctionId, hostSocketId}) => {
             setHostId(hostSocketId);
             console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
         });
 
-        socket.current.on('user-count-update', ({ roomId, userCount }) => {
+        socket.current.on('user-count-update', ({roomId, userCount}) => {
             console.log(`Auction ${roomId} current users: ${userCount}`);
             // 화면에 인원수 표시 업데이트
             setUserCount(userCount);
@@ -591,9 +620,24 @@ export default function App() {
 
     const isHost = mySocketId === hostId
 
-    const handleSend = () => {
-        alert(msg);
 
+    const handleSend = () => {
+        if (!msg.trim()) {
+            setMsg("");
+            return;
+        }
+
+        setChats(prevChats => {
+            const newChats = [...prevChats, {name: userId, message: msg}];
+            if (newChats.length > MAX_CHAT_COUNT) {
+                newChats.shift();  // 가장 오래된 메시지 삭제
+            }
+            return newChats;
+        });
+
+        // 2) 서버에 메시지 전송 (웹소켓)
+        console.log("서버로 메시지 전송")
+        socket.current.emit('chat-message', {auctionId: roomId, userId, contents: msg});
         setMsg("");
     }
 
@@ -606,150 +650,35 @@ export default function App() {
 
     return (
         <>
-gid
-            <div className="contentWrap">
+            <div className="contentWrap-upper">
                 <div className="videoContent">
                     <div className="participants">
-                        <p className="title">참여자목록</p>
-                        <p className="guestCount">{userCount}명 시청중</p>
+                        <div className="left">
+                            <p className="title">참여자목록</p>
+                            <p className="guestCount">{userCount}명 시청중</p>
+                        </div>
+
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}
                                mySocketId={mySocketId}
                     >
-                        <div onClick={toggleStreaming} className="streaming-btn">
-                            {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
-                        </div>
+
                     </VideoGrid>
-                    <div className="video-bottom-wrap">
-                        <p className="auctionTitle">경매제목</p>
-                        <div className="bid-button-wrap">
-                            <div className="bid-button">
-                                <span className="bid-button-content">입찰 </span>
-                                <span className="bidAmount">{101000}원</span>
-                            </div>
-
-                            <div className="complete-bidItem-list">
-                                <img src="/img/menubar.png" alt="메뉴바"/>
-                                <span>낙찰상품</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="countTagWrap">
-                        <p className="guestCount">{userCount}명 시청중</p>
-                        <div className="tagWrap">
-                            {() => ( // 태그리스트받기
-                                <span className="tag">태그1</span>
-                            )}
-                            <span className="tag">태그2</span>
-                            <span className="tag">태그3</span>
-                        </div>
-                    </div>
                 </div>
-                <div className="chatWrap">
-                    <div className="chatList-wrap">
-                        <p className="chatTitle">실시간 채팅</p>
-                        <div className="lineMaker"></div>
-                        <div className="userChatList">
-                            <table>
-                                <tr className="userChat">
-                                    <td className="userName">김형섭</td>
-                                    <td className="chatContent">와 진짜 비싸네</td>
-                                </tr>
-                                <tr className="userChat">
-                                    <td className="userName">dsddf1123ff</td>
-                                    <td className="chatContent">와 진짜 비싸네</td>
-                                </tr>
-                                <tr className="userChat">
-                                    <td className="userName">qqqe23</td>
-                                    <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</td>
-                                </tr>
-
-                                <tr className="userChat">
-                                    <td className="userName">qqqe23</td>
-                                    <td className="chatContent">ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                        ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    <div className="message-Wrap">
-                        {/*<span className="userName">hs8316</span>*/}
-                        {/*<span className="inputSplit"></span>*/}
-                        <input type="text"
-                               placeholder="채팅을 입력해주세요"
-                               className="message"
-                               value={msg} onChange={e => setMsg(e.target.value)}
-                               onKeyDown={e => {
-                                   if (e.key === "Enter" && msg !== "") {
-                                       handleSend();
-                                   }
-                               }}
-                        />
-                        <button type="button"
-                                className={`chatBtn${msg !== "" ? " send" : ""}`}
-                                disabled={msg === ""}
-                                onClick={handleSend}
-                        >채팅
-                        </button>
-                    </div>
-                </div>
+                <ChatTable chats={chats} msg={msg} setMsg={setMsg} handleSend={handleSend}/>
             </div>
 
-            <div className="other-auctions-wrapper">
-                <p className="guideWording">다른 경매</p>
-                <div className="other-auctions">
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p>다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
+            <div className="contentWrap-under">
+                <BidInfo roomId={roomId} userId={userId}/>
 
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
+                <MainVideo peers={peers[hostId]} hostSocketId={hostId}>
+                    <div onClick={toggleStreaming} className="streaming-btn">
+                        {isStreaming ? '📴 호스트 방송 중단' :  '📡 호스트 방송 시작'}
                     </div>
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
-
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
-                </div>
+                </MainVideo>
             </div>
+
         </>
     )
 }

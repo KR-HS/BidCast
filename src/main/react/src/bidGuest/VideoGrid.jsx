@@ -26,7 +26,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
         if (hostHasVideo && mainStreamId !== hostSocketId) {
             setMainStreamId(hostSocketId);
         }
-        if(!hostHasVideo && mainStreamId && peers[mainStreamId]?.stream && peers[mainStreamId]?.stream.getVideoTracks().length > 0){
+        if (!hostHasVideo && mainStreamId && peers[mainStreamId]?.stream && peers[mainStreamId]?.stream.getVideoTracks().length > 0) {
             setMainStreamId(null);
         }
         // 호스트 영상이 중단되었으면 메인화면 제거
@@ -96,7 +96,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
     const [subMutedStates, setSubMutedStates] = useState({}); // key: id, value: muted
 
     const onSubMuteChange = (id, muted) => {
-        setSubMutedStates(prev => ({ ...prev, [id]: muted }));
+        setSubMutedStates(prev => ({...prev, [id]: muted}));
     };
 
     // ----
@@ -137,12 +137,12 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
                                     <div key={id} className="sub-video">
                                         <p className="guestId">{id}</p>
                                         <Video
-                                               key={id}
-                                               id={id}
-                                               stream={peer.stream}
-                                               muted={subMutedStates[id] ?? true}
-                                               onMuteChange={(muted)=>onSubMuteChange(id,muted)}
-                                               onSwap={handleSwap}
+                                            key={id}
+                                            id={id}
+                                            stream={peer.stream}
+                                            muted={subMutedStates[id] ?? true}
+                                            onMuteChange={(muted) => onSubMuteChange(id, muted)}
+                                            onSwap={handleSwap}
                                         />
                                     </div>
                                 ))}
@@ -163,7 +163,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
     );
 };
 
-const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwap}) => {
+const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSwap}) => {
     const videoRef = useRef();
     const [muted, setMuted] = useState(mutedProp ?? true);
     const [volume, setVolume] = useState(1); // 기본 볼륨 100%
@@ -178,23 +178,6 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
     }, [mutedProp]);
 
     useEffect(() => {
-        const videoEl = videoRef.current;
-        if (!videoEl || !stream) return;
-
-        if (videoEl.srcObject !== stream) {
-            videoEl.srcObject = stream;
-            videoEl.play().catch(e => {
-                if (e.name !== 'AbortError') {
-                    console.warn('video play error:', e);
-                }
-            });
-        }
-
-        videoEl.volume = volume;
-
-    }, [stream]);
-
-    useEffect(() => {
         if (videoRef.current) {
             videoRef.current.muted = muted;
             videoRef.current.volume = muted ? 0 : volume;
@@ -207,13 +190,13 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
         e.stopPropagation();  // 부모로 이벤트 전파 차단!
         const newVolume = parseFloat(e.target.value);
         setVolume(newVolume);
-        
+
         // 볼륨이 0보다 크고 현재 음소거 상태라면 자동으로 해제
         if (muted && newVolume > 0) {
             setMuted(false);
             onMuteChange && onMuteChange(false);
         }
-        
+
         // 비디오 요소의 볼륨 업데이트
         if (videoRef.current) {
             videoRef.current.volume = newVolume;
@@ -235,11 +218,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
         }
     };
 
-    useEffect(() => {
-        if (muted) {
-            setIsSpeaking(false);
-        }
-    }, [muted]);
+
 
     // 음성 볼륨 체크용 ref
     const audioContextRef = useRef(null);
@@ -247,7 +226,15 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
     const sourceRef = useRef(null);
     const dataArrayRef = useRef(null);
     const rafIdRef = useRef(null);
+    const mutedRef = useRef(muted);
+    const isSpeakingRef = useRef(false);
 
+    useEffect(() => {
+        mutedRef.current = muted;
+        if (muted) {
+            setIsSpeaking(false);
+        }
+    }, [muted]);
 
     useEffect(() => {
         console.log(`Video ${id} stream changed`, stream, videoRef.current);
@@ -263,6 +250,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
                     }
                 });
             }
+            videoEl.volume = volume;
 
             // 오디오 분석 초기화 (마이크나 오디오가 없는 경우 대비)
             if (!audioContextRef.current) {
@@ -273,7 +261,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
                 sourceRef.current.disconnect();
             }
 
-            if (stream.getAudioTracks().length > 0 ) {
+            if (stream.getAudioTracks().length > 0) {
                 sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
                 analyserRef.current = audioContextRef.current.createAnalyser();
                 analyserRef.current.fftSize = 256;
@@ -283,8 +271,11 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
                 dataArrayRef.current = new Uint8Array(bufferLength);
 
                 const checkVolume = () => {
-                    if (muted || !analyserRef.current || !dataArrayRef.current) {
-                        setIsSpeaking(false);
+                    if (mutedRef.current || !analyserRef.current || !dataArrayRef.current) {
+                        if(isSpeakingRef.current){
+                            isSpeakingRef.current = false
+                            setIsSpeaking(false)
+                        }
                         rafIdRef.current = requestAnimationFrame(checkVolume);
                         return;
                     }
@@ -292,7 +283,17 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
                     analyserRef.current.getByteFrequencyData(dataArrayRef.current);
                     const avg = dataArrayRef.current.reduce((a, b) => a + b, 0) / bufferLength;
 
-                    setIsSpeaking(avg > 15);
+                    if (avg > 40) {
+                        if (!isSpeakingRef.current) {
+                            isSpeakingRef.current = true;
+                            setIsSpeaking(true);
+                        }
+                    } else {
+                        if (isSpeakingRef.current) {
+                            isSpeakingRef.current = false;
+                            setIsSpeaking(false);
+                        }
+                    }
                     rafIdRef.current = requestAnimationFrame(checkVolume);
                 };
 
@@ -326,11 +327,6 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
 
     }, [stream]);
 
-    useEffect(() => {
-        if (muted) {
-            setIsSpeaking(false);
-        }
-    }, [muted]);
 
 
     // 음소거 토글 함수
@@ -351,14 +347,20 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
         }
     };
 
-    document.querySelectorAll('.volume-slider').forEach(slider => {
-        updateVolumeSliderBackground(slider);
+    useEffect(() => {
+        console.log('isSpeaking:', isSpeaking);
+    }, [isSpeaking]);
 
-        slider.addEventListener('input', () => {
+    useEffect(() => {
+        document.querySelectorAll('.volume-slider').forEach(slider => {
             updateVolumeSliderBackground(slider);
-            slider.parentElement.parentElement.querySelector('video').muted = false;
+
+            slider.addEventListener('input', () => {
+                updateVolumeSliderBackground(slider);
+                slider.parentElement.parentElement.querySelector('video').muted = false;
+            });
         });
-    });
+    },[])
 
     function updateVolumeSliderBackground(slider) {
         const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
@@ -389,7 +391,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
                     step="0.01"
                     value={volume}
                     onChange={handleVolumeChange}
-                    style={{ fill: 'red' }}
+                    style={{fill: 'red'}}
                     className="volume-slider"
                     title="볼륨 조절"
                 />
@@ -399,7 +401,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false,onSwa
             </div>
             {!isMain && hovered && (
                 <button className="swap-btn" onClick={handleSwapClick} title="메인으로 전환">
-                    <MdSwapHoriz size={12} />
+                    <MdSwapHoriz size={12}/>
                 </button>
             )}
         </div>

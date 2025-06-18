@@ -1,4 +1,4 @@
-.contentWrap{
+.contentWrap-upper{
     display:flex;
     justify-content:center;
     gap:20px;
@@ -8,28 +8,50 @@
 /*----------------------------*/
 /* 비디오 부분 */
 .videoContent{
-    /*width:60%;*/
 }
 
 .participants{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:5px 45px;
+}
+.participants>.left{
     display:flex;
     justify-content: flex-start;
     align-items: baseline;
     gap:5px;
 }
-.participants > .title{
+.participants > .left> .title{
     font-size:20px;
     font-weight:700;
 }
-.participants > .guestCount{
+.participants > .left> .guestCount{
     font-size:15px;
     font-weight:600;
 }
 
-.steaming-btn{
-    padding: 10px 20px;
-    margin-bottom: 10px;
+.main-videoWrapper >.streaming-btn-wrap{
+    display:flex;
+    justify-content: flex-end;
+    padding: 5px 10px 0 0;
+
 }
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn{
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    background-color:#ff9a7e;
+    color:white;
+    border-radius: 20px;
+    font-size:12px;
+    cursor:pointer;
+    transition:background-color 0.5s ease-out;
+}
+
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn.active{
+    background-color: #ea6946;
+}
+
 
 .videoWrapper{
     width: 750px;
@@ -43,79 +65,23 @@ video {
     border: none;
 }
 
-/*------*/
-/* 메인 비디오 부분 */
-.main-videoWrapper{
-    margin: 8px 0;
-    width: 750px;
-    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
-}
-.main-videoWrapper>.videoBox{
-    width:100%;
-    height:100%;
-}
-.main-videoWrapper>.videoBox>video{
-    /* 고정 너비 대신 */
-    width:100%;
-    height:100%;
-    object-fit: cover; /* 비디오 꽉 채움 */
-    display: block;
-}
-.main-video-title{
-    font-size:25px;
-    font-weight:700;
-    padding:0 12px;
 
-}
-.main-video-stop{
-    width: 750px;
-    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
-    background-color: #111;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-}
-
-/* 스트리밍 버튼*/
-.streaming-btn-wrap{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.streaming-btn{
-    padding:6px 15px;
-    background-color:#ff9a7e;
-    color:white;
-    border-radius: 20px;
-    font-size:12px;
-    cursor:pointer;
-    transition:background-color 0.5s ease-out;
-}
-
-.streaming-btn.active{
-    background-color: #ea6946;
-}
 
 
 
 /*--------*/
 /* 서브 화면 부분*/
 .sub-videoWrapper{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
     width:100%;
+    height : 455px; /* 가로세로 비율 고정 */
+    display:flex;
+    flex-direction:column;
+    gap:5px;
     overflow:hidden;
-    min-height:130px;
+    padding:0 44px;
+    box-sizing:border-box;
 }
-.guideWording{
-    font-size:15px;
-    font-weight:700;
-}
+
 
 /* 참여자 없을 때 문구*/
 .no-participants{
@@ -123,7 +89,8 @@ video {
     font-weight:600;
     color:#777;
     width:100%;
-    text-align: center;
+    text-align: left;
+    padding:10px;
 }
 
 /* 서브화면 화살표 */
@@ -146,6 +113,7 @@ video {
     position:relative;
     -ms-overflow-style: none;     /* IE, Edge */
     scrollbar-width: none;        /* Firefox */
+    border:1px solid lightgray;
 }
 
 .sub-videos-container::-webkit-scrollbar {
@@ -153,10 +121,15 @@ video {
 }
 
 .sub-videos{
+    overflow-y:hidden;
     display:flex;
-    gap:20px;
+    flex-wrap:wrap;
+    gap:15px;
+    padding:15px;
     transition: transform 0.3s ease;
     will-change:transform;
+}
+.sub-video-content{
 }
 
 .sub-video{
@@ -165,12 +138,23 @@ video {
     width:200px;
     aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
     box-sizing:border-box;
+
+}
+.sub-video > .video{
+    width:100%;
+    aspect-ratio: 16/9;
+    background-color: black;
+}
+.sub-video-content > .userInfo{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top:3px;
 }
 
-.sub-video > .guestId{
-    font-size:8px;
-    color:blue;
-    text-align:center;
+.sub-video-content > .userInfo> p{
+    font-size:12px;
+    color:black;
 }
 
 
@@ -178,27 +162,15 @@ video {
     position: relative;
     width: 100%;
     height: 100%;
+    box-sizing:border-box;
 }
 
 .videoBox>video{
     width:100%;
-    height:100%;
+    aspect-ratio:16/9;
     object-fit: cover;
 }
 
-/* 음소거 버튼 */
-.muteButton{
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 4px;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    user-select: none;
-}
 
 .video-controls {
     position: absolute;
@@ -296,100 +268,6 @@ video {
     display: block;
 }
 
-/* 비디오 화면 아래부분 */
-.video-bottom-wrap{
-    display:flex;
-    justify-content:space-between;
-    align-items: center;
-}
-
-.video-bottom-wrap > .auctionTitle{
-    font-size:20px;
-    font-weight:700;
-    color:#777;
-    width:50%;
-}
-
-/* 경매 버튼 부분*/
-.bid-button-wrap{
-    display:flex;
-    justify-content: flex-end;
-    gap:10px;
-}
-
-.bid-button-wrap > .bid-button {
-    background-color: #FF9A7E;
-    border-radius: 4px;
-    padding: 6px 0;
-    cursor:pointer;
-    display:flex;
-    align-items: center;
-    transition:background-color 0.5s ease-out;
-}
-.bid-button-wrap > .bid-button:hover {
-    background-color: #ea6946;
-}
-.bid-button>span{
-    color: white;
-    cursor:pointer;
-}
-
-.bid-button-content{
-    font-size:15px;
-    padding: 0 8px 0 12px;
-}
-.bidAmount{
-    font-size:12px;
-    padding:0 12px 0 8px;
-    border-left:1px solid white;
-}
-
-
-/* 낙찰상품 버튼*/
-.complete-bidItem-list{
-    background-color: #EA6946;
-    display:flex;
-    align-items: center;
-    gap:12px;
-    padding: 6px;
-    border-radius: 4px;
-    cursor:pointer;
-}
-
-
-.complete-bidItem-list>img{
-    width:20px;
-}
-
-.complete-bidItem-list>span{
-    font-size:15px;
-    font-weight:600;
-    color:white;
-}
-
-
-/* 시청자수  & 태그*/
-.countTagWrap {
-    display:flex;
-    gap:8px;
-    margin-top:5px;
-}
-
-.countTagWrap>.tagWrap {
-    display:flex;
-    gap:5px;
-    justify-content:flex-start;
-    align-items: center;
-}
-.countTagWrap>.tagWrap>.tag {
-    line-height:1;
-    padding:6px 12px;
-    font-size:10px;
-    color:white;
-    background-color: #EA6946;
-    border-radius: 18px;
-}
-
 .chatWrap{
     /*width:30%;*/
     width:400px;
@@ -397,7 +275,7 @@ video {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 25px 0;
+    padding: 0 0 5px 0;
 }
 .chatWrap .chatList-wrap{
     width:80%;
@@ -417,7 +295,7 @@ video {
 .chatWrap .userChatList{
     padding:5px;
     width:100%;
-    max-height: 500px;
+    max-height: 350px;
     overflow-y: auto;
     overflow-x: hidden;        /* x축(가로) 스크롤은 숨김 */
     -ms-overflow-style: none;  /* IE, Edge */
@@ -490,47 +368,180 @@ video {
 
 
 
-.other-auctions-wrapper{
-    margin:0 auto;
-    width:1170px;
-    padding:20px 15px;
-    box-sizing:content-box;
+
+/* 서브비디오 아래부분 */
+.contentWrap-under{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    position:relative;
+    margin:10px 0;
 }
 
-.other-auctions{
+.contentWrap-under > .bidInfoWrapper{
+    width: 750px;
+    padding: 0 44px;
+    box-sizing:border-box;
+}
+
+.bidInfoWrapper>.bidInfo{
     display:flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.other-auction{
+.bidInfo > p>.guide{
+    color:black;
+    font-size:25px;
+    font-weight:600;
+}
+
+.bidInfo> p> .amount{
+    color:#EA6946;
+    font-size:25px;
+    padding-left:2px;
+    font-weight:600;
+}
+
+.bidInfo > div{
+    width:35%;
+}
+.bidInfo > div > p{
+    font-weight:600;
+    font-size:18px;
+}
+.bidInfo > div > .tagWrap{
+    width:100%;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
     margin-top:10px;
 }
 
-.other-auction > .other-video{
-    width:250px;
-    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
-    background-color:black;
+.bidInfo > div > .tagWrap > .tag{
+    padding:4px 12px;
+    background-color:#EA6946;
+    color:white;
+    border-radius:12px;
+    font-size:12px;
+}
+
+.bidInfoWrapper > .sliderWrap{
+    display:flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+.sliderWrap > .arrowWrap{
+    width:5%;
+}
+.arrowWrap > div > img{
+    width:30px;
     cursor:pointer;
 }
 
-.other-auction>p{
-    font-size:12px;
-    color:#777;
-    font-weight:600;
-    padding:2px 0 2px 5px;
+.bidInfoWrapper > .sliderWrap>.bidProdWrap{
+    display:flex;
+    justify-content:flex-start;
+    padding:20px 0 0 0;
+    width:90%;
+    overflow-x:auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width:none;
+    gap: 12px;
+}
+.sliderWrap>.bidProdWrap::-webkit-scrollbar {
+    display: none;
+}
+.bidProdWrap > .bidProdList > .prodName{
+    text-align:center;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.bidProdWrap > .bidProdList > .bidProd-picture{
+    width:190px;
+    aspect-ratio: 16/12;
+    background-color:blue;
 }
 
-.other-auction>ul{
-    display:flex;
-    padding:2px 5px;
-    gap:5px;
+.bidProdList > .bidProd-btnWrap{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    gap:3px;
+    padding:5px 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition:
+            max-height 1s ease,
+            opacity 1s ease,
+            transform 1s ease;
+    pointer-events: none;
 }
-.other-auction>ul>li{
-    line-height:1;
-    background-color: #ea6946;
+
+.bidProdList:hover > .bidProd-btnWrap{
+    max-height: 100px; /* 버튼 3개 정도 보여질 만큼 */
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.bidProd-btnWrap > .bidProd{
+    width:100%;
+    font-size:12px;
+    padding:4px 0;
+    border-radius:4px;
     color:white;
-    font-size:10px;
-    border-radius:18px;
-    padding:6px 12px;
+    text-align: center;
+    font-weight: 600;
+    cursor:pointer;
+}
+
+.bidProd.selectBtn{
+    background-color:#ff9a7e;
+}
+
+.bidProd.completeBtn{
+    background-color:#EA6946;
+}
+.bidProd.cancelBtn{
+    background-color:#B23F25;
+}
+
+ /*메인 비디오 부분*/
+.contentWrap-under >.main-videoWrapper{
+    margin-top:8px;
+    width: 400px;
+    height: calc(400px * 9 / 16); /* 가로세로 비율 고정 */
+    padding-left: 40px;
+    box-sizing:border-box;
+}
+.contentWrap-under >.main-videoWrapper>.videoBox{
+    width:350px;
+    aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
+}
+.contentWrap-under >.main-videoWrapper>.videoBox>video{
+    /* 고정 너비 대신 */
+    width: 100%;
+    height:100%;
+    object-fit: cover; /* 비디오 꽉 채움 */
+    display: block;
+}
+.main-video-title{
+    font-size:25px;
+    font-weight:700;
+    padding:0 12px;
+
+}
+.main-video-stop{
+    width: 100%;
+    height:100%;
+    background-color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
 }

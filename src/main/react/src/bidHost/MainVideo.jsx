@@ -1,95 +1,47 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {MdSwapHoriz} from "react-icons/md";
+import React, {useEffect, useRef, useState} from "react";
 
-const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
-    const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
-    const subVideosRef = useRef(); // 서브 비디오들을 감싸는 div 참조
+const MainVideo = ({peers, hostSocketId, children}) => {
 
+    const [stream, setStream] = useState(null);
 
     useEffect(() => {
-        console.log('Current peers:', peers);
-        console.log(peers[hostSocketId]);
-        console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
-    }, [peers]);
-
-    // 메인스트림(호스트 소켓)  설정
-    useEffect(() => {
-        if (!hostSocketId) return;
-
-        const hostPeer = peers[hostSocketId]
-        const hostStream = hostPeer?.stream
-        const hostHasVideo = hostStream && hostStream.getVideoTracks().length > 0;
-
-        // 메인 스트림이 없고 호스트가 영상을 보낸다면 메인화면으로 설정
-        if (hostHasVideo && mainStreamId !== hostSocketId) {
-            setMainStreamId(hostSocketId);
+        if (peers) {
+            setStream(peers.stream);
+        } else {
+            setStream(null)
         }
-        if (!hostHasVideo && mainStreamId && peers[mainStreamId]?.stream && peers[mainStreamId]?.stream.getVideoTracks().length > 0) {
-            setMainStreamId(null);
-        }
-        // 호스트 영상이 중단되었으면 메인화면 제거
-        else if (!hostHasVideo && mainStreamId === hostSocketId) {
-            setMainStreamId(null);
-        }
+    }, [peers])
 
-        // 항상 메인화면을 호스트로 고정
-        // setMainStreamId(hostVideoId);
-
-    }, [peers, hostSocketId]);
+    const [MutedStates, setMutedStates] = useState(true); // key: id, value: muted
 
 
-    // mainstream(영상) 설정
-    const mainStream = peers && peers[mainStreamId] ? peers[mainStreamId].stream : null;
-    const subPeers = Object.entries(peers).filter(
-        ([id, peer]) =>
-            id !== hostSocketId &&
-            peer?.stream &&
-            peer.stream.getVideoTracks().length > 0
-    );
-
-
-    const [subMutedStates, setSubMutedStates] = useState({}); // key: id, value: muted
-
-    const onSubMuteChange = (id, muted) => {
-        setSubMutedStates(prev => ({...prev, [id]: muted}));
-    };
-
-    // ----
     return (
-        <div className="videoWrapper">
-            <div className="sub-videoWrapper">
-                <div className="sub-videos-container">
-                    {subPeers.length > 0 ? (
-                        <div className="sub-videos" ref={subVideosRef}>
-                            {subPeers.map(([id, peer]) => (
-                                <div key={id} className="sub-video-content">
-                                    <div className="sub-video">
-                                        <Video
-                                            key={id}
-                                            id={id}
-                                            stream={peer.stream}
-                                            muted={subMutedStates[id] ?? true}
-                                            onMuteChange={(muted) => onSubMuteChange(id, muted)}
-                                        />
-                                    </div>
-                                    <div className="userInfo">
-                                        <p className="guestId">닉네임:{id}</p>
-                                        <p className="amount">입찰가:{100000}원</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="no-participants">화면공유 인원이 없습니다.</div>
-                    )}
+        <>
+            <div className="main-videoWrapper">
+                <div className="streaming-btn-wrap">
+                    {children}
                 </div>
+
+                {stream ? (
+                    <Video
+                        key={hostSocketId}
+                        id={hostSocketId}
+                        stream={stream}
+                        muted={true}
+                        onMuteChange={(muted) => setMutedStates(muted)}
+                    />
+                ) : (
+                    <div className="videoBox" style={{border: '2px solid transparent'}}>
+                        <div className="main-video-stop">방송 대기중</div>
+                    </div>
+                )}
             </div>
-        </div>
 
-    );
-};
+        </>
+    )
+}
 
-const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false}) => {
+const Video = ({id, stream, muted: mutedProp, isMain = false}) => {
     const videoRef = useRef();
     const [muted, setMuted] = useState(mutedProp ?? true);
     const [volume, setVolume] = useState(1); // 기본 볼륨 100%
@@ -279,38 +231,37 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false}) => 
     }
 
     return (
-        <div className={`videoBox${!isMain ? ' small' : ''}${isSpeaking ? ' speaking' : ''}`}
-             style={{border: isSpeaking && !isMain ? '4px solid limegreen' : '2px solid transparent'}}
-        >
-            <video
-                className="video"
-                ref={videoRef}
-                autoPlay
-                playsInline
-            />
-
-            <div className="video-controls">
-                <button className="icon-button" onClick={toggleMute} title={muted ? '음소거 해제' : '음소거'}>
-                    {muted || volume === 0 ? '🔇' : '🔊'}
-                </button>
-                <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    style={{fill: 'red'}}
-                    className="volume-slider"
-                    title="볼륨 조절"
+            <div className="videoBox">
+                <video
+                    className="video"
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
                 />
-                <button className="icon-button" onClick={handleFullscreen} title="전체화면">
-                    ⛶
-                </button>
-            </div>
 
-        </div>
+                <div className="video-controls">
+                    <button className="icon-button" onClick={toggleMute} title={muted ? '음소거 해제' : '음소거'}>
+                        {muted || volume === 0 ? '🔇' : '🔊'}
+                    </button>
+                    <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={volume}
+                        onChange={handleVolumeChange}
+                        style={{fill: 'red'}}
+                        className="volume-slider"
+                        title="볼륨 조절"
+                    />
+                    <button className="icon-button" onClick={handleFullscreen} title="전체화면">
+                        ⛶
+                    </button>
+                </div>
+
+            </div>
     );
 };
 
-export default VideoGrid;
+
+export default MainVideo;
