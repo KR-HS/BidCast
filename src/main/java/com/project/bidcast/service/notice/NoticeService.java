@@ -7,4 +7,6 @@ import java.util.List;
 public interface NoticeService {
 
     List<NoticeDTO> getAllNoticeTitles();
+    NoticeDTO getNoticeById(Integer id);
+
 }

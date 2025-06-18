@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './inquiryList.css';
 import Loader from "../Loader/Loader";
 
@@ -8,7 +8,7 @@ export default function InquiryList() {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [openList, setOpenList] = useState([]);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,12 +32,10 @@ export default function InquiryList() {
                     }, 500);
                 }
             }
-        }, 500); // 문의 등록과 동일하게 0.5초 지연
+        }, 500);
 
         return () => clearTimeout(timer);
     }, []);
-
-
 
     const filteredInquiries = inquiries
         .map((item, idx) => ({ ...item, idx })) // 인덱스를 함께 저장
@@ -57,6 +55,10 @@ export default function InquiryList() {
     const handleClick = (pageNumber) => setCurrentPage(pageNumber);
     const handlePrev = () => currentPage > 1 && setCurrentPage(prev => prev - 1);
     const handleNext = () => currentPage < totalPages && setCurrentPage(prev => prev + 1);
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(dateString).toLocaleDateString('ko-KR', options);
+    };
 
     if (isLoading) return <Loader />;
 
@@ -99,38 +101,15 @@ export default function InquiryList() {
                 </div>
 
                 <ul className="board-list">
-                    {currentItems.map((item) => {
-                        const isOpen = openList.includes(item.idx);
-                        return (
-                            <li
-                                key={item.inquiryKey}
-                                className={isOpen ? 'faq-open' : ''}
-                                onClick={() => handleToggle(item.idx)}
-                            >
-                                <div className="faq-q">
-                                    <span className="faq-icon q">문의</span>
-                                    {/*<span className="faq-badge">*/}
-                                    {/*    {item.reply === '답변완료' ? '답변완료' : '답변대기'}*/}
-                                    {/*</span>*/}
-                                    <span className="faq-question">{item.title}</span>
-                                    <span className={`faq-arrow${isOpen ? ' open' : ''}`}>▼</span>
-                                </div>
-                                {isOpen && (
-                                    <div className="faq-a">
-                                        <span className="faq-icon a">A</span>
-                                        <span className="faq-answer">
-                                            {item.content || '문의 내용이 없습니다.'}
-                                            <br />
-                                            <strong style={{ display: 'block', marginTop: '10px', color: '#555' }}>
-                                                답변:
-                                            </strong>
-                                            {item.replyContent || '아직 답변이 등록되지 않았습니다.'}
-                                        </span>
-                                    </div>
-                                )}
-                            </li>
-                        );
-                    })}
+                    {currentItems.map((item) => (
+                        <InquiryItem
+                            key={item.inquiryKey}
+                            item={item}
+                            isOpen={openList.includes(item.idx)}
+                            onToggle={() => handleToggle(item.idx)}
+                            formatDate={formatDate}
+                        />
+                    ))}
                 </ul>
 
                 <div className="pagination">
@@ -148,5 +127,59 @@ export default function InquiryList() {
                 </div>
             </div>
         </div>
+    );
+}
+
+function InquiryItem({ item, isOpen, onToggle, formatDate }) {
+    const contentRef = useRef(null);
+    const [height, setHeight] = useState(0);
+
+    useEffect(() => {
+        if (isOpen && contentRef.current) {
+            setHeight(contentRef.current.scrollHeight);
+        } else {
+            setHeight(0);
+        }
+    }, [isOpen]);
+
+    return (
+        <li
+            className={isOpen ? 'faq-open' : ''}
+            onClick={onToggle}
+            style={{ cursor: 'pointer' }}
+        >
+            <div className="faq-q">
+                <div className="faq-left">
+                    {/* 글번호 표시 */}
+                    <span className="faq-number">{item.inquiryKey}</span>
+                    <span className="faq-icon q">문의</span>
+                    <span className="faq-question">{item.title}</span>
+                </div>
+
+                <div className="faq-meta">
+                    <span className="date">{item.createDate ? formatDate(item.createDate) : ''}</span>
+                    <span className={`faq-badge ${item.reply === '답변완료' ? 'complete' : 'pending'}`}>
+                        {item.reply}
+                    </span>
+                </div>
+            </div>
+
+            <div
+                className="faq-a"
+                ref={contentRef}
+                style={{
+                    height: height,
+                    overflow: 'hidden',
+                    transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+            >
+                <span className="faq-icon a">문의내용</span>
+                <span className="faq-answer">
+                    {item.content || '문의 내용이 없습니다.'}
+                    <br />
+                    <strong>답변:</strong> {item.replyContent || '아직 답변이 등록되지 않았습니다.'}
+                </span>
+            </div>
+        </li>
     );
 }

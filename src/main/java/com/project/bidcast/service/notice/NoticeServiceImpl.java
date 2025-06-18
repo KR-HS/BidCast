@@ -17,4 +17,10 @@ public class NoticeServiceImpl implements NoticeService {
     public List<NoticeDTO> getAllNoticeTitles() {
         return noticeMapper.getAllNoticeTitles();
     }
+
+    @Override
+    public NoticeDTO getNoticeById(Integer id) {
+        return noticeMapper.getNoticeById(id);
+    }
+
 }

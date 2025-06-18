@@ -137,8 +137,10 @@ body {
 .board-list .num {
     width: 32px;
     font-weight: 600;
-    color: #EA6946;
+    color: #ea6946;
     text-align: center;
+    margin-top: 4px;
+    margin-right: 5px;
 }
 .board-list .title {
     flex: 1;
@@ -164,6 +166,21 @@ body {
     color: #888;
     font-size: 0.98rem;
 }
+
+.no-result {
+    text-align: center;
+    padding: 2rem;
+}
+
+
+.notice-link {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
 
 .pagination {
     display: flex;
