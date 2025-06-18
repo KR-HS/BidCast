@@ -3,6 +3,7 @@ import './App.css'
 import Calendar from "../calendar/calendar";
 import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
+import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
 
 
 const images = [
@@ -17,8 +18,6 @@ export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
 
-
-
     //경매리스트 불러옴
     const [auctions, setAuctions] = useState([]);
 
@@ -28,6 +27,24 @@ export default function App() {
     const [showRegAuction, setShowRegAuction] = useState(false); //경매장등록
     const [user, setUser] = useState(null);
 
+    const [notices, setNotices] = useState([]);
+    const [noticeIdx, setNoticeIdx] = useState(0);
+
+
+    // 공지사항 목록을 DB에서 fetch
+    useEffect(() => {
+        fetch('/api/notices') // 공지사항을 반환하는 엔드포인트 필요
+            .then(res => res.json())
+            .then(data => setNotices(Array.isArray(data) ? data : []));
+    }, []);
+
+    useEffect(() => {
+        if (notices.length === 0) return;
+        const timer = setInterval(() => {
+            setNoticeIdx(prev => (prev + 1) % notices.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [notices]);
 
     // 날짜 포맷: "YYYY-MM-DD"
     const formatDate = (date) =>
@@ -72,7 +89,6 @@ export default function App() {
                 return null;
         }
     };
-
 
 
     useEffect(() => {
@@ -127,6 +143,7 @@ export default function App() {
         };
     }, [showRegAuction]);
 
+    //이미지 슬라이드
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrent(prev => (prev + 1) % images.length);
@@ -135,6 +152,7 @@ export default function App() {
         return () => clearInterval(timer);
     }, []);
 
+    // 스크롤 버튼 위치
     useEffect(() => {
         function handleScroll() {
             const footer = document.querySelector('footer'); // 실제 푸터 선택자에 맞게 수정
@@ -158,6 +176,16 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+<<<<<<< HEAD
+=======
+    // 경매 데이터 불러오기
+    useEffect(() => {
+        fetch('/api/auctions/top6')
+            .then(res => res.json())
+            .then(data => setAuctions(Array.isArray(data) ? data : []))
+            .catch(() => setAuctions([]));
+    }, []);
+>>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
 
     const isToday = (date) => {
         return (
@@ -179,6 +207,7 @@ export default function App() {
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
 
 
+<<<<<<< HEAD
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -208,6 +237,8 @@ export default function App() {
 
 
 
+=======
+>>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -236,6 +267,14 @@ export default function App() {
     }, []);
     
 
+<<<<<<< HEAD
+=======
+    useEffect(() => {
+
+
+    }, [user]);
+
+>>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
 
     //경매장 등록
     const regAuc = (e) => {
@@ -248,6 +287,14 @@ export default function App() {
         // 클릭된 요소나 그 부모가 modal 클래스를 가진 요소가 아닐 경우에만 모달 닫기
         if (showRegAuction && containerRef.current && !e.target.closest('.modal')) {
             setShowRegAuction(false);
+        }
+    };
+
+    const handleMyPageClick = () => {
+        if (user === null) {
+            window.location.href = "login.do";
+        } else {
+            window.location.href = "myPage.do";
         }
     };
 
@@ -308,28 +355,26 @@ export default function App() {
                 />
                 <div className="action-buttons">
                     <div className="main-actions">
-                        <div className="action">
+                        <div className="action" onClick={()=>{window.location.href="./search.do"}}>
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/751/751463.png"
                                 alt="경매검색"
                                 className="action-icon"
-                                onClick={()=>{window.location.href="#"}}
                             />
                             <div className="action-label">경매검색</div>
                         </div>
-                        <div className="action">
+                        <div className="action" onClick={()=>{window.location.href="./schedule.do"}}>
 
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
                                 className="action-icon"
-                                onClick={()=>{window.location.href="./schedule.do"}}
                             />
                             <div className="action-label">경매일정</div>
                         </div>
                     </div>
                     <div className="login-section">
-                        <div className="my-page">마이페이지</div>
+                        <div className="my-page" onClick={handleMyPageClick}>마이페이지</div>
 
                         {/*로그인이 여부 확인*/}
                         {user === null?(
@@ -365,8 +410,12 @@ export default function App() {
 
             <div className="notice">
                 <span role="img" aria-label="notice">📢</span>
-                &nbsp;경매 시작은 항상 오전 9시에 오픈됩니다. 일정 없이 변동될 수 있습니다.
+                &nbsp;
+                {notices.length > 0
+                    ? notices[noticeIdx].title // 공지사항 내용 컬럼명에 맞게 수정
+                    : "공지사항이 없습니다."}
             </div>
+
 
             <div className="calendar-header">
                 <button className="calendar-tab active">경매일정</button>
@@ -383,11 +432,46 @@ export default function App() {
                         </span>
                         <span className="auction-dropdown" onClick={()=>{window.location.href="./schedule.do"}}>경매일정 전체보기 &gt;</span>
                     </div>
-                    <h3>경매리스트</h3>
-                    <ul>
-                        <li>상품1</li>
-                        <li>상품2</li>
-                    </ul>
+                    <div className="auction-two-column-list">
+                        {filteredAuctions.length === 0 ? (
+                            <div className="no-auction">등록된 경매가 없습니다</div>
+                        ) : (
+                            <>
+                                <div className="auction-column">
+                                    {leftColumn.map((item, idx) => {
+                                        const status = getAuctionStatus(item.startTime, item.endTime);
+                                        return (
+                                            <div className="auction-item" key={item.auctionId || idx}>
+                                                <div className="auction-icon">
+                                                    {getStatusImage(status)}
+                                                </div>
+                                                <div className="auction-info">
+                                                    <div className="auction-title">{item.title}</div>
+                                                    <div className="auction-time">{formatTime(item.startTime)}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="auction-column">
+                                    {rightColumn.map((item, idx) => {
+                                        const status = getAuctionStatus(item.startTime, item.endTime);
+                                        return (
+                                            <div className="auction-item" key={item.auctionId || idx}>
+                                                <div className="auction-icon">
+                                                    {getStatusImage(status)}
+                                                </div>
+                                                <div className="auction-info">
+                                                    <div className="auction-title">{item.title}</div>
+                                                    <div className="auction-time">{formatTime(item.startTime)}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
             {!showRegAuction &&(

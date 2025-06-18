@@ -45,6 +45,7 @@
     flex-direction: column;
     align-items: center;
     width: 140px;
+    cursor: pointer;
 }
 
 .action-icon {
@@ -72,6 +73,7 @@
 .my-page{
     font-size: 11px;
     margin-left: 27px;
+    cursor: pointer;
 }
 
 .btn.login {

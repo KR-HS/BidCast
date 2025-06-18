@@ -12,9 +12,14 @@
     </insert>
 
     <select id="getAllInquiries" resultType="com.project.bidcast.vo.InquiryDTO">
-        SELECT inquiry_key, title, content, reply, create_date
+        SELECT
+            inquiry_key AS inquiryKey,
+            title,
+            content,
+            reply,
+            create_date AS createDate
         FROM inquiry
         ORDER BY create_date DESC
-
     </select>
+
 </mapper>
