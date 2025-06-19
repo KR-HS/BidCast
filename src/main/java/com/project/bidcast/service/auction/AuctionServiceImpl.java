@@ -6,6 +6,7 @@ import com.project.bidcast.service.auth.AuthService;
 import com.project.bidcast.vo.AuctionDTO;
 import com.project.bidcast.vo.AuctionDetailDTO;
 import com.project.bidcast.vo.AuctionHistoryDTO;
+import com.project.bidcast.vo.AuctionItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,17 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public AuctionDetailDTO getAuctionDetail(Integer auctionId) {
-        return auctionMapper.selectAuctionDetail(auctionId);
+        AuctionDetailDTO detail = auctionMapper.selectAuctionDetail(auctionId);
+        List<AuctionItemDTO> items = auctionMapper.selectAuctionItemsByAuctionId(auctionId);
+        detail.setItems(items);
+        return detail;
+    }
+
+    @Override
+    public List<AuctionItemDTO> getWinningProductsByUserKey(Integer userKey) {
+        List<AuctionItemDTO> winnerItems = auctionMapper.selectWinningProductsByUserId(userKey);
+        System.out.println(winnerItems);
+        return winnerItems ;
     }
 }
 

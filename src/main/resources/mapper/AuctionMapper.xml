@@ -6,18 +6,26 @@
         SELECT
             a.auction_id AS auctionId,
             a.title AS title,
-            i.file_data AS imgUrl
+            i.file_data AS imgUrl,
+            a.session AS session,
+        a.start_time AS startTime,
+        a.end_time AS endTime,
+        a.created_at AS auctionDate,
+        string_agg(t.tag_name, ', ') AS tags
         FROM auction a
-                 JOIN product p ON a.auction_id = p.auc_key
-                 JOIN (
+            JOIN product p ON a.auction_id = p.auc_key
+            JOIN (
             SELECT prod_key, MIN(reg_date) AS min_regdate
             FROM file
             GROUP BY prod_key
-        ) fi ON p.prod_key = fi.prod_key
-                 JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
+            ) fi ON p.prod_key = fi.prod_key
+            JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
+            LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
+            LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE a.host_id = #{loginId}
-        GROUP BY a.auction_id, a.title, i.file_data;
+        GROUP BY a.auction_id, a.title, i.file_data, a.session, a.created_at, a.start_time, a.end_time
     </select>
+
 
     <select id="selectAuctionDetail" resultType="com.project.bidcast.vo.AuctionDetailDTO" parameterType="int">
         SELECT
@@ -25,15 +33,48 @@
             a.session,
             a.title,
             u.user_name AS auctioneer,
-            a.start_time AS date,
+            a.start_time AS startTime,
+            a.end_time AS endTime,
     COUNT(p.prod_key) AS itemCount
         FROM auction a
             LEFT JOIN product p ON a.auction_id = p.auc_key
             LEFT JOIN users u ON a.host_id = u.login_id
         WHERE a.auction_id = #{auctionId}
-        GROUP BY a.auction_id, a.session, a.title, u.user_name, a.start_time;
+        GROUP BY a.auction_id, a.session, a.title, u.user_name, a.start_time, a.end_time;
     </select>
 
+    <select id="selectAuctionItemsByAuctionId" resultType="com.project.bidcast.vo.AuctionItemDTO" parameterType="int">
+        SELECT
+            p.prod_key AS prodId,
+            p.prod_name AS prodName,
+            (
+                SELECT f.file_data
+                FROM file f
+                WHERE f.prod_key = p.prod_key
+                LIMIT 1
+            ) AS image,
+    p.final_price AS price,
+    u.nickname AS winner
+        FROM product p
+            LEFT JOIN users u ON p.winner_id = u.user_key
+        WHERE p.auc_key = #{auctionId};
 
+    </select>
+
+    <select id="selectWinningProductsByUserId" resultType="AuctionItemDTO">
+        SELECT
+            p.prod_key AS prodId,
+            p.prod_name AS prodName,
+            (
+                SELECT f.file_data
+                FROM file f
+                WHERE f.prod_key = p.prod_key
+                LIMIT 1
+            ) AS image,
+        p.final_price AS price
+        FROM product p
+        WHERE p.winner_id = #{userKey}
+        ORDER BY p.prod_key DESC
+    </select>
 
 </mapper>

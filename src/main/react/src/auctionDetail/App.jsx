@@ -9,16 +9,6 @@ function getAuctionIdFromQuery() {
 
 }
 
-//경매 상태 계산
-function getAuctionStatus(startTime, endTime){
-    const now = new Date();
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-
-    if(now < start) return "예정";
-    if(now >= start && now <= end) return "진행중";
-    return "종료";
-}
 
 export default function App() {
 
@@ -60,7 +50,33 @@ export default function App() {
         );
     }
 
+    //경매 상태 계산
+    function getAuctionStatus(startTime, endTime){
+        const now = new Date();
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+
+        if(now < start) return "예정";
+        if(now >= start && now <= end) return "진행중";
+        return "종료";
+    }
+
     const auctionStatus = getAuctionStatus(auctionData.startTime,auctionData.endTime);
+
+    function handleBid(prodId) {
+        // 실제로는 API 호출 필요
+        // 예시: fetch(`/api/auctions/bid`, {method: 'POST', body: ...})
+        // 성공 시 auctionData 상태 업데이트
+        // 여기선 간단히 상태를 직접 변경하는 예시
+        setAuctionData(prev => ({
+            ...prev,
+            items: prev.items.map(item =>
+                item.prodId === prodId
+                    ? { ...item, winner: "현재유저", price: 10000 } // 예시값
+                    : item
+            )
+        }));
+    }
 
     return (
         <div className="auction-wrapper">
@@ -97,22 +113,59 @@ export default function App() {
                 </tr>
                 </thead>
                 <tbody>
-                {/*{auctionData.items.map((item) => (*/}
-                {/*    <tr key={item.id}>*/}
-                {/*        <td>{item.id}번</td>*/}
-                {/*        <td>{item.name}</td>*/}
-                {/*        <td>*/}
-                {/*            <img*/}
-                {/*                className="item-image"*/}
-                {/*                src={item.image}*/}
-                {/*                alt={item.name}*/}
-                {/*            />*/}
-                {/*        </td>*/}
-                {/*        <td></td>*/}
-                {/*        <td></td>*/}
-                {/*    </tr>*/}
-                {/*))}*/}
+                {auctionData.items.map((item) => {
+                    let priceCell = "";
+                    let winnerCell = "";
+
+                    if (auctionStatus === "예정") {
+                        // 예정: 빈칸
+                        priceCell = "";
+                        winnerCell = "";
+                    } else if (auctionStatus === "진행중") {
+                        if (item.winner && item.price) {
+                            // 이미 낙찰됨
+                            priceCell = item.price.toLocaleString() + "원";
+                            winnerCell = item.winner;
+                        } else if (item.isFailed) {
+                            // 유찰
+                            priceCell = "유찰";
+                            winnerCell = "유찰";
+                        } else {
+                            // 낙찰 전
+                            priceCell = "";
+                            winnerCell = (
+                                <button
+                                    onClick={() => handleBid(item.prodId)}
+                                    className="bid-btn">
+                                    낙찰
+                                </button>
+                            );
+                        }
+                    } else if (auctionStatus === "종료") {
+                        if (item.winner && item.price) {
+                            priceCell = item.price.toLocaleString() + "원";
+                            winnerCell = item.winner;
+                        } else {
+                            priceCell = "유찰";
+                            winnerCell = "유찰";
+                        }
+                    }
+
+                    return (
+                        <tr key={item.prodId}>
+                            <td>{item.prodId}번</td>
+                            <td>{item.prodName}</td>
+                            <td>
+                                <img className="item-image" src={item.image} alt={item.prodName} />
+                            </td>
+                            <td>{priceCell}</td>
+                            <td>{winnerCell}</td>
+                        </tr>
+                    );
+                })}
                 </tbody>
+
+
             </table>
 
             <button className="bidHistory-btn" onClick={()=> window.location.href='./bidHistory.do'}>목록</button>

@@ -53,17 +53,20 @@
     padding: 4px 8px;
     border-radius: 7px;
     font-size: 12px;
+    color: #fff;
 }
 
 /* 상태별 색상 */
 .status.upcoming {
-    background-color: #49b323;
-    color: #fff;
+    background-color: #0054ff;
 }
 
-.status.closed {
-    background-color: #fdd8d4;
-    color: #d44b2a;
+.status.ongoing {
+    background-color: #2fcd37;
+}
+
+.status.ended {
+    background-color: red;
 }
 
 .tags {

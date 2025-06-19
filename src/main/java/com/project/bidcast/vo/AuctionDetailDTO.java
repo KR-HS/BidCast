@@ -19,6 +19,8 @@ public class AuctionDetailDTO {
     private List<String> tags;           // 태그 목록
     private String auctioneer;           // 경매사 이름
     private String date;                 // 진행일자(시작/종료일)
+    private String startTime; // ISO 8601 형식 추천 (예: "2025-06-20T10:00:00")
+    private String endTime;   // ISO 8601 형식 추천 (예: "2025-06-20T15:00:00")
     private int itemCount;               // 경매장 내 상품 개수
     private List<AuctionItemDTO> items;  //
 }
