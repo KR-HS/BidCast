@@ -73,7 +73,7 @@ video {
 /* 서브 화면 부분*/
 .sub-videoWrapper{
     width:100%;
-    height : 455px; /* 가로세로 비율 고정 */
+    height : 500px; /* 가로세로 비율 고정 */
     display:flex;
     flex-direction:column;
     gap:5px;
@@ -295,7 +295,7 @@ video {
 .chatWrap .userChatList{
     padding:5px;
     width:100%;
-    max-height: 350px;
+    max-height: 400px;
     overflow-y: auto;
     overflow-x: hidden;        /* x축(가로) 스크롤은 숨김 */
     -ms-overflow-style: none;  /* IE, Edge */
@@ -439,6 +439,7 @@ video {
 .arrowWrap > div > img{
     width:30px;
     cursor:pointer;
+    margin-bottom: 25px;
 }
 
 .bidInfoWrapper > .sliderWrap>.bidProdWrap{
@@ -461,16 +462,61 @@ video {
     margin-bottom: 5px;
 }
 .bidProdWrap > .bidProdList > .bidProd-picture{
-    width:190px;
+    width:186px;
     aspect-ratio: 16/12;
-    background-color:blue;
+    position: relative;
+    border:2px solid transparent;
+}
+.bidProd-picture > img{
+    width:100%;
+    height:100%;
+}
+.bidProdList.selected >.bidProd-picture  {
+    border: 2px solid #3b82f6; /* 파란 테두리 */
+}
+
+.bidProdList.completed >.bidProd-picture,.bidProdList.cancelled >.bidProd-picture  {
+    border: 2px solid #fff;
+}
+
+.bidProd-picture > .checkMark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #3b82f6;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 50%;
+    font-size: 12px;
+}
+.bidProd-picture > .overlay-text{
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    width:100%;
+    height:100%;
+    font-weight: bold;
+    opacity:70%;
+}
+.bidProdList.completed .overlay-text{
+    background-color:rgba(234,105,70,1);
+}
+
+.bidProdList.cancelled .overlay-text{
+    background: rgba(0,0,0,1);
 }
 
 .bidProdList > .bidProd-btnWrap{
+    position: relative;
     display: flex;
     flex-direction:column;
     align-items: center;
     gap:3px;
+    border: 2px solid transparent;
     padding:5px 0;
     overflow: hidden;
     opacity: 0;
@@ -478,7 +524,8 @@ video {
     transition:
             max-height 1s ease,
             opacity 1s ease,
-            transform 1s ease;
+            transform 1s ease,
+            border 0.3s ease;
     pointer-events: none;
 }
 
@@ -511,9 +558,41 @@ video {
     background-color:#B23F25;
 }
 
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.modal-buttons button {
+    margin: 10px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border:none;
+}
+
+
+
  /*메인 비디오 부분*/
 .contentWrap-under >.main-videoWrapper{
-    margin-top:8px;
+    margin-top:40px;
     width: 400px;
     height: calc(400px * 9 / 16); /* 가로세로 비율 고정 */
     padding-left: 40px;

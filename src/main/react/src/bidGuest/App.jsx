@@ -5,6 +5,8 @@ import {Device} from 'mediasoup-client'
 import VideoGrid from './VideoGrid'
 import Loader from "../Loader/Loader";
 import ChatTable from "../bidHost/ChatTable";
+import OtherAuction from "./OtherAuction";
+import DoBid from "./DoBid";
 
 
 export default function App() {
@@ -85,7 +87,7 @@ export default function App() {
 
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
+        // const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
         setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
@@ -134,13 +136,21 @@ export default function App() {
             auctionId: roomId
         })
 
+
+
         socket.current.emit('join-auction', {auctionId: roomId}, (response) => {
-            const {joined, hostSocketId, userCount, hostLoginId, chats} = response
+            const {joined, hostSocketId, userCount, hostLoginId, chats,selectProduct} = response
             if (joined) {
                 // if(hostLoginId===userId){
                 //     location.href=`/bidHost.do?roomId=${roomId}`;
                 //     return;
                 // }
+
+
+                if(selectProduct) {
+                    console.log("선택상품받아옴",selectProduct);
+                    setSelectedProduct(selectProduct);
+                }
 
                 console.log("채팅내역 가져오기", chats)
 
@@ -496,6 +506,91 @@ export default function App() {
     }, [roomId, userId])
 
 
+
+    // 호스트가 상품선택 / 낙찰 / 유찰시 작동
+
+    const [selectedProduct, setSelectedProduct] = useState(null); // 선택된 상품
+    const [statusMessage, setStatusMessage] = useState(null);     // 낙찰/유찰 메시지
+    const [isAuctionEnded, setIsAuctionEnded] = useState(false);  // 경매 종료 여부
+
+
+    function normalizeProduct(rawProduct) {
+        return {
+            prodKey: rawProduct.prod_key,
+            aucKey:rawProduct.auc_key,
+            prodName: rawProduct.prod_name,
+            prodDetail:rawProduct.prod_detail,
+            initPrice:rawProduct.init_price,
+            finalPrice: rawProduct.final_price,
+            winnerId: rawProduct.winner_id,
+        };
+    }
+
+    useEffect(() => {
+        if (!socket.current) return;
+
+        // 🟢 호스트가 상품 선택 시
+        socket.current.on("host-selected-product", ({ product }) => {
+            console.log("선택된 상품:", product);
+            setSelectedProduct(product); // 게스트 화면에 선택 상품 표시
+        });
+
+        // 🟡 낙찰 또는 유찰 시
+        socket.current.on("bid-status", ({ prodKey,winner, status }) => {
+            console.log("상품 상태 변경:", prodKey, status);
+
+            if(status==="유찰") setStatusMessage("❌ 유찰!");
+            if(winner===userId && status==="낙찰"){
+                setStatusMessage("🎉 낙찰!");
+            }
+
+            // setStatusMessage(`${status === "낙찰" ? "🎉 낙찰!" : "❌ 유찰!"}`); // 잠깐 표시 후 사라지게
+
+            // 예: 몇 초 뒤 메시지 사라짐
+            setTimeout(() => {
+                setStatusMessage(null);
+            }, 2000);
+        });
+
+        // 🔴 경매 종료 알림
+        socket.current.on("auction-ended", () => {
+            alert("⏰ 경매가 종료되었습니다.");
+            setIsAuctionEnded(true);
+        });
+
+        // 입찰 결과//
+        socket.current.on("bid-update", ({ product, bidder }) => {
+            console.log("입찰 갱신:", product, bidder);
+            const formattedProduct = normalizeProduct(product);
+            setSelectedProduct(formattedProduct);
+
+            // 만약 본인이 입찰자라면 별도 UI 표시 가능
+            if (bidder.socketId === socket.current.id) {
+                alert(`🎉 당신이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+            } else {
+                alert(`${bidder.userName} 님이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+            }
+        });
+
+        socket.current.on("bid-rejected", ({ reason }) => {
+            alert(`입찰 실패: ${reason}`);
+        });
+
+
+        return () => {
+            socket.current.off("host-selected-product");
+            socket.current.off("bid-status");
+            socket.current.off("auction-ended");
+            socket.current.off("bid-update");
+            socket.current.off("bid-rejected");
+        };
+    }, [mySocketId]);
+
+
+
+
+
+
     // socketIdToProducerIdRef 상태 동기화
     useEffect(() => {
         socketIdToProducerIdRef.current = socketIdToProducerId;
@@ -649,16 +744,14 @@ export default function App() {
         <>
             <div className="contentWrap">
                 <div className="videoContent">
-                    {/*<button onClick={toggleStreaming} className="streaming-btn">*/}
-                    {/*    {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}*/}
-                    {/*</button>*/}
                     <div className="titleWrap">
-                        <p className="title">매물명:{"루이암스트롱"}</p>
-                        <p className="price">현재최고가:{"100,000"}원</p>
+                        <p className="title">매물명:{selectedProduct?.prodName}</p>
+                        <p className="price">현재최고가:{(selectedProduct?.finalPrice??0).toLocaleString()}원</p>
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}
                                mySocketId={mySocketId}
+                               isAuctionEnded={isAuctionEnded}
                     >
                         <div onClick={toggleStreaming} className="streaming-btn">
                             {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
@@ -666,17 +759,7 @@ export default function App() {
                     </VideoGrid>
                     <div className="video-bottom-wrap">
                         <p className="auctionTitle">경매제목</p>
-                        <div className="bid-button-wrap">
-                            <div className="bid-button">
-                                <span className="bid-button-content">입찰 </span>
-                                <span className="bidAmount">{101000}원</span>
-                            </div>
-
-                            <div className="complete-bidItem-list">
-                                <img src="/img/menubar.png" alt="메뉴바"/>
-                                <span>낙찰상품</span>
-                            </div>
-                        </div>
+                        <DoBid product={selectedProduct} socket={socket} userId={userId} roomId={roomId}/>
                     </div>
                     <div className="countTagWrap">
                         <p className="guestCount">{userCount}명 시청중</p>
@@ -693,49 +776,13 @@ export default function App() {
 
             </div>
 
-            <div className="other-auctions-wrapper">
-                <p className="guideWording">다른 경매</p>
-                <div className="other-auctions">
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p>다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
+            <OtherAuction />
 
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
-
-                    <div className="other-auction">
-                        <div className="other-video"></div>
-                        <p className="other-video-title">다른 경매 회차</p>
-                        <ul>
-                            <li>태그1</li>
-                            <li>태그2</li>
-                            <li>태그33</li>
-                        </ul>
-                    </div>
+            {statusMessage && (
+                <div className="status-popup">
+                    {statusMessage}
                 </div>
-            </div>
+            )}
         </>
     )
 }

@@ -38,9 +38,8 @@ public class SecConfig {
                         "/bundle/**",
                         "/api/**",
                         "/home.do",
-                        "/join.do",
-                        "/**"
-
+                        "/join.do"
+                        ,"**"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

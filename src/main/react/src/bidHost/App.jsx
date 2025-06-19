@@ -77,6 +77,7 @@ export default function App() {
     const userIdRef = useRef(null);
 
 
+    const [selectedProduct,setSelectedProduct] = useState(null);
     // 채팅 목록
     const [chats, setChats] = useState([]);
     const MAX_CHAT_COUNT = 20;
@@ -88,37 +89,49 @@ export default function App() {
 
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
+        // const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
         setUserId(params.get("userId"));
         console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
 
-        // // 세션데이터
-        // const fetchUserInfo = async () => {
-        //     try {
-        //         const response = await fetch("/api/v1/getUserInfo", {
-        //             method: "POST",
-        //             credentials: "include",
-        //             headers: {
-        //                 "Content-Type": "application/json"
-        //             }
-        //         });
-        //
-        //         if (!response.ok) {
-        //             location.href = '/login.do';
-        //             return;
-        //         }
-        //
-        //         const data = await response.json();
-        //         console.log("사용자 정보:", data);
-        //         setUserId(data.loginId);
-        //     } catch (error) {
-        //         // console.error("사용자 정보 요청 실패:", error);
-        //     }
-        // };
-        // fetchUserInfo();
+        // 세션데이터
+    //     const fetchUserInfo = async () => {
+    //         try {
+    //             const response = await fetch("/api/v1/getUserInfo", {
+    //                 method: "POST",
+    //                 credentials: "include",
+    //                 headers: {
+    //                     "Content-Type": "application/json"
+    //                 }
+    //             });
+    //
+    //             if (!response.ok) {
+    //                 location.href = '/login.do';
+    //                 return;
+    //             }
+    //
+    //             const data = await response.json();
+    //             console.log("사용자 정보:", data);
+    //             setUserId(data.loginId);
+    //         } catch (error) {
+    //             // console.error("사용자 정보 요청 실패:", error);
+    //         }
+    //     };
+    //     fetchUserInfo();
     }, []);
+
+    function normalizeProduct(rawProduct) {
+        return {
+            prodKey: rawProduct.prod_key,
+            aucKey:rawProduct.auc_key,
+            prodName: rawProduct.prod_name,
+            prodDetail:rawProduct.prod_detail,
+            initPrice:rawProduct.init_price,
+            finalPrice: rawProduct.final_price,
+            winnerId: rawProduct.winner_id,
+        };
+    }
 
 
     useEffect(() => {
@@ -139,8 +152,18 @@ export default function App() {
         })
 
         socket.current.emit('join-auction', {auctionId: roomId}, (response) => {
-            const {joined, hostSocketId, userCount, hostLoginId, chats} = response
+            const {joined, hostSocketId, userCount, hostLoginId, chats,selectProduct} = response
             if (joined) {
+                // if(hostLoginId!==userId){
+                //     location.href=`/bidGuest.do?roomId=${roomId}`;
+                //     return;
+                // }
+
+                if(selectProduct){
+                    const product = normalizeProduct(normalizeProduct);
+                    setSelectedProduct(product);
+                }
+
                 console.log("채팅내역 가져오기", chats)
 
                 const formattedChats = response.chats.map(chat => ({
@@ -670,7 +693,7 @@ export default function App() {
             </div>
 
             <div className="contentWrap-under">
-                <BidInfo roomId={roomId} userId={userId}/>
+                <BidInfo socket = {socket} roomId={roomId} userId={userId} selectProductIdx={selectedProduct?.prodKey}/>
 
                 <MainVideo peers={peers[hostId]} hostSocketId={hostId}>
                     <div onClick={toggleStreaming} className="streaming-btn">

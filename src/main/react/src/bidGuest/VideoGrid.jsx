@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {MdSwapHoriz} from "react-icons/md";
 
-const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
+const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) => {
     const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
     const [scrollX, setScrollX] = useState(0); // 서브 비디오 영역의 스크롤 위치
     const [maxScrollX, setMaxScrollX] = useState(0); // 스크롤 가능한 최대 길이
@@ -113,7 +113,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
                     />
                 ) : (
                     <div className="videoBox" style={{border: '2px solid transparent'}}>
-                        <div className="main-video-stop">방송이 중단되었습니다.</div>
+                        <div className="main-video-stop">{isAuctionEnded?"경매가 종료되었습니다.":"방송이 중단되었습니다."}</div>
                     </div>
                 )}
             </div>

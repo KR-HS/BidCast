@@ -313,11 +313,13 @@ video {
 
 .bid-button-wrap > .bid-button {
     background-color: #FF9A7E;
+    min-width:100px;
     border-radius: 4px;
     padding: 6px 0;
     cursor:pointer;
     display:flex;
     align-items: center;
+    justify-content: center;
     transition:background-color 0.5s ease-out;
 }
 .bid-button-wrap > .bid-button:hover {
@@ -533,4 +535,37 @@ video {
     font-size:10px;
     border-radius:18px;
     padding:6px 12px;
+}
+
+.status-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 30, 30, 0.9);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 18px;
+    z-index: 1000;
+    animation: fade-in-out 2s ease-in-out;
+}
+
+/* 애니메이션 */
+@keyframes fade-in-out {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    10% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
 }
