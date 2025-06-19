@@ -8,5 +8,9 @@ public interface AuthService {
 
     void createUser(Map<String, String> userInfo);
     UsersDTO searchId(Map<String, String> userInfo);
+
     UsersDTO getUserByLoginId(String loginId);
+
+    boolean checkPassword(int userKey, String inputPassword);
+
 }
