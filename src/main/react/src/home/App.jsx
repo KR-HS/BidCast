@@ -176,8 +176,7 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-<<<<<<< HEAD
-=======
+
     // 경매 데이터 불러오기
     useEffect(() => {
         fetch('/api/auctions/top6')
@@ -185,7 +184,6 @@ export default function App() {
             .then(data => setAuctions(Array.isArray(data) ? data : []))
             .catch(() => setAuctions([]));
     }, []);
->>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
 
     const isToday = (date) => {
         return (
@@ -207,7 +205,7 @@ export default function App() {
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
 
 
-<<<<<<< HEAD
+
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -236,9 +234,6 @@ export default function App() {
     }, []);
 
 
-
-=======
->>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -267,14 +262,12 @@ export default function App() {
     }, []);
     
 
-<<<<<<< HEAD
-=======
+
     useEffect(() => {
 
 
     }, [user]);
 
->>>>>>> 8e0c4e05674cfad41a4903a86ec89da0538fea1d
 
     //경매장 등록
     const regAuc = (e) => {
