@@ -66,13 +66,13 @@
     color: #d44b2a;
 }
 
-.category-tags {
+.tags {
     margin-top: 10px;
     display: flex;
     gap: 8px;
 }
 
-.category-tags span {
+.tags span {
     background-color: #e5e5e5;
     border-radius: 6px;
     padding: 4px 12px;

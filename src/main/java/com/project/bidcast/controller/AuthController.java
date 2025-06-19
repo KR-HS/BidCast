@@ -130,4 +130,21 @@ public class AuthController {
         System.out.println(id + "" + name + "" + email + "" + phone);
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
+
+    @PostMapping("/check-password")
+    public ResponseEntity<?> checkPassword(@RequestBody Map<String, String> body) {
+        String inputPassword = body.get("password");
+        UsersDTO user = GetSession.getUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
+        }
+
+        // 실제 비밀번호 검증 (해시 비교)
+        boolean match = authService.checkPassword(user.getUserKey(), inputPassword);
+        if (match) {
+            return ResponseEntity.ok(Map.of("success", true));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "msg", "비밀번호가 일치하지 않습니다."));
+        }
+    }
 }

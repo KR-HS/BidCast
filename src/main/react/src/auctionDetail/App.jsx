@@ -2,10 +2,29 @@ import './auctionDetail.css'
 import React, {useEffect, useState} from "react";
 import Loader from "../Loader/Loader";
 
+//auctionId추출
+function getAuctionIdFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("auctionId");
+
+}
+
+//경매 상태 계산
+function getAuctionStatus(startTime, endTime){
+    const now = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if(now < start) return "예정";
+    if(now >= start && now <= end) return "진행중";
+    return "종료";
+}
+
 export default function App() {
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    const [auctionData, setAuctionData] = useState(null);
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -24,52 +43,46 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
+    //경매장 상세 데이터
+    useEffect(() => {
+        const auctionId = getAuctionIdFromQuery();
+        if (auctionId) {
+            fetch(`/api/auctions/auctionDetail/${auctionId}`)
+                .then(res => res.json())
+                .then(data => setAuctionData(data))
+                .catch(err => console.error("불러오기 실패:", err));
+        }
+    }, []);
+
     if (isLoading) {
         return (
             <Loader/>
         );
     }
 
-    const auctionData = {
-        session: "1183회차 경매",
-        auctioneer: "김형섭",
-        date: "2025-06-03",
-        itemCount: 2,
-        maxViewers: 20,
-        items: [
-            {
-                id: 11021,
-                name: "모자",
-                image: "img/img2.jpeg",
-                price: "111,000원",
-                winner: "형섭핑",
-            },
-            {
-                id: 11023,
-                name: "모자",
-                image: "img/img2.jpeg",
-                price: "1,111,000원",
-                winner: "형섭핑",
-            },
-        ],
-    };
+    const auctionStatus = getAuctionStatus(auctionData.startTime,auctionData.endTime);
 
     return (
         <div className="auction-wrapper">
             <div className="header">
-                <h2 className="auction-title">들어오세요</h2>
-                <button className="auction-end-button">종료</button>
+                <h2 className="auction-title">{auctionData.title}</h2>
+                <div className={`auction-status auction-status-${auctionStatus}`}>{auctionStatus}</div>
             </div>
 
 
             <div className="auction-info">
                 <div className="auction-summary">
-                    <span className="auction-session">{auctionData.session}</span>
-                    <span className="auctioneer">경매사: {auctionData.auctioneer}</span>
+                    <span className="auction-session">{auctionData.session}회차</span>
+                    <div className="tags">
+                        {auctionData.tags && auctionData.tags.map((tag, idx) => (
+                            <span key={idx}>{tag}</span>
+                        ))}
+                    </div>
                 </div>
+                <p className="auctioneer">경매사:{auctionData.auctioneer}</p>
                 <div className="auction-details">
                     <div>진행일자: {auctionData.date}</div>
-                    <div>낙찰물품수: {auctionData.itemCount}</div>
+                    <div>낙찰물품수:{auctionData.itemCount} </div>
                 </div>
             </div>
 
@@ -84,21 +97,21 @@ export default function App() {
                 </tr>
                 </thead>
                 <tbody>
-                {auctionData.items.map((item) => (
-                    <tr key={item.id}>
-                        <td>{item.id}번</td>
-                        <td>{item.name}</td>
-                        <td>
-                            <img
-                                className="item-image"
-                                src={item.image}
-                                alt={item.name}
-                            />
-                        </td>
-                        <td>{item.price}</td>
-                        <td>{item.winner}</td>
-                    </tr>
-                ))}
+                {/*{auctionData.items.map((item) => (*/}
+                {/*    <tr key={item.id}>*/}
+                {/*        <td>{item.id}번</td>*/}
+                {/*        <td>{item.name}</td>*/}
+                {/*        <td>*/}
+                {/*            <img*/}
+                {/*                className="item-image"*/}
+                {/*                src={item.image}*/}
+                {/*                alt={item.name}*/}
+                {/*            />*/}
+                {/*        </td>*/}
+                {/*        <td></td>*/}
+                {/*        <td></td>*/}
+                {/*    </tr>*/}
+                {/*))}*/}
                 </tbody>
             </table>
 

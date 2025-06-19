@@ -31,8 +31,9 @@ export default defineConfig({
         schedule: path.resolve(__dirname, 'src/schedule/schedule.jsx'),
         memberModify: path.resolve(__dirname, 'src/membermodify/membermodify.jsx'),
         pwverify: path.resolve(__dirname, 'src/pw_verify/pwverify.jsx'),
-          bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
-          auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx")
+        bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
+        auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx"),
+        pwCheck:path.resolve(__dirname,"src/pwCheck/pwCheck.jsx")
       },
       preserveEntrySignatures: 'strict',
       output: {
