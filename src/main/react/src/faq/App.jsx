@@ -147,6 +147,8 @@ export default function Faq() {
                                     <span className="faq-answer">{faq.a}</span>
                                 </div>
                             </li>
+
+
                         );
                     })}
                 </ul>
