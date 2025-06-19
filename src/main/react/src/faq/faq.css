@@ -114,6 +114,7 @@ body {
     width: 20px;
     height: 20px;
     object-fit: contain;
+    min-height: 300px;
 }
 
 .board-list {

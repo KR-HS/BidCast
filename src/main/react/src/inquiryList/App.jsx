@@ -8,18 +8,21 @@ export default function InquiryList() {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [openList, setOpenList] = useState([]);
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await fetch('http://localhost:8888/api/inquiryList');
-            const data = await res.json();
-            setInquiries(data);
-        };
-
-        const timer = setTimeout(async () => {
             try {
-                await fetchData();
+                // credentials: 'include'는 세션/쿠키 인증에 필요
+                const res = await fetch('http://localhost:8888/api/inquiryList', { credentials: 'include' });
+                if (res.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login.do'; // Spring Security의 로그인 경로
+                    return;
+                }
+                const data = await res.json();
+                console.log(data);
+                setInquiries(Array.isArray(data) ? data : []);
             } catch (err) {
                 alert('문의 목록을 불러오지 못했습니다.');
             } finally {
@@ -32,10 +35,15 @@ export default function InquiryList() {
                     }, 500);
                 }
             }
+        };
+
+        const timer = setTimeout(() => {
+            fetchData();
         }, 500);
 
         return () => clearTimeout(timer);
     }, []);
+
 
     const filteredInquiries = inquiries
         .map((item, idx) => ({ ...item, idx })) // 인덱스를 함께 저장
@@ -101,16 +109,21 @@ export default function InquiryList() {
                 </div>
 
                 <ul className="board-list">
-                    {currentItems.map((item) => (
-                        <InquiryItem
-                            key={item.inquiryKey}
-                            item={item}
-                            isOpen={openList.includes(item.idx)}
-                            onToggle={() => handleToggle(item.idx)}
-                            formatDate={formatDate}
-                        />
-                    ))}
+                    {currentItems.length === 0 ? (
+                        <li className="no-result">검색 결과가 없습니다.</li>
+                    ) : (
+                        currentItems.map((item) => (
+                            <InquiryItem
+                                key={item.inquiryKey}
+                                item={item}
+                                isOpen={openList.includes(item.idx)}
+                                onToggle={() => handleToggle(item.idx)}
+                                formatDate={formatDate}
+                            />
+                        ))
+                    )}
                 </ul>
+
 
                 <div className="pagination">
                     <button onClick={handlePrev} disabled={currentPage === 1}>&lt;</button>

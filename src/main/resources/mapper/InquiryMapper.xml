@@ -22,4 +22,24 @@
         ORDER BY create_date DESC
     </select>
 
+
+    <select id="getInquiriesByUserKey" parameterType="int" resultType="com.project.bidcast.vo.InquiryDTO">
+        SELECT
+            inquiry_key AS inquiryKey,
+            user_key AS userKey,
+            title,
+            content,
+            reply,
+            create_date AS createDate,
+            reply_date AS replyDate
+        FROM inquiry
+        WHERE user_key = #{userKey}
+        ORDER BY create_date DESC
+    </select>
+
 </mapper>
+
+
+
+
+
