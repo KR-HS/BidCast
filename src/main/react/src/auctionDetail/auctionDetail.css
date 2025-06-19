@@ -11,10 +11,8 @@
     border-radius: 8px;
 }
 
-
 .auction-status {
     display: inline-block;
-    /* min-width: 90px; */
     text-align: center;
     font-weight: 600;
     border-radius: 10px;
@@ -29,7 +27,7 @@
 }
 
 .auction-status-진행중 {
-    background-color: #83f353; /* 초록색 */
+    background-color: #2fcd37; /* 초록색 */
 }
 
 .auction-status-종료 {
@@ -102,8 +100,7 @@
 }
 
 .item-image {
-    width: 80px;
-    height: auto;
+    height: 100px;
     border-radius: 8px;
 }
 

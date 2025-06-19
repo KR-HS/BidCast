@@ -2,9 +2,11 @@ package com.project.bidcast.controller;
 
 
 import com.project.bidcast.service.auction.AuctionService;
+import com.project.bidcast.service.auth.CustomUserDetails;
 import com.project.bidcast.vo.AuctionDTO;
 import com.project.bidcast.vo.AuctionDetailDTO;
 import com.project.bidcast.vo.AuctionHistoryDTO;
+import com.project.bidcast.vo.AuctionItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +43,15 @@ public class AuctionController {
     public AuctionDetailDTO getAuctionDetail(@PathVariable Integer auctionId) {
         return auctionService.getAuctionDetail(auctionId);
     }
+
+    @GetMapping("/winning-history")
+    public List<AuctionItemDTO> getWinningHistoryAuctions(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userKey = userDetails.getUser().getUserKey();
+
+        return auctionService.getWinningProductsByUserKey(userKey);
+    }
+
 
 
 }

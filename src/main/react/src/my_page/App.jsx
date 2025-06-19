@@ -7,6 +7,7 @@ export default function myPage() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
     const [items, setItems] = useState([]);
+    const [winningItems, setWinningItems] = useState([]);
     const [activeTab, setActiveTab] = useState('경매이력');
 
     const handleClick = (auctionId) =>{
@@ -32,24 +33,52 @@ export default function myPage() {
 
 
     useEffect(() => {
-        fetch('/api/auctions/history')  // 백엔드 API URL로 바꿔주세요
-            .then(res => res.json())
+        fetch('/api/auctions/history')
+            .then(res => {
+                if (res.status === 401) {
+                    // 세션 만료 또는 인증 실패 → 로그인 페이지로 이동
+                    window.location.href = '/login.do';
+                    return;
+                }
+                return res.json();
+            })
             .then(data => {
-                setItems(data);
-                setIsLoading(false);
+                console.log("서버응답 data 확인:" + data);
+                if (data) {
+                    setItems(data);
+                }
             })
             .catch(err => {
-                console.error('경매이력실패:', err);
-                setIsLoading(false);
+                console.error('요청 실패:', err);
             });
     }, []);
 
+
+    useEffect(() => {
+        if(activeTab === '낙찰내역') {
+            fetch('/api/auctions/winning-history')
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '/login.do';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) setWinningItems(data);
+                })
+                .catch(err => {
+                    console.log('낙찰내역 요청 실패:',err);
+                });
+        }
+    }, [activeTab]);
 
     if (isLoading) {
         return (
             <Loader/>
         );
     }
+
 
     return (
         <div className="my-page-container">
@@ -88,7 +117,7 @@ export default function myPage() {
                     <div className="item-list">
                         {items.map(item => (
                             <div className="item-card" key={item.id} onClick={()=>handleClick(item.auctionId)} >
-                                <img src={item.img} alt={item.title} className="item-img" />
+                                <img src={item.imgUrl} alt={item.title} className="item-img" />
                                 <div className="item-title">{item.title}</div>
                             </div>
                         ))}
@@ -101,15 +130,39 @@ export default function myPage() {
                 <>
                     <div className="content-box">
                     <div className="section-title">낙찰내역</div>
-                    <div className="item-list">
-                        {items.map(item => (
-                            <div className="item-card" key={item.id}>
-                                <img src={item.img} alt={item.title} className="item-img" />
-                                <div className="item-title">{item.title}</div>
+                    <div className="item-list scrollable-list">
+                        {winningItems.length === 0 && (
+                            <div className="empty-message">아직 낙찰받은 상품이 없습니다.</div>
+                        )}
+                        {winningItems.map(item => (
+                            <div className="item-card" key={item.prodId}>
+                                <img src={item.image} alt={item.prodName} className="item-img" />
+                                <div className="item-title">{item.prodName}</div>
+                                <div className="item-price">
+                                    <div className="item-price">낙찰가:{item.price.toLocaleString() + "원"}
+                                        </div>
+
+                                </div>
                             </div>
                         ))}
                     </div>
                     </div>
+                </>
+            )}
+
+            {activeTab === '관심경매' && (
+                <>
+                    {/*<div className="content-box">*/}
+                    {/*    <div className="section-title">관심경매</div>*/}
+                    {/*    <div className="item-list">*/}
+                    {/*        {items.map(item => (*/}
+                    {/*            <div className="item-card" key={item.id}>*/}
+                    {/*                <img src={item.imgUrl} alt={item.title} className="item-img" />*/}
+                    {/*                <div className="item-title">{item.title}</div>*/}
+                    {/*            </div>*/}
+                    {/*        ))}*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                 </>
             )}
 
