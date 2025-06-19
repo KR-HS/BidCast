@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './inquiry.css';
 import Loader from "../Loader/Loader";
 
+
 export default function CustomerCenter() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
@@ -33,8 +34,6 @@ export default function CustomerCenter() {
     // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // userKey는 실제 로그인한 사용자라면 context 등에서 가져오세요.
-        // 지금은 테스트용으로 1로 고정
         const inquiryData = { ...form, userKey: 1 };
 
         try {
@@ -46,6 +45,7 @@ export default function CustomerCenter() {
             if (response.ok) {
                 alert('등록 성공');
                 setForm({ userKey: '', title: '', content: '' });
+                window.location.href = 'inquiryList.do'; // 문의글 목록 페이지로 이동
             } else {
                 alert('등록 실패');
             }

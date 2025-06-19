@@ -1,33 +1,42 @@
-import React, {useEffect, useState} from 'react'
-import './noticeDetail.css'
+import React, { useEffect, useState } from 'react';
+import './noticeDetail.css';
 import Loader from "../Loader/Loader";
 
-export default function Notice() {
-    // 로딩 창
+export default function NoticeDetail() {
     const [isLoading, setIsLoading] = useState(true);
+    const [notice, setNotice] = useState(null);
+
+    const noticeId = new URLSearchParams(window.location.search).get("id");
 
     useEffect(() => {
-        // 예: 1초 후에 로딩 끝난 걸로 처리
-        const timer = setTimeout(() => {
-            setIsLoading(false)
+        if (!noticeId) {
+            alert("공지 ID가 없습니다.");
+            return;
+        }
 
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 500); // CSS transition과 동일 시간
-            }
+        fetch(`/api/notices/${noticeId}`)
+            .then(res => res.json())
+            .then(data => {
+                setNotice(data);
+                setIsLoading(false);
 
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.classList.add('fade-out');
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 500);
+                }
+            })
+            .catch(err => {
+                console.error("공지 불러오기 실패", err);
+                setIsLoading(false);
+            });
+    }, [noticeId]);
 
-    if (isLoading) {
-        return (
-            <Loader/>
-        );
-    }
+    if (isLoading) return <Loader />;
+    if (!notice) return <div className="box">공지 내용을 불러올 수 없습니다.</div>;
+
     return (
         <div className="box">
             <div className="head">
@@ -42,26 +51,26 @@ export default function Notice() {
                     <a href="notice.do" className="active">공지사항</a>
                 </div>
             </div>
+
             <div className="container">
-                <h2 className="notice-title">경매 개장시간 안내</h2>
-                <div className="notice-date">2025.06.09</div>
+                <h2 className="notice-title">{notice.title}</h2>
+                <div className="notice-date">
+                    {notice.regDate
+                        ? new Date(notice.regDate).toISOString().slice(0, 10).replace(/-/g, '.')
+                        : '날짜 없음'}
+                </div>
                 <div className="notice-content">
-                    <b>※ 경매 시간 안내 공지</b><br />
-                    안녕하세요, 고객 여러분.<br />
-                    항상 저희 경매마켓을 이용해주셔서 감사합니다.<br /><br />
-                    이번 주 경매 일정은 아래와 같이 진행될 예정이오니, 참고하셔서 많은 참여 부탁드립니다.<br /><br />
-                    <b>경매 일정</b><br />
-                    - 일시: <span>2025년 6월 12일(목) 오후 2시</span><br />
-                    - 입찰 시작 시간: <span>오후 2시 정각</span><br />
-                    - 입찰 마감 시간: <span>본부장 안내 (현장 안내 참고)</span><br />
-                    - 시그널 30초 전까지 입찰 완료 부탁드립니다.<br />
-                    - 사정에 따라 변동될 수 있습니다.<br /><br />
-                    감사합니다.
+                    {notice.content.split('\n').map((line, i) => (
+                        <span key={i}>
+                            {line}
+                            <br />
+                        </span>
+                    ))}
                 </div>
                 <div className="notice-btn-wrap">
                     <a href="notice.do"><button className="notice-list-btn">목록</button></a>
                 </div>
             </div>
         </div>
-    )
+    );
 }

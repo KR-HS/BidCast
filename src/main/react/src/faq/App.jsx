@@ -59,7 +59,7 @@ export default function Faq() {
     const [openList, setOpenList] = useState([]);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 3;
+    const itemsPerPage = 10;
 
     // 필터링된 FAQ 목록
     const filteredFaqs = faqData
@@ -140,20 +140,19 @@ export default function Faq() {
                                     <span className="faq-icon q">Q</span>
                                     <span className="faq-badge">[회원]</span>
                                     <span className="faq-question">{faq.q}</span>
-                                    <span className={`faq-arrow${isOpen ? ' open' : ''}`}>
-                                        ▼
-                                    </span>
+                                    <span className={`faq-arrow${isOpen ? ' open' : ''}`}>▼</span>
                                 </div>
-                                {isOpen && faq.a && (
-                                    <div className="faq-a">
-                                        <span className="faq-icon a">A</span>
-                                        <span className="faq-answer">{faq.a}</span>
-                                    </div>
-                                )}
+                                <div className="faq-a">
+                                    <span className="faq-icon a">A</span>
+                                    <span className="faq-answer">{faq.a}</span>
+                                </div>
                             </li>
+
+
                         );
                     })}
                 </ul>
+
                 <div className="pagination">
                     <button className="prev" onClick={handlePrev} disabled={currentPage === 1}>
                         &lt;
