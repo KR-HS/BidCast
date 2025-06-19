@@ -1,17 +1,17 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import './myPage.css'
 import Loader from "../Loader/Loader";
 
 
-const items = [
-    { id: 1, img: '/img/img2.jpeg', title: '모자' },
-    { id: 2, img: '/img/img2.jpeg', title: '모자' },
-    { id: 3, img: '/img/1.png', title: '천상의 기타' },
-];
-
 export default function myPage() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    const [items, setItems] = useState([]);
+    const [activeTab, setActiveTab] = useState('경매이력');
+
+    const handleClick = (auctionId) =>{
+        window.location.href = `/auctionDetail.do?auctionId=${auctionId}`;
+    }
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -30,32 +30,42 @@ export default function myPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    const [activeTab, setActiveTab] = useState('경매이력');
 
-    const handleCardClick = (id) => {
-        window.location.href = `/auctionDetail.do?id=${items.id}`;
-    };
+    useEffect(() => {
+        fetch('/api/auctions/history')  // 백엔드 API URL로 바꿔주세요
+            .then(res => res.json())
+            .then(data => {
+                setItems(data);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error('경매이력실패:', err);
+                setIsLoading(false);
+            });
+    }, []);
+
 
     if (isLoading) {
         return (
             <Loader/>
         );
     }
+
     return (
         <div className="my-page-container">
             <div className="header">
                 <div className="header-title">마이페이지</div>
                 <div className="header-desc">경매를 똑똑하게 즐기기, BidCast</div>
                 <nav className="nav-menu">
-                    {['경매이력', '낙찰내역', '문의', '내 정보수정'].map((tab) => (
+                    {['경매이력', '낙찰내역', '문의', '내 정보수정','관심경매'].map((tab) => (
                         <button
                             key={tab}
                             className={`nav-item ${activeTab === tab ? 'nav-item-active' : ''}`}
                             onClick={() => {
                             if (tab === '문의') {
-                                window.location.href = '/inquiryList.do';
+                                window.location.href = './inquiryList.do';
                             } else if (tab === '내 정보수정') {
-                                window.location.href = '/memberModify.do';
+                                window.location.href = './pwCheck.do';
                             } else {
                                 setActiveTab(tab);
                             }
@@ -77,7 +87,7 @@ export default function myPage() {
                         </div>
                     <div className="item-list">
                         {items.map(item => (
-                            <div className="item-card" key={item.id} onClick={() => handleCardClick(item.id)} >
+                            <div className="item-card" key={item.id} onClick={()=>handleClick(item.auctionId)} >
                                 <img src={item.img} alt={item.title} className="item-img" />
                                 <div className="item-title">{item.title}</div>
                             </div>

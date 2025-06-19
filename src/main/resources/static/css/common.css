@@ -124,7 +124,7 @@ header>.header-right>.alarm>img,header>.header-right>.announce>img{
 /* 내용 부분*/
 #root{
     flex:1;
-    min-height:600px;
+    min-height:300px;
     width:100%;
     margin:0 auto;
     /*border:1px solid black;*/

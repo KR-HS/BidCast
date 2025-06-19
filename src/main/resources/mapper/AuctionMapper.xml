@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.bidcast.mapper.AuctionMapper">
+    <select id="getAuctionHistoryByUserId" resultType="com.project.bidcast.vo.AuctionHistoryDTO" parameterType="String">
+        SELECT
+            a.auction_id AS auctionId,
+            a.title AS title,
+            i.file_data AS imgUrl
+        FROM auction a
+                 JOIN product p ON a.auction_id = p.auc_key
+                 JOIN (
+            SELECT prod_key, MIN(reg_date) AS min_regdate
+            FROM file
+            GROUP BY prod_key
+        ) fi ON p.prod_key = fi.prod_key
+                 JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
+        WHERE a.host_id = #{loginId}
+        GROUP BY a.auction_id, a.title, i.file_data;
+    </select>
+
+    <select id="selectAuctionDetail" resultType="com.project.bidcast.vo.AuctionDetailDTO" parameterType="int">
+        SELECT
+            a.auction_id AS auctionId,
+            a.session,
+            a.title,
+            u.user_name AS auctioneer,
+            a.start_time AS date,
+    COUNT(p.prod_key) AS itemCount
+        FROM auction a
+            LEFT JOIN product p ON a.auction_id = p.auc_key
+            LEFT JOIN users u ON a.host_id = u.login_id
+        WHERE a.auction_id = #{auctionId}
+        GROUP BY a.auction_id, a.session, a.title, u.user_name, a.start_time;
+    </select>
+
+
+
+</mapper>

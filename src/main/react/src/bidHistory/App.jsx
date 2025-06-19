@@ -48,7 +48,7 @@ export default function App() {
                         <div className="status upcoming">진행예정</div>
                     </div>
                 </div>
-                <div className="category-tags">
+                <div className="tags">
                     <span>가전제품</span>
                     <span>생활용품</span>
                 </div>

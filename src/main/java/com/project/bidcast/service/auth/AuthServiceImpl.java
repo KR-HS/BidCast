@@ -41,5 +41,10 @@ public class AuthServiceImpl implements AuthService {
         return authMapper.searchId(email, name, phoneNumber);
     }
 
-
+    @Override
+    public boolean checkPassword(int userKey, String inputPassword) {
+        String hashedPassword = authMapper.getPasswordById(userKey);
+        // BCrypt 등 해시 비교
+        return passwordEncoder.matches(inputPassword, hashedPassword);
+    }
 }
