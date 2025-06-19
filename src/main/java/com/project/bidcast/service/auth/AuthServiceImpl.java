@@ -40,6 +40,10 @@ public class AuthServiceImpl implements AuthService {
 
         return authMapper.searchId(email, name, phoneNumber);
     }
+    @Override
+    public UsersDTO getUserByLoginId(String loginId) {
+        return authMapper.getUserByLoginId(loginId);
+    }
 
     @Override
     public boolean checkPassword(int userKey, String inputPassword) {

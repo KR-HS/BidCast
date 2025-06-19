@@ -25,6 +25,24 @@ export default function CustomerCenter() {
         return () => clearTimeout(timer);
     }, []);
 
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('http://localhost:8888/api/inquiry/auth-check', { credentials: 'include' });
+                if (res.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login.do';
+                }
+            } catch (err) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login.do';
+            }
+        };
+        checkAuth();
+    }, []);
+
+
     // 입력값 변경 핸들러
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -34,18 +52,24 @@ export default function CustomerCenter() {
     // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const inquiryData = { ...form, userKey: 1 };
+        const inquiryData = { ...form }; // userKey는 백엔드에서 처리
 
         try {
             const response = await fetch('http://localhost:8888/api/inquiry', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(inquiryData)
+                body: JSON.stringify(inquiryData),
+                credentials: 'include'
             });
+            if (response.status === 401) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login.do';
+                return;
+            }
             if (response.ok) {
-                alert('등록 성공');
-                setForm({ userKey: '', title: '', content: '' });
-                window.location.href = 'inquiryList.do'; // 문의글 목록 페이지로 이동
+                alert('문의가 등록 되었습니다.');
+                setForm({ title: '', content: '' });
+                window.location.href = 'inquiryList.do';
             } else {
                 alert('등록 실패');
             }
@@ -53,6 +77,8 @@ export default function CustomerCenter() {
             alert('에러 발생');
         }
     };
+
+
 
     if (isLoading) {
         return <Loader />;

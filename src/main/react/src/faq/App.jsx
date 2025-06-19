@@ -59,7 +59,7 @@ export default function Faq() {
     const [openList, setOpenList] = useState([]);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
     // 필터링된 FAQ 목록
     const filteredFaqs = faqData
@@ -128,30 +128,33 @@ export default function Faq() {
                     </div>
                 </div>
                 <ul className="board-list">
-                    {currentFaqs.map(faq => {
-                        const isOpen = openList.includes(faq.idx);
-                        return (
-                            <li
-                                key={faq.idx}
-                                className={isOpen ? 'faq-open' : ''}
-                                onClick={() => handleToggle(faq.idx)}
-                            >
-                                <div className="faq-q">
-                                    <span className="faq-icon q">Q</span>
-                                    <span className="faq-badge">[회원]</span>
-                                    <span className="faq-question">{faq.q}</span>
-                                    <span className={`faq-arrow${isOpen ? ' open' : ''}`}>▼</span>
-                                </div>
-                                <div className="faq-a">
-                                    <span className="faq-icon a">A</span>
-                                    <span className="faq-answer">{faq.a}</span>
-                                </div>
-                            </li>
-
-
-                        );
-                    })}
+                    {currentFaqs.length === 0 ? (
+                        <li className="no-result">검색 결과가 없습니다.</li>
+                    ) : (
+                        currentFaqs.map(faq => {
+                            const isOpen = openList.includes(faq.idx);
+                            return (
+                                <li
+                                    key={faq.idx}
+                                    className={isOpen ? 'faq-open' : ''}
+                                    onClick={() => handleToggle(faq.idx)}
+                                >
+                                    <div className="faq-q">
+                                        <span className="faq-icon q">Q</span>
+                                        <span className="faq-badge">[회원]</span>
+                                        <span className="faq-question">{faq.q}</span>
+                                        <span className={`faq-arrow${isOpen ? ' open' : ''}`}>▼</span>
+                                    </div>
+                                    <div className="faq-a">
+                                        <span className="faq-icon a">A</span>
+                                        <span className="faq-answer">{faq.a}</span>
+                                    </div>
+                                </li>
+                            );
+                        })
+                    )}
                 </ul>
+
 
                 <div className="pagination">
                     <button className="prev" onClick={handlePrev} disabled={currentPage === 1}>

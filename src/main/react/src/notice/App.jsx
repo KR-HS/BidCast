@@ -7,7 +7,7 @@ export default function Notice() {
     const [notices, setNotices] = useState([]);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
     useEffect(() => {
         const timer = setTimeout(() => {

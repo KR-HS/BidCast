@@ -21,4 +21,8 @@ public class InquiryService {
         return inquiryMapper.getAllInquiries();
     }
 
+    public List<InquiryDTO> getInquiriesByUserKey(int userKey) {
+        return inquiryMapper.getInquiriesByUserKey(userKey);
+    }
+
 }
