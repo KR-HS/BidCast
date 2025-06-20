@@ -1,6 +1,7 @@
 package com.project.bidcast.service.auth;
 
 import com.project.bidcast.mapper.AuthMapper;
+import com.project.bidcast.util.GetSession;
 import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,5 +70,28 @@ public class AuthServiceImpl implements AuthService {
         String hashedPassword = authMapper.getPasswordById(userKey);
         // BCrypt 등 해시 비교
         return passwordEncoder.matches(inputPassword, hashedPassword);
+    }
+
+    @Override
+    public void updateUser(Map<String, String> userInfo) {
+        UsersDTO user = GetSession.getUser();
+
+        String birth = userInfo.get("birth");
+        String email = userInfo.get("email1") + "@" + userInfo.get("email2");
+        String nickName = userInfo.get("nickName");
+        String phone = userInfo.get("phone1") + "-" + userInfo.get("phone2") + "-" + userInfo.get("phone3");
+
+        user.setBirth(birth);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setNickName(nickName);
+        authMapper.updateUser(user);
+
+    }
+
+    @Override
+    public void deleteUser(Integer userKey) {
+        authMapper.deleteUser(userKey);
+
     }
 }

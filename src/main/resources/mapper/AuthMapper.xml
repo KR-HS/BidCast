@@ -30,4 +30,16 @@
     <update id="changePw">
         UPDATE users SET pw = #{pw} WHERE user_Key = #{userKey}
     </update>
+
+    <update id="updateUser">
+        UPDATE users
+        SET  birth = #{birth}, phone = #{phone}, email = #{email}, nickname = #{nickName}
+        WHERE user_key = #{userKey}
+    </update>
+
+    <update id="deleteUser">
+        UPDATE users
+        SET user_name = '탈퇴한회원', login_id = NULL, pw = NULL, birth = NULL, phone = NULL, email = NULL, nickname = '탈퇴한회원'
+        WHERE user_key = #{userKey}
+    </update>
 </mapper>
