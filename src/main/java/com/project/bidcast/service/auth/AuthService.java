@@ -15,4 +15,6 @@ public interface AuthService {
 
     boolean checkPassword(int userKey, String inputPassword);
 
+    void updateUser(Map<String, String> userInfo);
+    void deleteUser(Integer userKey);
 }

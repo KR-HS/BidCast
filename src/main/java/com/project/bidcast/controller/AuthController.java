@@ -8,6 +8,7 @@ import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -49,6 +50,7 @@ public class AuthController {
     @PostMapping("/getUserInfo")
     public ResponseEntity<UsersDTO> getUserInfo(){
         UsersDTO user = GetSession.getUser();
+        System.out.println(user.toString());
         return ResponseEntity.ok(user);
     }
 
@@ -124,6 +126,7 @@ public class AuthController {
         return new ResponseEntity<>(Map.of("success", true, "user", dto), HttpStatus.OK);
     }
 
+    //비밀번호변경
     @PostMapping("/changePw")
     public ResponseEntity<?> changePw(@RequestBody Map<String, String> changeInfo) {
 
@@ -136,7 +139,7 @@ public class AuthController {
         String inputPassword = body.get("password");
         UsersDTO user = GetSession.getUser();
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다.","user", user));
         }
 
         // 실제 비밀번호 검증 (해시 비교)
@@ -146,5 +149,35 @@ public class AuthController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "msg", "비밀번호가 일치하지 않습니다."));
         }
+
+
     }
+
+    //회원정보 수정
+    @PostMapping("/memberModify")
+    public ResponseEntity<?> memberModify(@RequestBody Map<String, String> userInfo) {
+
+        if (userInfo == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
+        }
+
+         authService.updateUser(userInfo);
+
+        return ResponseEntity.ok(Map.of("success", true, "user", userInfo));
+    }
+
+    //회원탈퇴
+    @PostMapping("/deleteUser")
+    public ResponseEntity<?> deleteUser() {
+        Integer userKey = GetSession.getUserKey();
+        if (userKey == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
+        }
+        SecurityContextHolder.clearContext();
+        // 회원 탈퇴 로직
+        authService.deleteUser(userKey);
+
+        return ResponseEntity.ok(Map.of("success", true, "msg", "회원 탈퇴가 완료되었습니다."));
+    }
+
 }

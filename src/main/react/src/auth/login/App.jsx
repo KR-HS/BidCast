@@ -213,6 +213,7 @@ export default function App() {
                              loginBtn(e);//
                          }
                      }}
+                     required
               />
               <br/>
               <input type="password"
@@ -226,6 +227,7 @@ export default function App() {
                              loginBtn(e);//
                          }
                      }}
+                     required
               />
           </div>
               </form>

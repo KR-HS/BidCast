@@ -15,4 +15,7 @@ public interface AuthMapper {
 
     @Select("SELECT pw AS password FROM users WHERE user_key = #{userKey}")
     String getPasswordById(int userKey);
+
+    void updateUser(UsersDTO user);
+    void deleteUser(Integer userKey);
 }
