@@ -51,11 +51,18 @@ export default function App() {
             });
 
             if (response.ok) {
-                const result = await response.json(); // 예: { success: true, userId: "abc123" }
-                //return <Navigate to={'/findComplete.do'}/>
-                //navigate('', { state: { userId: result.userId } });
-                console.log('sdfsdf')
-                location.href=`/findComplete.do?userId=${result.userId}`;
+                const result = await response.json();
+                const loginId = result.user.loginId;
+                const createdAt = result.user.createdAt;
+
+                // 세션스토리지에 저장
+                sessionStorage.setItem('recoveredUserId', loginId);
+                sessionStorage.setItem('recoveredUserCreatedAt', createdAt);
+
+                console.log(sessionStorage.getItem('recoveredUserId'));
+
+                // 페이지 이동
+                window.location.href = '/findComplete.do';
             } else {
                 alert('회원을 찾을 수 없습니다.');
             }

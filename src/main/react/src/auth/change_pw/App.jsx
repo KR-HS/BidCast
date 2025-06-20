@@ -3,6 +3,10 @@ import Loader from "../../Loader/Loader";
 export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    const [vpw, setVpw] = useState('');
+    const [formData, setFormData] = useState({
+        userKey: '', pw: ''
+    });
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -20,6 +24,51 @@ export default function App() {
         }, 500);
         return () => clearTimeout(timer);
     }, []);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
+    useEffect(() => {
+        const userKey = sessionStorage.getItem("userKey");
+        if (userKey) {
+            setFormData({ ...formData, userKey: userKey });
+            sessionStorage.removeItem('userKey');
+        } else{
+
+            alert("잘못된 접근 입니다.")
+            window.location.href = "login.do";
+        }
+    }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.pw !== vpw) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        const response = await fetch('/api/v1/changePw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            alert("비밀번호가 성공적으로 변경되었습니다.");
+            window.location.href = '/login.do';
+        } else {
+            alert("비밀번호 변경에 실패했습니다. 다시 시도해주세요.");
+        }
+    }
+
 
     if (isLoading) {
         return (
@@ -43,20 +92,26 @@ export default function App() {
                     <tr>
                         <td>신규 비밀번호</td>
                         <td>
-                            <input type="text"/>
+                            <input type="password" value={formData.pw}
+                            name="pw"
+                            onChange={handleChange}/>
                         </td>
                     </tr>
                     <tr>
                         <td>신규 비밀번호 확인</td>
                         <td>
-                            <input type="text"/>
+                            <input type="password" value={vpw}
+                            onChange={(e)=>{
+                                setVpw(e.target.value);
+                            }}/>
                         </td>
                     </tr>
 
                     </tbody>
                 </table>
                 <div>
-                    <button type="button">비밀번호 변경</button>
+                    <button type="submit"
+                    onClick={handleSubmit}>비밀번호 변경</button>
                 </div>
 
             </div>

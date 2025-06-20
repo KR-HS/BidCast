@@ -3,8 +3,8 @@ import Loader from "../../Loader/Loader";
 import {useLocation} from "react-router-dom";
 export default function App() {
 
-    const userId = location.params ?.userId;
-
+    const [userId, setUserId] = useState('');
+    const [userCreatedAt, setUserCreatedAt] = useState('');
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
 
@@ -26,6 +26,21 @@ export default function App() {
     }, []);
 
 
+//세션 정보 불러오기
+    useEffect(() => {
+        const id = sessionStorage.getItem('recoveredUserId');
+        const createdAt = sessionStorage.getItem('recoveredUserCreatedAt');
+        if (id) {
+            setUserId(id);
+            setUserCreatedAt( new Date(createdAt).toISOString().split('T')[0]);
+            sessionStorage.removeItem('recoveredUserId');
+            sessionStorage.removeItem('recoveredUserCreatedAt');
+        } else{
+
+            alert("잘못된 접근 입니다.")
+            window.location.href = "login.do";
+        }
+    }, []);
 
 
     const btn = (e) => {
@@ -64,7 +79,7 @@ export default function App() {
                         <tr>
                             <td>가입일</td>
                             <td>
-                               <span>2025.06.05</span>
+                               <span>{userCreatedAt}</span>
                             </td>
                         </tr>
                         </tbody>

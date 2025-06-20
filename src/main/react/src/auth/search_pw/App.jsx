@@ -26,7 +26,7 @@ export default function App() {
         email1: '',
         email2: '',
         name: '',
-        phone1: '',
+        phone1: '010',
         phone2: '',
         phone3: '',
     });
@@ -42,6 +42,7 @@ export default function App() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(formData);
 
         const response = await fetch('api/v1/searchPw',{
             method: 'POST',
@@ -53,8 +54,12 @@ export default function App() {
 
         if(response.ok) {
             const data = await response.json();
+
+            const userKey = data.user.userKey;
+
             alert(`비밀번호는 입니다.`);
-            window.location.href = '/findcomplete.do';
+            sessionStorage.setItem("userKey", userKey);
+            window.location.href = '/changepw.do';
         } else{
             alert("회원을 찾을 수 없습니다.");
         }
