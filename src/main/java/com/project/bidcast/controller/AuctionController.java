@@ -8,11 +8,13 @@ import com.project.bidcast.vo.AuctionDetailDTO;
 import com.project.bidcast.vo.AuctionHistoryDTO;
 import com.project.bidcast.vo.AuctionItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -34,10 +36,15 @@ public class AuctionController {
 
     @GetMapping("/history")
     public List<AuctionHistoryDTO> getHistoryAuctions(Authentication authentication) {
-        String loginId = authentication.getName(); // JWT 인증된 사용자 ID
-        System.out.println("로그인 아이디: " + loginId);
+        if (authentication == null || authentication.getName() == null) {
+            // 인증이 안 된 경우
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 필요");
+            // 또는 return ResponseEntity.status(401).build();
+        }
+        String loginId = authentication.getName();
         return auctionService.getAuctionHistoryByUserId(loginId);
     }
+
 
     @GetMapping("/auctionDetail/{auctionId}")
     public AuctionDetailDTO getAuctionDetail(@PathVariable Integer auctionId) {

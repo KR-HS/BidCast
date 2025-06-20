@@ -48,6 +48,13 @@ public class SecConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
 
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login.do");
+                        })
+                )
+
+
                 // 로그인 및 로그아웃 설정
                 .formLogin(form -> form
                         .loginPage("/login.do")

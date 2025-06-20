@@ -152,17 +152,17 @@ export default function myPage() {
 
             {activeTab === '관심경매' && (
                 <>
-                    {/*<div className="content-box">*/}
-                    {/*    <div className="section-title">관심경매</div>*/}
-                    {/*    <div className="item-list">*/}
-                    {/*        {items.map(item => (*/}
-                    {/*            <div className="item-card" key={item.id}>*/}
-                    {/*                <img src={item.imgUrl} alt={item.title} className="item-img" />*/}
-                    {/*                <div className="item-title">{item.title}</div>*/}
-                    {/*            </div>*/}
-                    {/*        ))}*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
+                    <div className="content-box">
+                        <div className="section-title">관심경매</div>
+                        <div className="item-list">
+                            {items.map(item => (
+                                <div className="item-card" key={item.id}>
+                                    <img src={item.imgUrl} alt={item.title} className="item-img" />
+                                    <div className="item-title">{item.title}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </>
             )}
 
