@@ -36,10 +36,29 @@ public class AuthServiceImpl implements AuthService {
         String email = userInfo.get("email1") + "@" + userInfo.get("email2");
         String name = userInfo.get("name");
         String phoneNumber = userInfo.get("phone1") + "-" + userInfo.get("phone2") + "-" + userInfo.get("phone3");
-
-
         return authMapper.searchId(email, name, phoneNumber);
     }
+    @Override
+    public UsersDTO searchPw(Map<String, String> userInfo) {
+
+        String id = userInfo.get("id");
+        String email = userInfo.get("email1") + "@" + userInfo.get("email2");
+        String name = userInfo.get("name");
+        String phoneNumber = userInfo.get("phone1") + "-" + userInfo.get("phone2") + "-" + userInfo.get("phone3");
+
+        return authMapper.searchPw(id, email, name, phoneNumber);
+    }
+
+    @Override
+    public void changePw(Map<String, String> userInfo) {
+
+        Integer userKey = Integer.parseInt(userInfo.get("userKey"));
+        String pw = passwordEncoder.encode(userInfo.get("pw"));
+
+        authMapper.changePw(userKey, pw);
+    }
+
+
     @Override
     public UsersDTO getUserByLoginId(String loginId) {
         return authMapper.getUserByLoginId(loginId);

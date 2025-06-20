@@ -29,9 +29,6 @@ public class AuthController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody Map<String, String> userInfo) {
 
-
-        System.out.println("회원가입 정보: " + userInfo);
-
         authService.createUser(userInfo);
 
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
@@ -45,7 +42,6 @@ public class AuthController {
         if(user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "로그인이 필요합니다."));
         }
-        System.out.println(user);
 
         return ResponseEntity.ok(user);
     }
@@ -97,8 +93,6 @@ public class AuthController {
             response.put("token", token);
             response.put("username", name);
             response.put("email", email);
-            System.out.println("이름:" + name);
-            System.out.println("email:" + email);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -112,22 +106,28 @@ public class AuthController {
     public ResponseEntity<?> searchId(@RequestBody Map<String, String> searchInfo) {
         UsersDTO dto = authService.searchId(searchInfo);
         if(dto == null) {
-            return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 아이디가 없습니다."), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 회원이 없습니다."), HttpStatus.NOT_FOUND);
         }
 
-
-        return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
+        return new ResponseEntity<>(Map.of("success", true,"user", dto), HttpStatus.OK);
     }
 
     //비밀번호 찾기
     @PostMapping("/searchPw")
     public ResponseEntity<?> searchPw(@RequestBody Map<String, String> searchInfo) {
-        String id = searchInfo.get("id");
-        String name = searchInfo.get("name");
-        String email = searchInfo.get("email1") + "@" + searchInfo.get("email2");
-        String phone = searchInfo.get("phone1") + "-" + searchInfo.get("phone2") + "-" + searchInfo.get("phone3");
+        UsersDTO dto = authService.searchPw(searchInfo);
 
-        System.out.println(id + "" + name + "" + email + "" + phone);
+        if(dto ==null){
+            return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 회원이 없습니다."), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(Map.of("success", true, "user", dto), HttpStatus.OK);
+    }
+
+    @PostMapping("/changePw")
+    public ResponseEntity<?> changePw(@RequestBody Map<String, String> changeInfo) {
+
+        authService.changePw(changeInfo);
         return new ResponseEntity<>(Map.of("success", true), HttpStatus.OK);
     }
 

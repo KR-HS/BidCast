@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.sql.Timestamp;
+
 @Data
 @Builder
 @ToString
@@ -18,6 +20,7 @@ public class UsersDTO {
     private String email;
     private String pw;
     private String nickName;
+    private Timestamp createdAt;
 
 
 }

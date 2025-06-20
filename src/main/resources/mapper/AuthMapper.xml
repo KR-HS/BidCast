@@ -22,4 +22,12 @@
     <select id="searchId" resultType="com.project.bidcast.vo.UsersDTO">
         SELECT * FROM users WHERE user_name = #{userName} AND email = #{email} AND phone = #{phone}
     </select>
+
+    <select id="searchPw" resultType="com.project.bidcast.vo.UsersDTO">
+        SELECT * FROM users WHERE login_id = #{loginId} AND user_name = #{userName} AND email = #{email} AND phone = #{phone}
+    </select>
+
+    <update id="changePw">
+        UPDATE users SET pw = #{pw} WHERE user_Key = #{userKey}
+    </update>
 </mapper>
