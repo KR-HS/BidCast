@@ -1,7 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {MdSwapHoriz} from "react-icons/md";
 
-const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) => {
+const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded, userInfoMap, product, children}) => {
     const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
     const [scrollX, setScrollX] = useState(0); // 서브 비디오 영역의 스크롤 위치
     const [maxScrollX, setMaxScrollX] = useState(0); // 스크롤 가능한 최대 길이
@@ -55,6 +55,22 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) =
     );
 
 
+    // const [highestBidderIds, setHighestBidderIds] = useState(new Set());
+
+    const highestBidderIds = useMemo(() => {
+        if (!product || !userInfoMap) return new Set();
+
+        const set = new Set();
+        for (const [id, user] of Object.entries(userInfoMap)) {
+            const bidAmount = Number(user?.bids?.[String(product.prodKey)] ?? 0);
+            if (bidAmount === Number(product.finalPrice) && product.finalPrice > 0) {
+                set.add(id);
+            }
+        }
+        return set;
+    }, [product, userInfoMap]);
+
+
     // 서브비디오 목록 이동
     useEffect(() => {
         // 스크롤 가능한 최대 길이 계산
@@ -93,6 +109,9 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) =
         }
     }, [scrollX]);
 
+    useEffect(() => {
+        console.log("리렌더링됨!!!!!!!!!!!!!!!!!!!!!1", product, userInfoMap)
+    }, [product, userInfoMap])
     const [subMutedStates, setSubMutedStates] = useState({}); // key: id, value: muted
 
     const onSubMuteChange = (id, muted) => {
@@ -110,10 +129,11 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) =
                            initialMuted={mainStreamId === mySocketId}
                            showMuteButton={false}
                            isMain={true}
+                           isHighestBidder={false}
                     />
                 ) : (
                     <div className="videoBox" style={{border: '2px solid transparent'}}>
-                        <div className="main-video-stop">{isAuctionEnded?"경매가 종료되었습니다.":"방송이 중단되었습니다."}</div>
+                        <div className="main-video-stop">{isAuctionEnded ? "경매가 종료되었습니다." : "방송이 중단되었습니다."}</div>
                     </div>
                 )}
             </div>
@@ -126,26 +146,35 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) =
                 {subPeers.length > 0 ? (
                     <>
                         <div className="sub-videos-arrow left">
+
                             {scrollX > 0 && (
                                 <img src="/img/arrow_left.png" alt="arrow-left" onClick={scrollLeft}/>
                             )}
                         </div>
-
                         <div className="sub-videos-container">
                             <div className="sub-videos" ref={subVideosRef}>
-                                {subPeers.map(([id, peer]) => (
-                                    <div key={id} className="sub-video">
-                                        <p className="guestId">{id}</p>
-                                        <Video
-                                            key={id}
-                                            id={id}
-                                            stream={peer.stream}
-                                            muted={subMutedStates[id] ?? true}
-                                            onMuteChange={(muted) => onSubMuteChange(id, muted)}
-                                            onSwap={handleSwap}
-                                        />
-                                    </div>
-                                ))}
+                                {subPeers.map(([id, peer]) => {
+                                    const bidAmount = product ? (userInfoMap[id]?.bids?.[String(product.prodKey)] ?? 0) : 0;
+
+                                    const isHighestBidder = highestBidderIds.has(id);
+                                    return (
+                                        <div key={`${id}-${product?.prodKey ?? 'noProduct'}`} className="sub-video">
+                                            <div className="guestInfo">
+                                                <p className="guestId">[{userInfoMap[id]?.nickname ?? '알 수 없음'}]</p>
+                                                <p className="guest-bidAmount">{bidAmount}원</p>
+                                            </div>
+                                            <Video
+                                                key={id}
+                                                id={id}
+                                                stream={peer.stream}
+                                                muted={subMutedStates[id] ?? true}
+                                                onMuteChange={(muted) => onSubMuteChange(id, muted)}
+                                                onSwap={handleSwap}
+                                                isHighestBidder={isHighestBidder}
+                                            />
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
 
@@ -163,7 +192,8 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded,children}) =
     );
 };
 
-const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSwap}) => {
+
+const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSwap, isHighestBidder}) => {
     const videoRef = useRef();
     const [muted, setMuted] = useState(mutedProp ?? true);
     const [volume, setVolume] = useState(1); // 기본 볼륨 100%
@@ -219,7 +249,6 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
     };
 
 
-
     // 음성 볼륨 체크용 ref
     const audioContextRef = useRef(null);
     const analyserRef = useRef(null);
@@ -272,7 +301,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
 
                 const checkVolume = () => {
                     if (mutedRef.current || !analyserRef.current || !dataArrayRef.current) {
-                        if(isSpeakingRef.current){
+                        if (isSpeakingRef.current) {
                             isSpeakingRef.current = false
                             setIsSpeaking(false)
                         }
@@ -328,7 +357,6 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
     }, [stream]);
 
 
-
     // 음소거 토글 함수
     const toggleMute = (e) => {
         e.stopPropagation(); // 부모 클릭 이벤트 방지
@@ -360,7 +388,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
                 slider.parentElement.parentElement.querySelector('video').muted = false;
             });
         });
-    },[])
+    }, [])
 
     function updateVolumeSliderBackground(slider) {
         const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
@@ -369,7 +397,13 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
 
     return (
         <div className={`videoBox${!isMain ? ' small' : ''}${isSpeaking ? ' speaking' : ''}`}
-             style={{border: isSpeaking && !isMain ? '4px solid limegreen' : '2px solid transparent'}}
+             style={{
+                 border: isSpeaking && !isMain
+                     ? '4px solid limegreen'
+                     : !isSpeaking && !isMain && isHighestBidder
+                         ? '4px solid #EA6946'    // 최고 입찰자 + 말 안할 때 오렌지
+                         : '4px solid transparent'  // 그 외는 투명
+             }}
              onMouseEnter={onMouseEnter}
              onMouseLeave={onMouseLeave}
         >

@@ -31,26 +31,10 @@
     font-weight:600;
 }
 
-.main-videoWrapper >.streaming-btn-wrap{
-    display:flex;
-    justify-content: flex-end;
-    padding: 5px 10px 0 0;
 
-}
-.main-videoWrapper>.streaming-btn-wrap> .streaming-btn{
-    padding: 6px 12px;
-    margin-bottom: 10px;
-    background-color:#ff9a7e;
-    color:white;
-    border-radius: 20px;
-    font-size:12px;
-    cursor:pointer;
-    transition:background-color 0.5s ease-out;
-}
 
-.main-videoWrapper>.streaming-btn-wrap> .streaming-btn.active{
-    background-color: #ea6946;
-}
+
+
 
 
 .videoWrapper{
@@ -621,9 +605,45 @@ video {
 }
 
 
-
-
  /*메인 비디오 부분*/
+
+.main-videoWrapper >.streaming-btn-wrap{
+    display:flex;
+    justify-content: space-between;
+    padding: 5px 10px 0 0;
+
+}
+.main-videoWrapper>.streaming-btn-wrap .auction-end-btn{
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    background-color: #848282;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.auction-end-btn:hover{
+    background-color: #666464;
+}
+
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn{
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    background-color:#ff9a7e;
+    color:white;
+    border-radius: 20px;
+    font-size:12px;
+    cursor:pointer;
+    transition:background-color 0.5s ease-out;
+}
+
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn.active{
+    background-color: #ea6946;
+}
+
+
+
 .contentWrap-under >.main-videoWrapper{
     margin-top:40px;
     width: 400px;
@@ -646,7 +666,6 @@ video {
     font-size:25px;
     font-weight:700;
     padding:0 12px;
-
 }
 .main-video-stop{
     width: 100%;
@@ -656,4 +675,38 @@ video {
     justify-content: center;
     align-items: center;
     color: #fff;
+}
+
+/*모달창*/
+.confirmModal{
+    position: fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-msg-wrap{
+    background-color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    max-width: 300px;
+    text-align: center;
+}
+
+.confirm-msg-wrap > .confirm-msg{
+    font-weight: 500;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+.confirm-msg-wrap > button{
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor:pointer;
 }

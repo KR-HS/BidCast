@@ -1,15 +1,13 @@
 import React, {useEffect, useState} from "react";
 
-const DoBid = ({product,socket,userId,roomId,handleStatusMsg}) => {
+const DoBid = ({product,socket,userId,userInfo,roomId,handleStatusMsg,isAuctionEnded}) => {
     const [isBidding, setIsBidding] = useState(false);
-
-    const [lastBidderId, setLastBidderId] = useState(null);
 
     const handleBid = () => {
         if (isBidding) return; // 중복 방지
 
         // 이전 입찰자가 본인이라면 막기
-        if (product?.winnerId === userId) {
+        if (product?.winnerId === userInfo.userKey) {
             handleStatusMsg("이미 입찰한 상품입니다.");
             setTimeout(()=>{
                 handleStatusMsg(null);
@@ -48,7 +46,16 @@ const DoBid = ({product,socket,userId,roomId,handleStatusMsg}) => {
     return (
         <>
             <div className="bid-button-wrap">
-                <div className="bid-button" onClick={handleBid}>
+                <div className={`bid-button ${isAuctionEnded || isBidding ? 'disabled' : ''}`}
+                     onClick={()=>{
+                         if(isAuctionEnded || isBidding) return;
+                         handleBid();
+                     }}
+                     style={{
+                         cursor: (isAuctionEnded || isBidding) ? 'not-allowed' : 'pointer',
+                         opacity: (isAuctionEnded || isBidding) ? 0.6 : 1,
+                     }}
+                >
                     <span className="bid-button-content">입찰 </span>
                     <span className="bidAmount">
                          {
@@ -59,10 +66,6 @@ const DoBid = ({product,socket,userId,roomId,handleStatusMsg}) => {
                     </span>
                 </div>
 
-                <div className="complete-bidItem-list">
-                    <img src="/img/menubar.png" alt="메뉴바"/>
-                    <span>낙찰상품</span>
-                </div>
             </div>
         </>
     )

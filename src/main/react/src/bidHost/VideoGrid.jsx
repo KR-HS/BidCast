@@ -1,7 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {MdSwapHoriz} from "react-icons/md";
 
-const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
+const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey,children}) => {
     const [mainStreamId, setMainStreamId] = useState(null);  // 메인화면에 보여줄 스트림 Id
     const subVideosRef = useRef(); // 서브 비디오들을 감싸는 div 참조
 
@@ -54,6 +54,8 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
         setSubMutedStates(prev => ({...prev, [id]: muted}));
     };
 
+
+
     // ----
     return (
         <div className="videoWrapper">
@@ -73,8 +75,8 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, children}) => {
                                         />
                                     </div>
                                     <div className="userInfo">
-                                        <p className="guestId">닉네임:{id}</p>
-                                        <p className="amount">입찰가:{100000}원</p>
+                                        <p className="guestId">닉네임:{userInfoMap?.[id]?.nickname ?? '알 수 없음'}</p>
+                                        <p className="amount">입찰가: {userInfoMap?.[id]?.bids?.[selectProductKey] ?? 0}원</p>
                                     </div>
                                 </div>
                             ))}
