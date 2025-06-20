@@ -17,7 +17,10 @@ public class ProdDTO {
     int aucKey;
     String prodName;
     String prodDetail;
+    int unitValue; // 경매단위
     int initPrice;
+    Integer currentPrice; //
     Integer finalPrice;
     Integer winnderId;
+    char prodStatus;
 }

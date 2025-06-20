@@ -121,19 +121,6 @@ export default function App() {
     //     fetchUserInfo();
     }, []);
 
-    function normalizeProduct(rawProduct) {
-        return {
-            prodKey: rawProduct.prod_key,
-            aucKey:rawProduct.auc_key,
-            prodName: rawProduct.prod_name,
-            prodDetail:rawProduct.prod_detail,
-            initPrice:rawProduct.init_price,
-            finalPrice: rawProduct.final_price,
-            winnerId: rawProduct.winner_id,
-        };
-    }
-
-
     useEffect(() => {
         if (!roomId || !userId) return;
 
@@ -160,8 +147,8 @@ export default function App() {
                 // }
 
                 if(selectProduct){
-                    const product = normalizeProduct(normalizeProduct);
-                    setSelectedProduct(product);
+                    console.log("방입장시 선택된 상품",selectProduct)
+                    setSelectedProduct(selectProduct);
                 }
 
                 console.log("채팅내역 가져오기", chats)
@@ -693,7 +680,7 @@ export default function App() {
             </div>
 
             <div className="contentWrap-under">
-                <BidInfo socket = {socket} roomId={roomId} userId={userId} selectProductIdx={selectedProduct?.prodKey}/>
+                <BidInfo socket = {socket} roomId={roomId} userId={userId} selectProductKey={selectedProduct?.prodKey}/>
 
                 <MainVideo peers={peers[hostId]} hostSocketId={hostId}>
                     <div onClick={toggleStreaming} className="streaming-btn">

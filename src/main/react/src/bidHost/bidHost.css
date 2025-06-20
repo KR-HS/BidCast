@@ -471,6 +471,9 @@ video {
     width:100%;
     height:100%;
 }
+
+
+
 .bidProdList.selected >.bidProd-picture  {
     border: 2px solid #3b82f6; /* 파란 테두리 */
 }
@@ -511,7 +514,6 @@ video {
 }
 
 .bidProdList > .bidProd-btnWrap{
-    position: relative;
     display: flex;
     flex-direction:column;
     align-items: center;
@@ -529,11 +531,20 @@ video {
     pointer-events: none;
 }
 
+
 .bidProdList:hover > .bidProd-btnWrap{
-    max-height: 100px; /* 버튼 3개 정도 보여질 만큼 */
+    max-height: 100px;
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+}
+
+/* 낙찰/유찰인 경우 hover 비활성화 */
+.bidProdList.completed:hover > .bidProd-btnWrap,
+.bidProdList.cancelled:hover > .bidProd-btnWrap {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .bidProd-btnWrap > .bidProd{
@@ -587,6 +598,28 @@ video {
     cursor: pointer;
     border:none;
 }
+
+.error-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: rgba(255, 80, 80, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 999;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
 
 
 

@@ -7,6 +7,7 @@ import Loader from "../Loader/Loader";
 import ChatTable from "../bidHost/ChatTable";
 import OtherAuction from "./OtherAuction";
 import DoBid from "./DoBid";
+import StatusMessage from "./StatusMessage";
 
 
 export default function App() {
@@ -137,9 +138,8 @@ export default function App() {
         })
 
 
-
         socket.current.emit('join-auction', {auctionId: roomId}, (response) => {
-            const {joined, hostSocketId, userCount, hostLoginId, chats,selectProduct} = response
+            const {joined, hostSocketId, userCount, hostLoginId, chats, selectProduct} = response
             if (joined) {
                 // if(hostLoginId===userId){
                 //     location.href=`/bidHost.do?roomId=${roomId}`;
@@ -147,8 +147,8 @@ export default function App() {
                 // }
 
 
-                if(selectProduct) {
-                    console.log("선택상품받아옴",selectProduct);
+                if (selectProduct) {
+                    console.log("선택상품받아옴", selectProduct);
                     setSelectedProduct(selectProduct);
                 }
 
@@ -506,7 +506,6 @@ export default function App() {
     }, [roomId, userId])
 
 
-
     // 호스트가 상품선택 / 낙찰 / 유찰시 작동
 
     const [selectedProduct, setSelectedProduct] = useState(null); // 선택된 상품
@@ -514,42 +513,50 @@ export default function App() {
     const [isAuctionEnded, setIsAuctionEnded] = useState(false);  // 경매 종료 여부
 
 
-    function normalizeProduct(rawProduct) {
-        return {
-            prodKey: rawProduct.prod_key,
-            aucKey:rawProduct.auc_key,
-            prodName: rawProduct.prod_name,
-            prodDetail:rawProduct.prod_detail,
-            initPrice:rawProduct.init_price,
-            finalPrice: rawProduct.final_price,
-            winnerId: rawProduct.winner_id,
-        };
-    }
+    // function normalizeProduct(rawProduct) {
+    //     return {
+    //         prodKey: rawProduct.prod_key,
+    //         aucKey:rawProduct.auc_key,
+    //         prodName: rawProduct.prod_name,
+    //         prodDetail:rawProduct.prod_detail,
+    //         unitValue:rawProduct.unit_value,
+    //         initPrice:rawProduct.init_price,
+    //         currentPrice:rawProduct.current_price,
+    //         finalPrice: rawProduct.final_price,
+    //         winnerId: rawProduct.winner_id,
+    //         prodStatus:rawProduct.prod_status,
+    //     };
+    // }
 
     useEffect(() => {
         if (!socket.current) return;
 
         // 🟢 호스트가 상품 선택 시
-        socket.current.on("host-selected-product", ({ product }) => {
+        socket.current.on("host-selected-product", ({product}) => {
             console.log("선택된 상품:", product);
             setSelectedProduct(product); // 게스트 화면에 선택 상품 표시
         });
 
         // 🟡 낙찰 또는 유찰 시
-        socket.current.on("bid-status", ({ prodKey,winner, status }) => {
-            console.log("상품 상태 변경:", prodKey, status);
+        socket.current.on("bid-status", ({prodKey, winner, nickname, status}) => {
+            console.log("상품 상태 변경:", winner, prodKey, status);
 
-            if(status==="유찰") setStatusMessage("❌ 유찰!");
-            if(winner===userId && status==="낙찰"){
-                setStatusMessage("🎉 낙찰!");
+            if (status === "유찰") setStatusMessage("❌ 유찰!");
+
+            if (status === "낙찰") {
+                if (winner === userId) {
+                    setStatusMessage("🎉 낙찰!");
+                }
+                else setStatusMessage(`${nickname}님께 최종 낙찰되었습니다.`)
             }
 
+            setSelectedProduct(null);
             // setStatusMessage(`${status === "낙찰" ? "🎉 낙찰!" : "❌ 유찰!"}`); // 잠깐 표시 후 사라지게
 
             // 예: 몇 초 뒤 메시지 사라짐
             setTimeout(() => {
                 setStatusMessage(null);
-            }, 2000);
+            }, 1000);
         });
 
         // 🔴 경매 종료 알림
@@ -559,20 +566,23 @@ export default function App() {
         });
 
         // 입찰 결과//
-        socket.current.on("bid-update", ({ product, bidder }) => {
+        socket.current.on("bid-update", ({product, bidder}) => {
             console.log("입찰 갱신:", product, bidder);
-            const formattedProduct = normalizeProduct(product);
-            setSelectedProduct(formattedProduct);
+            setSelectedProduct(product);
 
             // 만약 본인이 입찰자라면 별도 UI 표시 가능
             if (bidder.socketId === socket.current.id) {
-                alert(`🎉 당신이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+                setStatusMessage(`🎉 당신이 ${product.prodName}에 입찰 성공!`);
             } else {
-                alert(`${bidder.userName} 님이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+                setStatusMessage(`${bidder.nickName} 님이 ${product.prodName}에 입찰 성공!`);
             }
+
+            setTimeout(() => {
+                setStatusMessage(null);
+            }, 1000);
         });
 
-        socket.current.on("bid-rejected", ({ reason }) => {
+        socket.current.on("bid-rejected", ({reason}) => {
             alert(`입찰 실패: ${reason}`);
         });
 
@@ -585,10 +595,6 @@ export default function App() {
             socket.current.off("bid-rejected");
         };
     }, [mySocketId]);
-
-
-
-
 
 
     // socketIdToProducerIdRef 상태 동기화
@@ -746,7 +752,7 @@ export default function App() {
                 <div className="videoContent">
                     <div className="titleWrap">
                         <p className="title">매물명:{selectedProduct?.prodName}</p>
-                        <p className="price">현재최고가:{(selectedProduct?.finalPrice??0).toLocaleString()}원</p>
+                        <p className="price">현재최고가:{(selectedProduct?.finalPrice ?? 0).toLocaleString()}원</p>
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}
@@ -759,7 +765,7 @@ export default function App() {
                     </VideoGrid>
                     <div className="video-bottom-wrap">
                         <p className="auctionTitle">경매제목</p>
-                        <DoBid product={selectedProduct} socket={socket} userId={userId} roomId={roomId}/>
+                        <DoBid product={selectedProduct} socket={socket} userId={userId} roomId={roomId} handleStatusMsg={setStatusMessage}/>
                     </div>
                     <div className="countTagWrap">
                         <p className="guestCount">{userCount}명 시청중</p>
@@ -776,13 +782,9 @@ export default function App() {
 
             </div>
 
-            <OtherAuction />
+            <OtherAuction/>
 
-            {statusMessage && (
-                <div className="status-popup">
-                    {statusMessage}
-                </div>
-            )}
+            <StatusMessage message={statusMessage}/>
         </>
     )
 }
