@@ -67,6 +67,7 @@ export default function App() {
     const [userInfo,setUserInfo] = useState(null);
     const [userCount, setUserCount] = useState(0);
 
+    const [tags,setTags] = useState([]);
     // const [producerIdToSocketId, setProducerIdToSocketId] = useState({});
     const [socketIdToProducerId, setSocketIdToProducerId] = useState({});
     const socketIdToProducerIdRef = useRef({});
@@ -102,7 +103,6 @@ export default function App() {
         // const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
         // setUserId(params.get("userId"));
-        console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
         // 세션데이터
         const fetchUserInfo = async () => {
@@ -129,8 +129,41 @@ export default function App() {
             }
         };
         fetchUserInfo();
+
+
+
     }, []);
 
+    useEffect(()=>{
+        if(!roomId) return;
+
+        const fetchTagList = async() =>{
+
+            try{
+                const response = await fetch("/fetch/auction/tagList", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({roomId})
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버오류");
+                }
+
+                const data = await response.json();
+                console.log("태그정보", data);
+
+                setTags(data);
+            }catch(error){
+                console.error("태그 목록 가져오기 실패:", error);
+            }
+        };
+
+        fetchTagList();
+    },[roomId])
 
     useEffect(() => {
         if (!roomId || !userId) return;
@@ -818,11 +851,9 @@ export default function App() {
                     <div className="countTagWrap">
                         <p className="guestCount">{userCount}명 시청중</p>
                         <div className="tagWrap">
-                            {() => ( // 태그리스트받기
-                                <span className="tag">태그1</span>
-                            )}
-                            <span className="tag">태그2</span>
-                            <span className="tag">태그3</span>
+                            {tags.map((tag, idx) => (
+                                <div key={idx} className="tag">{tag}</div>
+                            ))}
                         </div>
                     </div>
                 </div>

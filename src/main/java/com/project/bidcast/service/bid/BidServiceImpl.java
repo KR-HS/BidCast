@@ -20,6 +20,11 @@ public class BidServiceImpl implements BidService {
     }
 
     @Override
+    public List<String> getTagList(int aucKey) {
+        return bidMapper.getTagList(aucKey);
+    }
+
+    @Override
     public int unitUpdate(ProdDTO product) {
         return bidMapper.unitUpdate(product);
     }

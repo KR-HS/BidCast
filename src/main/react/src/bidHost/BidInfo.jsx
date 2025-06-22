@@ -2,6 +2,9 @@ import React, {useEffect, useRef, useState} from "react";
 
 const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
 
+
+    // 경매 태그
+    const [tags, setTags] = useState([]);
     // 경매에 등록된 물품
     const [products, setProducts] = useState([]);
 
@@ -76,14 +79,36 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         };
         fetchProdList();
 
-        // DB에서 받아오도록 수정
-        // setProducts([
-        //     {name: "가방", initPrice: 1000, finalPrice: 0},
-        //     {name: "삼성노트북", initPrice: 1000, finalPrice: 0},
-        //     {name: "나이키 신발", initPrice: 1000, finalPrice: 0},
-        //     {name: "모나리자", initPrice: 1000, finalPrice: 0},
-        //     {name: "타이탄키보드", initPrice: 1000, finalPrice: 0}
-        // ])
+
+        const fetchTagList = async() =>{
+
+            try{
+                const response = await fetch("/fetch/auction/tagList", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({roomId})
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버오류");
+                }
+
+                const data = await response.json();
+                console.log("태그정보", data);
+
+                setTags(data);
+            }catch(error){
+                console.error("태그 목록 가져오기 실패:", error);
+            }
+        };
+
+        fetchTagList();
+
+
+
     }, [roomId])
 
     // 상품목록을 DB에서 가져오고 상품의 상태(낙찰-C,유찰-F,진행중-P,예정-N)에 따른 설정
@@ -383,8 +408,9 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                     <div>
                         <p>태그</p>
                         <div className="tagWrap">
-                            <div className="tag">부동산</div>
-                            <div className="tag">가전</div>
+                            {tags.map((tag, idx) => (
+                                <div key={idx} className="tag">{tag}</div>
+                            ))}
                         </div>
                     </div>
 

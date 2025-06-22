@@ -27,6 +27,14 @@ public class BidController {
         return bidService.getProdList(roomId);
     }
 
+    @PostMapping("/tagList")
+    @ResponseBody
+    public List<String> getTags(@RequestBody Map<String, Object> map) {
+        int roomId = Integer.parseInt(map.get("roomId").toString());
+
+        return bidService.getTagList(roomId);
+    }
+
     @PostMapping("/unitChange")
     @ResponseBody
     public String unitChange(@RequestBody ProdDTO product) {

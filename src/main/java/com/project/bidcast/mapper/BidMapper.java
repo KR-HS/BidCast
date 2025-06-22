@@ -14,6 +14,9 @@ public interface BidMapper {
     List<ProdDTO> getProdList(int aucKey);
 
 
+    @Select("SELECT tag_name FROM tag WHERE tag_key IN (SELECT tag_key FROM auctiontag WHERE auc_key=#{aucKey})")
+    List<String> getTagList(int aucKey);
+
     @Update("UPDATE product SET unit_value=#{unitValue} WHERE prod_key=#{prodKey}")
     int unitUpdate(ProdDTO product);
 }
