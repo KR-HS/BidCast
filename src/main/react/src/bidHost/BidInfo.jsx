@@ -164,8 +164,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         if (idx !== -1) {
             if (products[idx].prodStatus === 'F' || products[idx].prodStatus === 'C') {
                 setSelectedProductIdx(null);
-            }
-            else setSelectedProductIdx(idx);
+            } else setSelectedProductIdx(idx);
 
 
             hasInitialSelection.current = true;
@@ -306,6 +305,68 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
     }, [])
 
 
+    // 경매 단위 변경
+    const [unitChange, setUnitChange] = useState({
+        visible: false,
+        prodIdx: null,
+        prodKey: null,
+        selectedUnit: 1000
+    });
+
+    const handleConfirmUnitChange = async () => {
+        const {selectedUnit, prodIdx, prodKey} = unitChange;
+
+        try {
+            setProducts((prev) =>
+                prev.map((prod, i) =>
+                    i === prodIdx ? {...prod, unitValue: selectedUnit} : prod
+                )
+            );
+
+            await fetch("/fetch/auction/unitChange", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    aucKey: roomId,
+                    prodKey,
+                    unitValue: selectedUnit
+                })
+            });
+
+            socket.current.emit("host-selected-product", {
+                auctionId: roomId,
+                product: {
+                    ...products[prodIdx],
+                    unitValue: selectedUnit
+                }
+            });
+
+        } catch (err) {
+            setErrorMessage("단위 변경 오류가 발생하였습니다");
+            setTimeout(() => setErrorMessage(null), 1000);
+            console.error("단위 변경 실패:", err);
+        } finally {
+            setUnitChange({
+                visible: false,
+                prodIdx: null,
+                prodKey: null,
+                selectedUnit: 1000
+            });
+        }
+    };
+
+    const handleCancelUnitChange = () => {
+        setUnitChange({
+            visible: false,
+            prodIdx: null,
+            prodKey: null,
+            selectedUnit: 1000
+        });
+    };
+
+
     return (
         <>
             <div className="bidInfoWrapper">
@@ -326,6 +387,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                             <div className="tag">가전</div>
                         </div>
                     </div>
+
                 </div>
 
                 <div className="sliderWrap" ref={scrollRef}>
@@ -350,13 +412,27 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                                 <div className="bidProd-btnWrap">
                                     {p.prodStatus !== null && (
                                         <>
-                                            <div className="bidProd selectBtn" onClick={() => handleSelect(idx)}>선택
+                                            <div className="bidProd selectBtn"
+                                                 onClick={() => handleSelect(idx)}>선택
                                             </div>
                                             <div className="bidProd completeBtn"
                                                  onClick={() => openConfirmModal("낙찰", idx)}>낙찰
                                             </div>
                                             <div className="bidProd cancelBtn"
                                                  onClick={() => openConfirmModal("유찰", idx)}>유찰
+                                            </div>
+
+                                            <div
+                                                className="bidProd unitBtn"
+                                                onClick={() => {
+                                                    setUnitChange({
+                                                        visible: true,
+                                                        prodIdx: idx,
+                                                        prodKey: p.prodKey,
+                                                        selectedUnit: p.bidUnit ?? 1000
+                                                    });
+                                                }}
+                                            >경매 단위 변경
                                             </div>
                                         </>
                                     )}
@@ -395,9 +471,38 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                 </div>
             )}
 
+            {/*에러메시지 모달창*/}
             {errorMessage && (
                 <div className="error-modal">
                     {errorMessage}
+                </div>
+            )}
+
+
+            {/* 경매 단위변경 확인 모달창*/}
+            {unitChange.visible && (
+                <div className="modal-backdrop">
+                    <div className="modal-box unitChange">
+                        <p>{products[unitChange.prodIdx]?.prodName ?? '상품'}의 경매 단위를 선택하세요</p>
+                        <select
+                            value={unitChange.selectedUnit}
+                            onChange={(e) =>
+                                setUnitChange((prev) => ({
+                                    ...prev,
+                                    selectedUnit: parseInt(e.target.value)
+                                }))
+                            }
+                        >
+                            {[1000, 10000, 100000, 1000000].map((unit) => (
+                                <option key={unit} value={unit}>{unit.toLocaleString()}원</option>
+                            ))}
+                        </select>
+
+                        <div className="modal-buttons">
+                            <button onClick={handleConfirmUnitChange}>확인</button>
+                            <button onClick={handleCancelUnitChange}>취소</button>
+                        </div>
+                    </div>
                 </div>
             )}
         </>

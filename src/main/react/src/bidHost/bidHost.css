@@ -387,7 +387,7 @@ video {
 }
 
 .bidInfo > div{
-    width:35%;
+    width:40%;
 }
 .bidInfo > div > p{
     font-weight:600;
@@ -517,7 +517,7 @@ video {
 
 
 .bidProdList:hover > .bidProd-btnWrap{
-    max-height: 100px;
+    max-height: 120px;
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
@@ -552,6 +552,9 @@ video {
 .bidProd.cancelBtn{
     background-color:#B23F25;
 }
+.bidProd.unitBtn{
+    background: #722817;
+}
 
 
 .modal-backdrop {
@@ -580,7 +583,13 @@ video {
     padding: 8px 16px;
     font-weight: bold;
     cursor: pointer;
+    border-radius: 4px;
     border:none;
+    transition:background-color,color 0.5s ease;
+}
+.modal-buttons button:hover{
+    background-color:#777;
+    color:white;
 }
 
 .error-modal {
@@ -709,4 +718,16 @@ video {
     font-weight: 600;
     font-size: 15px;
     cursor:pointer;
+}
+
+.unitChange > p{
+    padding: 10px 0;
+}
+
+.unitChange > select{
+    width: 100%;
+    padding: 5px 5px;
+    border-radius: 4px;
+    border: 1px solid #9e9e9e;
+    outline: none;
 }

@@ -7,4 +7,5 @@ import java.util.List;
 public interface BidService {
 
     List<ProdDTO> getProdList(int aucKey);
+    int unitUpdate(ProdDTO dto);
 }

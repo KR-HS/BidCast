@@ -18,4 +18,9 @@ public class BidServiceImpl implements BidService {
     public List<ProdDTO> getProdList(int aucKey) {
         return bidMapper.getProdList(aucKey);
     }
+
+    @Override
+    public int unitUpdate(ProdDTO product) {
+        return bidMapper.unitUpdate(product);
+    }
 }

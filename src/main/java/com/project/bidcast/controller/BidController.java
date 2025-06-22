@@ -27,5 +27,17 @@ public class BidController {
         return bidService.getProdList(roomId);
     }
 
+    @PostMapping("/unitChange")
+    @ResponseBody
+    public String unitChange(@RequestBody ProdDTO product) {
+        System.out.println("경매 ID: " + product.getAucKey());
+        System.out.println("상품 ID: " + product.getProdKey());
+        System.out.println("변경할 단위: " + product.getUnitValue());
+
+        if(bidService.unitUpdate(product)<1) return "단위변경 실패";
+
+
+        return "단위변경 성공";
+    }
 
 }
