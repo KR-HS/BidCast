@@ -6,7 +6,7 @@ export default function App() {
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
-
+    const [formData, setFormData] = useState(null);
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {
@@ -24,17 +24,38 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
-    const [formData, setFormData] = useState({
-        pw: '',
-        vpw: '',
-        email1: '',
-        email2: '',
-        birthday: '',
-        phone1: '010',
-        phone2: '',
-        phone3: '',
-        nickName: ''
-    });
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const res = await fetch("/api/v1/getUserInfo", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                credentials: "include"
+            });
+
+            const result = await res.json();
+            console.log(result);
+            if (result) {
+                const user = result;
+                setFormData({
+                    userKey: user.userKey,
+                    email1: user.email.split('@')[0],
+                    email2: user.email.split('@')[1],
+                    birthday: user.birth,
+                    phone1: user.phone.split('-')[0],
+                    phone2: user.phone.split('-')[1],
+                    phone3: user.phone.split('-')[2],
+                    nickName: user.nickName
+                });
+            } else {
+                alert("잘못된 접근입니다.")
+                window.location.href = "login.do";
+            }
+        };
+        fetchUserInfo();
+    }, []);
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -48,27 +69,77 @@ export default function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-       await fetch('api/v1/join',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('회원가입이 완료되었습니다.');
-                window.location.href = '/login.do'; // 회원가입 후 로그인 페이지로 이동
-            } else {
-                alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+        try {
+            // 전화번호 형식 확인
+            if (!/^\d{3,4}$/.test(formData.phone2) || !/^\d{4}$/.test(formData.phone3)) {
+                alert("올바른 전화번호 형식을 입력해주세요.");
+                return;
             }
-        })
-        .catch(error => {
-            console.error('회원가입 요청 중 오류 발생:', error);
-            alert('회원가입 요청 중 오류가 발생했습니다.');
-       })
 
+            // 서버로 전송할 데이터
+            const userData = {
+                email1: formData.email1,
+                email2: formData.email2,
+                birth: formData.birthday,
+                phone1: formData.phone1,
+                phone2: formData.phone2,
+                phone3: formData.phone3,
+                nickName: formData.nickName
+            };
+
+            const response = await fetch("/api/v1/memberModify", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(userData),
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+
+                if (result.success) {
+                    alert("회원정보가 성공적으로 수정되었습니다.");
+                    window.location.href = "/mypage.do";
+                } else {
+                    alert(result.message || "회원정보 수정에 실패했습니다.");
+                }
+            } else {
+                alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
+        } catch (error) {
+            console.error("회원정보 수정 중 오류 발생:", error);
+            alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    };
+
+    const changPw = (e) => {
+        e.preventDefault();
+        sessionStorage.setItem("userKey", formData.userKey);
+        window.location.href = '/changepw.do';
     }
+
+    const deleteUser = async (e) => {
+        e.preventDefault();
+        if (window.confirm("정말 회원탈퇴를 하시겠습니까?")) {
+            try {
+                const response = await fetch("/api/v1/deleteUser", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include"
+                });
+
+                if (response.ok) {
+                    alert("회원탈퇴가 완료되었습니다.");
+                    window.location.href = "/home.do";
+                } else {
+                    alert("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
+                }
+            } catch (error) {
+                console.error("회원탈퇴 중 오류 발생:", error);
+                alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
+        }
+    };
 
     if (isLoading) {
         return (
@@ -85,26 +156,7 @@ export default function App() {
                     <table>
                         <tbody>
                         <tr>
-                            <td>비밀번호 변경</td>
-                            <td>
-                                <input type="password"
-                                       name="pw"
-                                value={formData.pw}
-                                onChange={handleChange}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>비밀번호 확인</td>
-                            <td>
-                                <input type="password"
-                                       name="vpw"
-                                value={formData.vpw}
-                                onChange={handleChange}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
+
                             <td>이메일</td>
                             <td className="email-box">
                                 <input type="text" style={{width:'130px'}}
@@ -183,8 +235,12 @@ export default function App() {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan="2">
-                                <a href={'#'} className="del-mem">회원탈퇴</a>
+                            <td>
+                                <a onClick={changPw} className="del-mem" style={{color: 'blue'}}>비밀번호 변경
+                                </a>
+                            </td>
+                            <td>
+                                <a onClick={deleteUser} className="del-mem">회원탈퇴</a>
                             </td>
                         </tr>
                         </tbody>

@@ -38,7 +38,7 @@ public class SecConfig {
                         "/bundle/**",
                         "/api/**",
                         "/home.do",
-                        "/join.dcho"
+                        "/join.do"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

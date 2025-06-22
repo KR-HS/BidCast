@@ -10,8 +10,14 @@ public class GetSession {
     // 현재 로그인된 사용자 전체 DTO 반환
     public static UsersDTO getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
-            return ((CustomUserDetails) auth.getPrincipal()).getUser();
+        if (auth != null) {
+            Object principal = auth.getPrincipal();
+
+            if (principal instanceof CustomUserDetails) {
+                return ((CustomUserDetails) principal).getUser();
+            } else if (principal instanceof UsersDTO) {
+                return (UsersDTO) principal;
+            }
         }
         return null;
     }

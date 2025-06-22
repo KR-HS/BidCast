@@ -52,6 +52,10 @@ export default function App() {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
+        if( formData.pw.length < 8 || formData.pw.length > 20) {
+            alert("비밀번호는 8자 이상 20자 이하로 입력해주세요.");
+            return;
+        }
 
         const response = await fetch('/api/v1/changePw', {
             method: 'POST',

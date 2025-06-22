@@ -293,6 +293,9 @@ export default function App() {
 
     //로그아웃
     const logoutHandler = async () => {
+        localStorage.removeItem('com.naver.nid.oauth.state_token');
+        localStorage.removeItem('com.naver.nid.access_token');
+
         const response = await fetch("/logout", {
             method: "POST",
             credentials: "include", // 쿠키 전달

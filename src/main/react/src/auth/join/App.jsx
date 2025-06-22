@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import Loader from "../../Loader/Loader";
 
 
@@ -6,6 +6,19 @@ export default function App() {
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+
+    const idRef = useRef();
+    const pwRef = useRef();
+    const vpwRef = useRef();
+    const email1Ref = useRef();
+    const email2Ref = useRef();
+    const nameRef = useRef();
+    const birthRef = useRef();
+    const phone2Ref = useRef();
+    const phone3Ref = useRef();
+    const nickNameRef = useRef();
+    const phoneRegex = /^[0-9]+$/;
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|\\;:'",.<>/?`~\-]).{8,16}$/;
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -50,25 +63,83 @@ export default function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-       await fetch('api/v1/join',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
+
+        if(formData.id.length < 7 || formData.id.length > 20) {
+            alert("아이디는 7자 이상 20자 이하로 입력해주세요.");
+            idRef.current?.focus();
+            return;
+        }
+
+        if (!pwRegex.test(formData.pw)) {
+            alert("비밀번호는 8자 이상 20자 이하로, 영문, 숫자, 특수문자를 포함해야 합니다.");
+            pwRef.current?.focus();
+            return;
+        }
+        if( formData.pw !== formData.vpw) {
+            alert("비밀번호가 일치하지 않습니다.")
+            vpwRef.current?.focus();
+            return;
+        }
+
+        if(formData.email1 === '' || formData.email2 === '') {
+            alert("이메일을 입력해주세요.");
+            if(formData.email1 === '') {
+                email1Ref.current?.focus();
+                return;
+            }
+            email2Ref.current?.focus();
+            return;
+        }
+
+        if(formData.name.length < 1 || formData.name.length > 20) {
+            alert(" 이름은 1자 이상 20자 이하로 입력해주세요.");
+            nameRef.current?.focus();
+            return;
+        }
+
+        if(formData.birthday === '') {
+            alert("생년월일을 입력해주세요.");
+            birthRef.current?.focus();
+            return;
+        }
+
+        if (!phoneRegex.test(formData.phone2) || formData.phone2.length < 3 || formData.phone2.length > 4) {
+            alert("연락처 중간 자리는 숫자 3~4자리로 입력해주세요.");
+            phone2Ref.current?.focus();
+            return;
+        }
+        if (!phoneRegex.test(formData.phone3) || formData.phone3.length !== 4) {
+            alert("연락처 마지막 자리는 숫자 4자리로 입력해주세요.");
+            phone3Ref.current?.focus();
+            return;
+        }
+
+        if(formData.nickName.length < 3 || formData.nickName.length > 20) {
+            alert("닉네임은 3자 이상 20자 이하로 입력해주세요.");
+            nickNameRef.current?.focus();
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/v1/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
             if (response.ok) {
                 alert('회원가입이 완료되었습니다.');
                 window.location.href = '/login.do'; // 회원가입 후 로그인 페이지로 이동
             } else {
-                alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                const errorData = await response.json(); // 서버에서 보낸 메시지 받기
+                alert(errorData.message);
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('회원가입 요청 중 오류 발생:', error);
-            alert('회원가입 요청 중 오류가 발생했습니다.');
-       })
+            alert('회원가입 요청 중 네트워크 오류가 발생했습니다.');
+        }
 
     }
     if (isLoading) {
@@ -91,6 +162,7 @@ export default function App() {
                                 <input type="text"
                                        name="id"
                                 value={formData.id}
+                                ref={idRef}
                                 onChange={handleChange}
                                 />
                             </td>
@@ -100,7 +172,9 @@ export default function App() {
                             <td>
                                 <input type="password"
                                        name="pw"
+
                                 value={formData.pw}
+                                ref={pwRef}
                                 onChange={handleChange}
                                 />
                             </td>
@@ -110,6 +184,7 @@ export default function App() {
                             <td>
                                 <input type="password"
                                        name="vpw"
+                                       ref={vpwRef}
                                 value={formData.vpw}
                                 onChange={handleChange}
                                 />
@@ -121,12 +196,14 @@ export default function App() {
                                 <input type="text" style={{width:'130px'}}
                                         name="email1"
                                        value={formData.email1}
+                                       ref={email1Ref}
                                        onChange={handleChange}
                                 />
                                 <span style={{margin:"0 3px"}}>@</span>
                                 <input type="text" style={{width:'78px'}}
                                         name="email2"
                                        value={formData.email2}
+                                       ref={email2Ref}
                                        onChange={handleChange}
                                 />
                                 <select onChange={(e) => {
@@ -150,6 +227,7 @@ export default function App() {
                                 <input type="text"
                                        name="name"
                                 value={formData.name}
+                                ref={nameRef}
                                 onChange={handleChange}/>
                             </td>
                         </tr>
@@ -159,6 +237,7 @@ export default function App() {
                                 <input type="date"
                                        name="birthday"
                                 value={formData.birthday}
+                                ref={birthRef}
                                 onChange={handleChange}/>
                             </td>
                         </tr>
@@ -183,12 +262,24 @@ export default function App() {
                                 <input type="text" style={{width:'100px'}}
                                        name="phone2"
                                 value={formData.phone2}
-                                onChange={handleChange}/>
+                                       maxLength={4}
+                                        ref={phone2Ref}
+                                       onChange={(e) => {
+                                           const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                           setFormData({ ...formData, phone2: onlyNums });
+                                       }}
+
+                                />
                                 <span style={{margin:"0 6px"}}>-</span>
                                 <input type="text" style={{width:'100px'}}
                                        name="phone3"
                                 value={formData.phone3}
-                                       onChange={handleChange}
+                                       maxLength={4}
+                                        ref={phone3Ref}
+                                       onChange={(e) => {
+                                           const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                           setFormData({ ...formData, phone3: onlyNums });
+                                       }}
                                 />
                             </td>
                         </tr>
@@ -198,6 +289,7 @@ export default function App() {
                                 <input type="text"
                                        name="nickName"
                                 value={formData.nickName}
+                                ref={nickNameRef}
                                 onChange={handleChange}
                                 />
                             </td>
