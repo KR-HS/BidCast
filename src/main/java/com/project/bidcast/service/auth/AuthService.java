@@ -10,7 +10,7 @@ public interface AuthService {
     UsersDTO searchId(Map<String, String> userInfo);
     UsersDTO searchPw(Map<String, String> userInfo);
     void changePw(Map<String, String> userInfo);
-
+    UsersDTO socialLogin(Map<String, String> userInfo);
     UsersDTO getUserByLoginId(String loginId);
 
     boolean checkPassword(int userKey, String inputPassword);

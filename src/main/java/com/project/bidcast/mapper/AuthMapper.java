@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 public interface AuthMapper {
 
     UsersDTO getUserByLoginId(String loginId);
-    void createUser(String loginId, String userName, String birth, String phone, String email, String pw, String nickname);
+    void createUser(UsersDTO user);
     UsersDTO searchId(String email, String userName, String phone);
     UsersDTO searchPw(String loginId, String email, String userName, String phone);
     void changePw(Integer userKey, String pw);

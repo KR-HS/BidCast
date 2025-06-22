@@ -11,8 +11,8 @@
 
 
     <insert id="createUser">
-        INSERT INTO users (login_id, user_name, birth, phone, email, pw, nickname)
-        VALUES (#{loginId}, #{userName}, #{birth}, #{phone}, #{email}, #{pw}, #{nickname})
+        INSERT INTO users (login_id, user_name, birth, phone, email, pw, nickname, created_at)
+        VALUES (#{loginId}, #{userName}, #{birth}, #{phone}, #{email}, #{pw}, #{nickName}, NOW())
     </insert>
 
     <select id="getUserByLoginId" resultType="com.project.bidcast.vo.UsersDTO">
