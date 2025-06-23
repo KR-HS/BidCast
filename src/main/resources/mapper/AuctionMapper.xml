@@ -82,4 +82,5 @@
         VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행중')
     </insert>
 
+
 </mapper>
