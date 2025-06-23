@@ -3,10 +3,7 @@ package com.project.bidcast.service.auction;
 
 import com.project.bidcast.mapper.AuctionMapper;
 import com.project.bidcast.service.auth.AuthService;
-import com.project.bidcast.vo.AuctionDTO;
-import com.project.bidcast.vo.AuctionDetailDTO;
-import com.project.bidcast.vo.AuctionHistoryDTO;
-import com.project.bidcast.vo.AuctionItemDTO;
+import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +41,18 @@ public class AuctionServiceImpl implements AuctionService {
         List<AuctionItemDTO> winnerItems = auctionMapper.selectWinningProductsByUserId(userKey);
         System.out.println(winnerItems);
         return winnerItems ;
+    }
+
+    @Override
+    public List<TagDTO> getTags() {
+
+        return auctionMapper.selectTag();
+    }
+
+    @Override
+    public void regAuction(AuctionDTO auctionDTO) {
+
+        auctionMapper.regAuction(auctionDTO);
     }
 }
 
