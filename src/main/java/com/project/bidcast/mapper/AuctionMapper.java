@@ -1,10 +1,7 @@
 package com.project.bidcast.mapper;
 
 
-import com.project.bidcast.vo.AuctionDTO;
-import com.project.bidcast.vo.AuctionDetailDTO;
-import com.project.bidcast.vo.AuctionHistoryDTO;
-import com.project.bidcast.vo.AuctionItemDTO;
+import com.project.bidcast.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -28,6 +25,10 @@ public interface AuctionMapper {
 
     @Select("SELECT status FROM auction WHERE auction_id=#{auctionId}")
     String getAuctionStatus(int auctionId);
+    @Select("SELECT tag_key, tag_name FROM tag")
+    List<TagDTO> selectTag();
+
+    void regAuction(AuctionDTO auctionDTO);
 }
 
 
