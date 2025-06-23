@@ -1,7 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 
-const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
+const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,userInfoMap}) => {
 
+
+    // 모든 유저 닉네임 리스트
+    const [nicks, setNicks] = useState({});
 
     // 경매 태그
     const [tags, setTags] = useState([]);
@@ -80,9 +83,9 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         fetchProdList();
 
 
-        const fetchTagList = async() =>{
+        const fetchTagList = async () => {
 
-            try{
+            try {
                 const response = await fetch("/fetch/auction/tagList", {
                     method: "POST",
                     credentials: "include",
@@ -100,7 +103,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                 console.log("태그정보", data);
 
                 setTags(data);
-            }catch(error){
+            } catch (error) {
                 console.error("태그 목록 가져오기 실패:", error);
             }
         };
@@ -108,6 +111,33 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         fetchTagList();
 
 
+        const fetchNickList = async () => {
+
+            if (!roomId) return;
+
+            try {
+                const response = await fetch("/fetch/auction/nickList", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버오류");
+                }
+
+                const data = await response.json();
+                console.log("닉네임정보", data);
+
+                setNicks(data);
+            } catch (error) {
+                console.error("닉네임 목록 가져오기 실패:", error);
+            }
+        };
+
+        fetchNickList();
 
     }, [roomId])
 
@@ -217,6 +247,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
             return;
         }
 
+        setSelectProduct(product); // App에서 받은 함수 사용
         setSelectedProductIdx(idx);
 
 
@@ -266,7 +297,15 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         }
 
         if (type === "유찰") {
-            if (selectedProduct.finalPrice && selectedProduct.winnerId) {
+            const productKey = selectedProduct.prodKey;
+
+            const hasCurrentBidder = Object.entries(userInfoMap || {}).some(([socketId, user]) => {
+                if (socketId === socket.current.id) return false; // ✅ 호스트 본인은 제외
+                const bid = user?.bids?.[productKey];
+                return typeof bid === 'number' && !isNaN(bid);
+            });
+
+            if (hasCurrentBidder) {
                 setErrorMessage("입찰자가 있는 경우 유찰할 수 없습니다.");
                 setTimeout(() => setErrorMessage(null), 1000);
                 return;
@@ -289,7 +328,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
         setProducts(prev =>
             sortProductsByStatus(
                 prev.map((p, i) =>
-                    i === idx ? {...p, prodStatus: type === '낙찰' ? 'F' : 'C'} : p
+                    i === idx ? {...p, prodStatus: type === '낙찰' ? 'C' : 'F'} : p
                 )
             )
         );
@@ -392,20 +431,162 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
     };
 
 
+    const [highestBidderNickname, setHighestBidderNickname] = useState("");
+
+    // 최고입찰자 구하기
+    const getHighestBidderNickname = (userInfoMap, productKey) => {
+        let highestBid = -1;
+        let nickname = "";
+
+        Object.values(userInfoMap).forEach(user => {
+            const bid = user.bids?.[productKey];
+            if (bid !== undefined && bid > highestBid) {
+                highestBid = bid;
+                nickname = user.nickname;
+            }
+        });
+
+        return highestBid > -1 ? nickname : ""; // 입찰이 없으면 "" 반환
+    };
+
+    // 닉네임 갱신
+    useEffect(() => {
+        if (
+            selectedProductIdx !== null &&
+            products[selectedProductIdx]?.prodKey &&
+            userInfoMap
+        ) {
+            const productKey = products[selectedProductIdx]?.prodKey;
+            const nickname = getHighestBidderNickname(userInfoMap, productKey);
+
+            // 입찰자가 아예 없으면 공란, 있으면 닉네임
+            setHighestBidderNickname(nickname || "");
+        } else {
+            setHighestBidderNickname("");
+        }
+    }, [userInfoMap, selectedProductIdx, products]);
+
+
+
+
+    // 이전 입찰자로 변경 ( 최고입찰자를 변경해야 하는 상황의 경우 현재 접속한 인원중 가장 높은 금액으로 입찰한 사람으로 변경)
+    const [prevHighestBidder, setPrevHighestBidder] = useState(null);
+
+    const [revertConfirmModal, setRevertConfirmModal] = useState({
+        visible: false,
+        bidder: null
+    });
+
+    function getSortedBidders(userInfoMap, prodKey) {
+        if (!userInfoMap || !prodKey) return [];
+
+        return Object.values(userInfoMap)
+            .filter(user => user.bids && user.bids[prodKey] !== undefined)
+            .map(user => ({
+                userKey: user.userKey,
+                nickname: user.nickname,
+                bid: user.bids[prodKey]
+            }))
+            .sort((a, b) => b.bid - a.bid);
+    }
+
+    useEffect(() => {
+        if (
+            selectedProductIdx !== null &&
+            products[selectedProductIdx]?.prodKey &&
+            userInfoMap
+        ) {
+            const productKey = products[selectedProductIdx].prodKey;
+            const bidders = getSortedBidders(userInfoMap, productKey);
+
+            if (bidders.length >= 2) {
+                setPrevHighestBidder(bidders[1]); // 두 번째 입찰자
+            } else {
+                setPrevHighestBidder(null); // 1명 이하면 null로 세팅해서 버튼 안 나오게
+            }
+        } else {
+            setPrevHighestBidder(null);
+        }
+    }, [selectedProductIdx, userInfoMap, products]);
+
+
+    const openRevertModal = () => {
+        if (prevHighestBidder) {
+            setRevertConfirmModal({
+                visible: true,
+                bidder: prevHighestBidder
+            });
+        }
+    };
+
+
+    const confirmRevertBidder = () => {
+        if (selectedProductIdx === null || revertConfirmModal.bidder == null) return;
+
+        const product = products[selectedProductIdx];
+        const newWinner = revertConfirmModal.bidder;
+
+        console.log("새로운 최고입찰자",newWinner);
+        // 상태 반영
+        const updatedProduct = {
+            ...product,
+            winnerId: newWinner.userKey,
+            finalPrice: newWinner.bid
+        };
+
+        setProducts(prev =>
+            prev.map((p, i) =>
+                i === selectedProductIdx ? updatedProduct : p
+            )
+        );
+
+        console.log("소켓에 요청보냄")
+        // 서버에도 반영
+        socket.current.emit("revert-bidder", {
+            auctionId: roomId,
+            prodKey: product.prodKey,
+            winnerId: newWinner.userKey,
+            finalPrice: newWinner.bid
+        });
+
+        console.log("소켓 요청에 대한 응답받음")
+        // 모달 닫기
+        setRevertConfirmModal({
+            visible: false,
+            bidder: null
+        });
+    };
+
+
+
+
     return (
         <>
             <div className="bidInfoWrapper">
                 <div className="bidInfo">
-                    <p>
-                        <span className="guide">현재최고가:</span>
-                        <span className="amount">
+                    <div className="amountContainer">
+                        <p>
+                            <span className="guide">현재최고가:</span>
+                            <span className="amount">
                            {selectedProductIdx !== null
                                ? (products[selectedProductIdx]?.finalPrice ?? 0).toLocaleString()
                                : 0}원
                         </span>
-                    </p>
+                        </p>
+                        <p>
+                            <span className="guide">최고입찰자:</span>
+                            <span className="winner">
+                              {
+                                  selectedProductIdx !== null &&
+                                  nicks?.[products[selectedProductIdx]?.winnerId] ? (
+                                      nicks[products[selectedProductIdx].winnerId]
+                                  ) : null
+                              }
+                            </span>
+                        </p>
+                    </div>
 
-                    <div>
+                    <div className="tagContainer">
                         <p>태그</p>
                         <div className="tagWrap">
                             {tags.map((tag, idx) => (
@@ -460,6 +641,12 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                                                 }}
                                             >경매 단위 변경
                                             </div>
+
+                                            {prevHighestBidder && (
+                                                <div className="bidProd revertBtn" onClick={openRevertModal}>
+                                                    기존 입찰자({prevHighestBidder.nickname})로 변경
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -527,6 +714,24 @@ const BidInfo = ({socket, roomId, userId, selectProductKey}) => {
                         <div className="modal-buttons">
                             <button onClick={handleConfirmUnitChange}>확인</button>
                             <button onClick={handleCancelUnitChange}>취소</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 최고입찰자 변경 모달 */}
+            {revertConfirmModal.visible && revertConfirmModal.bidder && (
+                <div className="modal-backdrop">
+                    <div className="modal-box">
+                        <p>
+                            이전 입찰자 <strong>{revertConfirmModal.bidder.nickname}</strong>
+                            ({Number.isFinite(Number(revertConfirmModal.bidder.bid))
+                            ? Number(revertConfirmModal.bidder.bid).toLocaleString()
+                            : '0'}원)로 변경하시겠습니까?
+                        </p>
+                        <div className="modal-buttons">
+                            <button onClick={confirmRevertBidder}>예</button>
+                            <button onClick={() => setRevertConfirmModal({ visible: false, bidder: null })}>아니오</button>
                         </div>
                     </div>
                 </div>

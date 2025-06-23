@@ -373,27 +373,35 @@ video {
     justify-content: space-between;
 }
 
-.bidInfo > p>.guide{
+.bidInfo >.amountContainer> p>.guide{
     color:black;
     font-size:25px;
     font-weight:600;
 }
 
-.bidInfo> p> .amount{
+.bidInfo> .amountContainer> p> .amount,.bidInfo> .amountContainer> p> .winner{
     color:#EA6946;
     font-size:25px;
     padding-left:2px;
     font-weight:600;
 }
 
-.bidInfo > div{
+.amountContainer> p:nth-child(2) >.guide,
+.amountContainer> p:nth-child(2) >.amount,
+.amountContainer> p:nth-child(2) >.winner{
+    font-size:18px;
+}
+
+
+
+.bidInfo > .tagContainer{
     width:40%;
 }
-.bidInfo > div > p{
+.bidInfo > .tagContainer > p{
     font-weight:600;
     font-size:18px;
 }
-.bidInfo > div > .tagWrap{
+.bidInfo > .tagContainer > .tagWrap{
     width:100%;
     display:flex;
     gap:10px;
@@ -401,7 +409,7 @@ video {
     margin-top:10px;
 }
 
-.bidInfo > div > .tagWrap > .tag{
+.bidInfo > .tagContainer > .tagWrap > .tag{
     padding:4px 12px;
     background-color:#EA6946;
     color:white;
@@ -423,7 +431,7 @@ video {
 .arrowWrap > div > img{
     width:30px;
     cursor:pointer;
-    margin-bottom: 25px;
+    margin-bottom: 85px;
 }
 
 .bidInfoWrapper > .sliderWrap>.bidProdWrap{
@@ -517,7 +525,7 @@ video {
 
 
 .bidProdList:hover > .bidProd-btnWrap{
-    max-height: 120px;
+    max-height: 150px;
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
@@ -553,9 +561,11 @@ video {
     background-color:#B23F25;
 }
 .bidProd.unitBtn{
-    background: #722817;
+    background-color: #722817;
 }
-
+.bidProd.revertBtn{
+    background-color:#551B10FF;
+}
 
 .modal-backdrop {
     position: fixed;

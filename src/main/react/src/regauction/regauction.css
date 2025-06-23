@@ -54,7 +54,7 @@ td input, select{
 
 
 .reg-btn{
-    width: 270px;
+    width: 100%;
     height: 50px;
     font-size: 15px;
     border-radius: 5px;
@@ -62,7 +62,9 @@ td input, select{
     background-color: #EA6946;
     color: white;
     cursor: pointer;
-
+}
+body{
+    width: 100%;
 }
 
 .join-btn{

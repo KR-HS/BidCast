@@ -403,13 +403,14 @@ video {
 }
 
 .chatWrap{
-    /*width:30%;*/
+    height:100%;
     width:400px;
     display:flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 0 0 25px 0;
+    gap:20px;
 }
 .chatWrap .chatList-wrap{
     width:80%;
@@ -429,7 +430,8 @@ video {
 .chatWrap .userChatList{
     padding:5px;
     width:100%;
-    max-height: 500px;
+    max-height: 550px;
+    min-height:550px;
     overflow-y: auto;
     overflow-x: hidden;        /* x축(가로) 스크롤은 숨김 */
     -ms-overflow-style: none;  /* IE, Edge */

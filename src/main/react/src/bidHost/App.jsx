@@ -82,7 +82,7 @@ export default function App() {
     const [selectedProduct,setSelectedProduct] = useState(null);
     // 채팅 목록
     const [chats, setChats] = useState([]);
-    const MAX_CHAT_COUNT = 20;
+    const MAX_CHAT_COUNT = 40;
 
     useEffect(() => {
         roomIdRef.current = roomId;
@@ -90,8 +90,35 @@ export default function App() {
     }, [roomId, userId]);
 
 
+    useEffect(() => {
+        if (!roomId) return;
+
+        const getRoomStatus = async () => {
+            try {
+                const response = await fetch("/fetch/auction/auction-status", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body:JSON.stringify({roomId})
+                });
+
+                const status = await response.text();
+                if(status==="종료"){
+                    alert('종료된 경매입니다. 홈으로 이동합니다.');
+                    window.location.href = '/home.do';
+                }
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        getRoomStatus();
+    }, [roomId]);
+
     // 소켓아이디로 닉네임, 입찰가격 매칭
     const [userInfoMap, setUserInfoMap] = useState({});
+
 
 
 
@@ -170,7 +197,7 @@ export default function App() {
                 console.log("채팅내역 설정")
                 setChats(prevChats => {
                     const combinedChats = [...prevChats, ...formattedChats];
-                    const trimmedChats = combinedChats.slice(-20); // 뒤에서 20개만
+                    const trimmedChats = combinedChats.slice(-40); // 뒤에서 20개만
                     return trimmedChats;
                 });
                 // if (hostLoginId !== userId) {
@@ -192,7 +219,7 @@ export default function App() {
                     contents: chat.contents,
                     regdate: chat.regdate,
                 }];
-                return newChats.slice(-20); // 최신 20개 유지
+                return newChats.slice(-40); // 최신 20개 유지
             });
         });
 
@@ -334,26 +361,27 @@ export default function App() {
                 })
 
                 socket.current.on("user-status-update", (statusList) => {
-                    // 서버에서 보내는 형식: [{ socketId, nickname, bids }, ...]
+                    // 즉, 구조는 { socketId: { nickname, bids } }
                     if(!statusList) return;
 
 
-                    setUserInfoMap(prev => {
-                        const updated = {...prev};
-
-                        Object.entries(statusList).forEach(([socketId, data]) => {
-                            updated[socketId] = {
-                                ...updated[socketId],
-                                ...data,
-                                bids: {
-                                    ...(updated[socketId]?.bids || {}),
-                                    ...(data.bids || {})
-                                }
-                            };
-                        });
-
-                        return updated;
-                    });
+                    // setUserInfoMap(prev => {
+                    //     const updated = {...prev};
+                    //
+                    //     Object.entries(statusList).forEach(([socketId, data]) => {
+                    //         updated[socketId] = {
+                    //             ...updated[socketId],
+                    //             ...data,
+                    //             bids: {
+                    //                 ...(updated[socketId]?.bids || {}),
+                    //                 ...(data.bids || {})
+                    //             }
+                    //         };
+                    //     });
+                    //
+                    //     return updated;
+                    // });
+                    setUserInfoMap(statusList);
                     console.log("유저인포:",statusList);
                 });
 
@@ -730,15 +758,13 @@ export default function App() {
                                mySocketId={mySocketId}
                                userInfoMap={userInfoMap}
                                selectProductKey={selectedProduct?.prodKey}
-                    >
-
-                    </VideoGrid>
+                    />
                 </div>
                 <ChatTable chats={chats} msg={msg} setMsg={setMsg} handleSend={handleSend}/>
             </div>
 
             <div className="contentWrap-under">
-                <BidInfo socket = {socket} roomId={roomId} userId={userId} selectProductKey={selectedProduct?.prodKey}/>
+                <BidInfo socket = {socket} roomId={roomId} userId={userId} selectProductKey={selectedProduct?.prodKey} setSelectProduct={setSelectedProduct} userInfoMap={userInfoMap}/>
 
                 <MainVideo peers={peers[hostId]} hostSocketId={hostId}>
                     <div className="auction-end-btn" onClick={handleEndAuctionClick}>경매 종료하기</div>
