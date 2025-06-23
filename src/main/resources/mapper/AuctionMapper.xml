@@ -77,4 +77,13 @@
         ORDER BY p.prod_key DESC
     </select>
 
+    <insert id="regAuction" >
+        INSERT INTO auction(host_id, created_at, title, start_time, end_time, status)
+        VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행중')
+    </insert>
+
+
+
+
+
 </mapper>
