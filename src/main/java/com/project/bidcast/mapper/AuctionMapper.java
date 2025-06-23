@@ -26,6 +26,8 @@ public interface AuctionMapper {
 
     List<AuctionItemDTO> selectWinningProductsByUserId(Integer userKey);
 
+    @Select("SELECT status FROM auction WHERE auction_id=#{auctionId}")
+    String getAuctionStatus(int auctionId);
 }
 
 

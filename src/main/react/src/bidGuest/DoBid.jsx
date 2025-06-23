@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-const DoBid = ({product,socket,userId,userInfo,roomId,handleStatusMsg,isAuctionEnded}) => {
+const DoBid = ({product, socket, userId, userInfo, roomId, handleStatusMsg, isAuctionEnded}) => {
     const [isBidding, setIsBidding] = useState(false);
 
     const handleBid = () => {
@@ -9,9 +9,9 @@ const DoBid = ({product,socket,userId,userInfo,roomId,handleStatusMsg,isAuctionE
         // 이전 입찰자가 본인이라면 막기
         if (product?.winnerId === userInfo.userKey) {
             handleStatusMsg("이미 입찰한 상품입니다.");
-            setTimeout(()=>{
+            setTimeout(() => {
                 handleStatusMsg(null);
-            },1000);
+            }, 1000);
             return;
         }
 
@@ -37,18 +37,18 @@ const DoBid = ({product,socket,userId,userInfo,roomId,handleStatusMsg,isAuctionE
         }, 1000);
     };
 
-    useEffect(()=>{
-        console.log("선택상품",product)
+    useEffect(() => {
+        console.log("선택상품", product)
 
-    },[product])
+    }, [product])
 
 
     return (
         <>
             <div className="bid-button-wrap">
                 <div className={`bid-button ${isAuctionEnded || isBidding ? 'disabled' : ''}`}
-                     onClick={()=>{
-                         if(isAuctionEnded || isBidding) return;
+                     onClick={() => {
+                         if (isAuctionEnded || isBidding) return;
                          handleBid();
                      }}
                      style={{
@@ -59,9 +59,11 @@ const DoBid = ({product,socket,userId,userInfo,roomId,handleStatusMsg,isAuctionE
                     <span className="bid-button-content">입찰 </span>
                     <span className="bidAmount">
                          {
-                             product?.currentPrice !== undefined && product?.currentPrice !== null
-                                 ? ((product?.currentPrice ?? 0) + (product?.unitValue ?? 0)).toLocaleString()
-                                 : (product?.initPrice ?? 0).toLocaleString()
+                             isAuctionEnded ? '-' : (
+                                 product?.currentPrice !== undefined && product?.currentPrice !== null
+                                     ? ((product?.currentPrice ?? 0) + (product?.unitValue ?? 0)).toLocaleString()
+                                     : (product?.initPrice ?? 0).toLocaleString()
+                             )
                          }원
                     </span>
                 </div>

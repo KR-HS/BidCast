@@ -80,13 +80,39 @@ export default function App() {
 
     // 채팅 목록
     const [chats, setChats] = useState([]);
-    const MAX_CHAT_COUNT = 20;
+    const MAX_CHAT_COUNT = 40;
 
 
     useEffect(() => {
         roomIdRef.current = roomId;
         userIdRef.current = userId;
     }, [roomId, userId]);
+
+    useEffect(() => {
+        if (!roomId) return;
+
+        const getRoomStatus = async () => {
+            try {
+                const response = await fetch("/fetch/auction/auction-status", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ roomId })
+                });
+
+                const status = await response.text();
+                if (status === "종료") {
+                    setIsAuctionEnded(true);  // 👈 이 부분!
+                }
+            } catch (error) {
+                console.error("경매 상태 확인 실패:", error);
+            }
+        };
+
+        getRoomStatus();
+    }, [roomId]);
 
 
     // 소켓아이디로 닉네임, 입찰가격 매칭
@@ -208,7 +234,7 @@ export default function App() {
                 console.log("채팅내역 설정")
                 setChats(prevChats => {
                     const combinedChats = [...prevChats, ...formattedChats];
-                    const trimmedChats = combinedChats.slice(-20); // 뒤에서 20개만
+                    const trimmedChats = combinedChats.slice(-40); // 뒤에서 20개만
                     return trimmedChats;
                 });
 
@@ -228,7 +254,7 @@ export default function App() {
                     contents: chat.contents,
                     regdate: chat.regdate,
                 }];
-                return newChats.slice(-20); // 최신 20개 유지
+                return newChats.slice(-40); // 최신 20개 유지
             });
         });
 
@@ -830,8 +856,9 @@ export default function App() {
             <div className="contentWrap">
                 <div className="videoContent">
                     <div className="titleWrap">
-                        <p className="title">매물명:{selectedProduct?.prodName}</p>
-                        <p className="price">현재최고가:{(selectedProduct?.finalPrice ?? 0).toLocaleString()}원</p>
+                        <p className="title">매물명: {isAuctionEnded ? '-' : (selectedProduct?.prodName ?? '-')}</p>
+
+                        <p className="price">현재최고가: {isAuctionEnded ? '-' : (selectedProduct?.finalPrice ?? 0).toLocaleString()}원</p>
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}

@@ -21,6 +21,6 @@ public class ProdDTO {
     int initPrice;
     Integer currentPrice; //
     Integer finalPrice;
-    Integer winnderId;
+    Integer winnerId;
     char prodStatus;
 }

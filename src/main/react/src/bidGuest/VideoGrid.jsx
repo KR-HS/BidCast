@@ -158,7 +158,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded, userInfoMap
 
                                     const isHighestBidder = highestBidderIds.has(id);
                                     return (
-                                        <div key={`${id}-${product?.prodKey ?? 'noProduct'}`} className="sub-video">
+                                        <div key={id} className="sub-video">
                                             <div className="guestInfo">
                                                 <p className="guestId">[{userInfoMap[id]?.nickname ?? '알 수 없음'}]</p>
                                                 <p className="guest-bidAmount">{bidAmount}원</p>

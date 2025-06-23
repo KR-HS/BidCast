@@ -54,6 +54,12 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey
         setSubMutedStates(prev => ({...prev, [id]: muted}));
     };
 
+    useEffect(() => {
+        console.log("🔁 [VideoGrid 리렌더 감지]");
+        console.log("🧠 selectProductKey:", selectProductKey);
+        console.log("🧠 userInfoMap:", userInfoMap);
+        console.log("🧠 subPeers:", subPeers.map(([id]) => id));
+    }, [userInfoMap, selectProductKey, subPeers]);
 
 
     // ----
@@ -63,23 +69,30 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey
                 <div className="sub-videos-container">
                     {subPeers.length > 0 ? (
                         <div className="sub-videos" ref={subVideosRef}>
-                            {subPeers.map(([id, peer]) => (
-                                <div key={id} className="sub-video-content">
-                                    <div className="sub-video">
-                                        <Video
-                                            key={id}
-                                            id={id}
-                                            stream={peer.stream}
-                                            muted={subMutedStates[id] ?? true}
-                                            onMuteChange={(muted) => onSubMuteChange(id, muted)}
-                                        />
+                            {subPeers.map(([id, peer]) => {
+
+                                console.log("👤 렌더링 유저:", id);
+                                console.log("   └ 닉네임:", userInfoMap?.[id]?.nickname);
+                                console.log("   └ 입찰가:", userInfoMap?.[id]?.bids?.[selectProductKey]);
+
+                                return (
+                                    <div key={id} className="sub-video-content">
+                                        <div className="sub-video">
+                                            <Video
+                                                key={id}
+                                                id={id}
+                                                stream={peer.stream}
+                                                muted={subMutedStates[id] ?? true}
+                                                onMuteChange={(muted) => onSubMuteChange(id, muted)}
+                                            />
+                                        </div>
+                                        <div className="userInfo">
+                                            <p className="guestId">닉네임:{userInfoMap?.[id]?.nickname ?? '알 수 없음'}</p>
+                                            <p className="amount">입찰가: {(userInfoMap?.[id]?.bids?.[selectProductKey] ?? 0).toLocaleString()}원</p>
+                                        </div>
                                     </div>
-                                    <div className="userInfo">
-                                        <p className="guestId">닉네임:{userInfoMap?.[id]?.nickname ?? '알 수 없음'}</p>
-                                        <p className="amount">입찰가: {userInfoMap?.[id]?.bids?.[selectProductKey] ?? 0}원</p>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     ) : (
                         <div className="no-participants">화면공유 인원이 없습니다.</div>
