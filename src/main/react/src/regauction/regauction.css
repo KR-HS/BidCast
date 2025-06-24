@@ -52,6 +52,15 @@ td input, select{
     border: 1px solid #ccc;
 }
 
+.content-box{
+    width: 96%;
+    height: 50px;
+    resize: none;
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
 
 .reg-btn{
     width: 100%;

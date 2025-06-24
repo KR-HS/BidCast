@@ -6,6 +6,7 @@ import com.project.bidcast.service.auth.CustomUserDetails;
 
 import com.project.bidcast.util.GetSession;
 
+import com.project.bidcast.util.S3UploadService;
 import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,7 +31,8 @@ public class AuctionController {
 
     @Autowired
     AuctionService auctionService;
-
+    @Autowired
+    private S3UploadService s3UploadService;
 
     @GetMapping("/top6")
     public List<AuctionDTO> getFirst6AuctionsByDate(@RequestParam String date) {
@@ -64,52 +66,52 @@ public class AuctionController {
         return auctionService.getWinningProductsByUserKey(userKey);
     }
 
-
     @GetMapping("/schedule")
     public List<AuctionScheduleDTO> getAuctionSchedule(@RequestParam(required = true) String date,
                                                        @RequestParam(required = false) String tag) {
         return auctionService.getAuctionSchedule(date, tag);
     }
 
+    //태그 전체 조회
     @GetMapping("/tags")
-    public List<TagDTO> getTags () {
+    public List<TagDTO> getTags() {
         return auctionService.getTags();
     }
 
+    //경매등록
     @PostMapping(value = "/regAuction", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> registerAuction (
+    public ResponseEntity<?> registerAuction(
             @RequestParam("title") String title,
             @RequestParam("startTime")
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-                    LocalDateTime startTime,
+            LocalDateTime startTime,
             @RequestParam("endTime")
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-                    LocalDateTime endTime,
-            @RequestParam(value = "tags", required = false) List < String > tags,
-            @RequestParam("images") MultipartFile[]images,
-            @RequestParam("itemNames") List < String > itemNames
-){
-        AuctionDTO auctionDTO = new AuctionDTO();
+            LocalDateTime endTime,
+            @RequestParam(value = "tags", required = false) List<Integer> tags,
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @RequestParam("images") MultipartFile[] images,
+            @RequestParam("itemNames") List<String> itemNames,
+            @RequestParam("content") List<String> content
+    ) {
 
-        Integer userKey = GetSession.getUserKey();
+        String loginId = GetSession.getLoginId();
 
-        auctionDTO.builder()
-                .hostId(userKey)
-                .title(title)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
+        AuctionDTO auctionDTO = AuctionDTO.builder()
+                                .hostId(loginId)
+                                .title(title)
+                                .startTime(startTime)
+                                .endTime(endTime)
+                                .thumbnailUrl(s3UploadService.upload(thumbnail))
+                                .build();
+        /*경매장 생성*/
+
+        //경매회차등록
+        Integer auctionId = auctionService.regAuction(auctionDTO);
+        //경매 태그, 상품 등록
+        auctionService.regProduct(auctionId, tags, itemNames, content, images);
 
 
-        System.out.println("title = " + title);
-        System.out.println("startTime = " + startTime);
-        System.out.println("endTime = " + endTime);
-        System.out.println("tags = " + tags);
-        System.out.println("itemNames = " + itemNames);
-        System.out.println("images count = " + images.length);
-        System.out.println("images = " + images);
-
-        auctionService.regAuction(auctionDTO);
 
         return ResponseEntity.ok(Map.of("success", true));
     }

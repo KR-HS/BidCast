@@ -335,6 +335,7 @@ export default function App() {
             </div>
 
             {!showRegAuction && (
+
                 <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
                         onClick={toggleMenu}>
                     <img src="./img/hamburger.png" alt="메뉴" className="floating-icon" width='35px' />
