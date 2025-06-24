@@ -51,5 +51,15 @@ public class AuctionServiceImpl implements AuctionService {
         return scheduleTag;
     }
 
+    public List<TagDTO> getTags() {
+
+        return auctionMapper.selectTag();
+    }
+
+    @Override
+    public void regAuction(AuctionDTO auctionDTO) {
+
+        auctionMapper.regAuction(auctionDTO);
+    }
 }
 

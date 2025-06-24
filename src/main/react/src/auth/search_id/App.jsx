@@ -1,9 +1,15 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import Loader from "../../Loader/Loader";
 import {Navigate, useNavigate} from "react-router-dom";
 export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    const nameRef = useRef();
+    const email1Ref = useRef();
+    const email2Ref = useRef();
+    const phone2Ref = useRef();
+    const phone3Ref = useRef();
+    const phoneRegex = /^[0-9]+$/;
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -36,10 +42,39 @@ export default function App() {
         setFormData({...formData,[name]:value});
     }
 
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if(formData.name.length < 1 || formData.name.length > 20) {
+            alert(" 이름은 1자 이상 20자 이하로 입력해주세요.");
+            nameRef.current?.focus();
+            return;
+        }
+        if(formData.email1 === '' || formData.email2 === '') {
+            alert("이메일을 입력해주세요.");
+            if(formData.email1 === '') {
+                email1Ref.current?.focus();
+                return;
+            }
+            email2Ref.current?.focus();
+            return;
+        }
+
+
+
+        if (!phoneRegex.test(formData.phone2) || formData.phone2.length < 3 || formData.phone2.length > 4) {
+            alert("연락처 중간 자리는 숫자 3~4자리로 입력해주세요.");
+            phone2Ref.current?.focus();
+            return;
+        }
+
+        if (!phoneRegex.test(formData.phone3) || formData.phone3.length !== 4) {
+            alert("연락처 마지막 자리는 숫자 4자리로 입력해주세요.");
+            phone3Ref.current?.focus();
+            return;
+        }
+
 
         try {
             const response = await fetch('api/v1/searchId', {
@@ -51,11 +86,18 @@ export default function App() {
             });
 
             if (response.ok) {
-                const result = await response.json(); // 예: { success: true, userId: "abc123" }
-                //return <Navigate to={'/findComplete.do'}/>
-                //navigate('', { state: { userId: result.userId } });
-                console.log('sdfsdf')
-                location.href=`/findComplete.do?userId=${result.userId}`;
+                const result = await response.json();
+                const loginId = result.user.loginId;
+                const createdAt = result.user.createdAt;
+
+                // 세션스토리지에 저장
+                sessionStorage.setItem('recoveredUserId', loginId);
+                sessionStorage.setItem('recoveredUserCreatedAt', createdAt);
+
+                console.log(sessionStorage.getItem('recoveredUserId'));
+
+                // 페이지 이동
+                window.location.href = '/findComplete.do';
             } else {
                 alert('회원을 찾을 수 없습니다.');
             }
@@ -93,6 +135,7 @@ export default function App() {
                                    name="name"
                                    value={formData.name}
                                    onChange={handleChange}
+                                   ref={nameRef}
                             />
                         </td>
                     </tr>
@@ -103,12 +146,14 @@ export default function App() {
                                    name="email1"
                                    value={formData.email1}
                                    onChange={handleChange}
+                                   ref={email1Ref}
                             />
                             <span style={{margin:"0 3px"}}>@</span>
                             <input type="text" style={{width:'78px'}}
                                    name="email2"
                                    value={formData.email2}
                                    onChange={handleChange}
+                                   ref={email2Ref}
                             />
                             <select onChange={(e) => {
                                 setFormData({
@@ -145,13 +190,23 @@ export default function App() {
                             <span style={{margin:"0 6px"}}>-</span>
                             <input type="text" style={{width:'100px'}}
                                    name="phone2"
+                                   maxLength={4}
                                    value={formData.phone2}
-                                   onChange={handleChange}/>
+                                      ref={phone2Ref}
+                                   onChange={(e) => {
+                                       const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                       setFormData({ ...formData, phone2: onlyNums });
+                                   }}/>
                             <span style={{margin:"0 6px"}}>-</span>
                             <input type="text" style={{width:'100px'}}
                                    name="phone3"
+                                   maxLength={4}
                                    value={formData.phone3}
-                                   onChange={handleChange}
+                                      ref={phone3Ref}
+                                   onChange={(e) => {
+                                       const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                       setFormData({ ...formData, phone3: onlyNums });
+                                   }}
                             />
                         </td>
                     </tr>

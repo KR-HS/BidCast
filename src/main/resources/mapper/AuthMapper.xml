@@ -11,8 +11,8 @@
 
 
     <insert id="createUser">
-        INSERT INTO users (login_id, user_name, birth, phone, email, pw, nickname)
-        VALUES (#{loginId}, #{userName}, #{birth}, #{phone}, #{email}, #{pw}, #{nickname})
+        INSERT INTO users (login_id, user_name, birth, phone, email, pw, nickname, created_at)
+        VALUES (#{loginId}, #{userName}, #{birth}, #{phone}, #{email}, #{pw}, #{nickName}, NOW())
     </insert>
 
     <select id="getUserByLoginId" resultType="com.project.bidcast.vo.UsersDTO">
@@ -22,4 +22,24 @@
     <select id="searchId" resultType="com.project.bidcast.vo.UsersDTO">
         SELECT * FROM users WHERE user_name = #{userName} AND email = #{email} AND phone = #{phone}
     </select>
+
+    <select id="searchPw" resultType="com.project.bidcast.vo.UsersDTO">
+        SELECT * FROM users WHERE login_id = #{loginId} AND user_name = #{userName} AND email = #{email} AND phone = #{phone}
+    </select>
+
+    <update id="changePw">
+        UPDATE users SET pw = #{pw} WHERE user_Key = #{userKey}
+    </update>
+
+    <update id="updateUser">
+        UPDATE users
+        SET  birth = #{birth}, phone = #{phone}, email = #{email}, nickname = #{nickName}
+        WHERE user_key = #{userKey}
+    </update>
+
+    <update id="deleteUser">
+        UPDATE users
+        SET user_name = '탈퇴한회원', login_id = NULL, pw = NULL, birth = NULL, phone = NULL, email = NULL, nickname = '탈퇴한회원'
+        WHERE user_key = #{userKey}
+    </update>
 </mapper>

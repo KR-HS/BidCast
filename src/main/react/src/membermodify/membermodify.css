@@ -50,6 +50,7 @@ width: 130px;
     font-size: 13px;
     color: red;
     text-decoration: underline;
+    cursor: pointer;
 }
 
 button{

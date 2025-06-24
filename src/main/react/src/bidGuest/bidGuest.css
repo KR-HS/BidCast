@@ -160,11 +160,17 @@ video {
     aspect-ratio: 16 / 9; /* 가로세로 비율 고정 */
     box-sizing:border-box;
 }
+.sub-video > .guestInfo{
+    display:flex;
+    justify-content: center;
+    margin-left:4px;
+}
 
-.sub-video > .guestId{
-    font-size:8px;
-    color:blue;
+.sub-video > .guestInfo>p{
+    font-size:12px;
+    color:#000;
     text-align:center;
+    font-weight:600;
 }
 
 
@@ -313,7 +319,7 @@ video {
 
 .bid-button-wrap > .bid-button {
     background-color: #FF9A7E;
-    min-width:100px;
+    min-width:120px;
     border-radius: 4px;
     padding: 6px 0;
     cursor:pointer;
@@ -322,6 +328,10 @@ video {
     justify-content: center;
     transition:background-color 0.5s ease-out;
 }
+.bid-button-wrap > .bid-button.disabled{
+    pointer-events:none;
+}
+
 .bid-button-wrap > .bid-button:hover {
     background-color: #ea6946;
 }
@@ -331,11 +341,11 @@ video {
 }
 
 .bid-button-content{
-    font-size:15px;
+    font-size:18px;
     padding: 0 8px 0 12px;
 }
 .bidAmount{
-    font-size:12px;
+    font-size:15px;
     padding:0 12px 0 8px;
     border-left:1px solid white;
 }
@@ -393,13 +403,14 @@ video {
 }
 
 .chatWrap{
-    /*width:30%;*/
+    height:100%;
     width:400px;
     display:flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 0 0 25px 0;
+    gap:20px;
 }
 .chatWrap .chatList-wrap{
     width:80%;
@@ -419,7 +430,8 @@ video {
 .chatWrap .userChatList{
     padding:5px;
     width:100%;
-    max-height: 500px;
+    max-height: 550px;
+    min-height:550px;
     overflow-y: auto;
     overflow-x: hidden;        /* x축(가로) 스크롤은 숨김 */
     -ms-overflow-style: none;  /* IE, Edge */

@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import Loader from "../../Loader/Loader";
+import {GoogleLogin} from "@react-oauth/google";
+import {jwtDecode} from "jwt-decode";
 export default function App() {
 
     // 로딩 창
@@ -14,10 +16,10 @@ export default function App() {
                 loader.classList.add('fade-out');
                 setTimeout(() => {
                     loader.style.display = 'none';
-                }, 500); // CSS transition과 동일 시간
+                }, 1000); // CSS transition과 동일 시간
             }
 
-        }, 500);
+        }, 1000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -91,6 +93,8 @@ export default function App() {
 
         loadNaverSDK();
 
+
+
         const initNaverLogin = () => {
             try {
                 if (window.naver) {
@@ -106,6 +110,7 @@ export default function App() {
                     naverLogin.getLoginStatus(function(status) {
                         if (status) {
                             // 사용자 정보 얻기
+                            const id = naverLogin.user.id;
                             const email = naverLogin.user.email;
                             const name = naverLogin.user.name;
                             const nickName = naverLogin.user.nickname;
@@ -116,7 +121,7 @@ export default function App() {
                             console.log("네이버 로그인 성공:", email, name, nickName, birthyear, birthday, mobile);
 
                             // 백엔드로 로그인 정보 전송
-                            handleNaverLogin(email, name, nickName, birthyear, birthday, mobile);
+                            handleNaverLogin(id,email, name, nickName, birthyear, birthday, mobile);
                         }
                     });
 
@@ -132,15 +137,16 @@ export default function App() {
 
         }, []);
 
+
     //네이버로그인
-    const handleNaverLogin = async (email, name, nickName, birthyear, birthday, mobile) => {
+    const handleNaverLogin = async (id, email, name, nickName, birthyear, birthday, mobile) => {
         try {
-            const response = await fetch("http://localhost:8888/api/v1/naver-login", {
+            const response = await fetch("http://localhost:8888/api/v1/social-login", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, name, nickName, birthyear, birthday, mobile })
+                body: JSON.stringify({ id, email, name, nickName, birthyear, birthday, mobile })
             });
 
             if (response.ok) {
@@ -157,10 +163,53 @@ export default function App() {
         }
     };
 
+    //구글로그인
+    const handleGoogleLogin = async (response) => {
+        try{
+            const credential = response.credential;
+
+            if(!credential) {
+                console.error("credential이 없습니다. 구글 로그인 실패");
+                return;
+            }
+            const decoded = jwtDecode(credential);
+            const{
+                sub: id,
+                email,
+                name
+            } =decoded;
+
+            const res = await fetch("http://localhost:8888/api/v1/social-login", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, email, name })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log("구글 로그인 서버 응답:", data);
+
+                // 로그인 성공 후 처리 (예: 홈페이지로 리다이렉트)
+                window.location.href = "/home.do";
+            } else {
+                console.error("구글 로그인 처리 실패");
+            }
+        } catch (error) {
+            console.error("구글 로그인 요청 오류:", error);
+        }
+    };
+
+
     //로그인버튼
     const loginBtn = async (e) => {
         e.preventDefault();
 
+        if(!id || !pw) {
+            alert("아이디와 비밀번호를 입력해주세요.");
+            return;
+        }
         //값 보내기
         const formData = new URLSearchParams();
         formData.append("username", id);
@@ -189,14 +238,9 @@ export default function App() {
 
 
 
-    if (isLoading) {
-        return (
-            <Loader/>
-        );
-    }
-
   return (
       <section>
+          {isLoading && <Loader/>}
           <div className="sec">
           <div>
               <img src="./img/logo.png" alt="Logo" width="200px" height="200px" />
@@ -213,6 +257,7 @@ export default function App() {
                              loginBtn(e);//
                          }
                      }}
+                     required
               />
               <br/>
               <input type="password"
@@ -226,6 +271,7 @@ export default function App() {
                              loginBtn(e);//
                          }
                      }}
+                     required
               />
           </div>
               </form>
@@ -234,15 +280,24 @@ export default function App() {
               <a href="searchpw.do">비밀번호 찾기</a>|
               <a href="join.do">회원가입</a>
           </div>
-          <div>
+          <div className="login-btn-group">
               <button type="submit"
                       className="login-btn"
                       onClick={loginBtn}
               >로그인</button>
+              <div className="social-login">
+              <div id="naverIdLogin">
+
+              </div>
+
+                  <div className="google-login">
+                  <GoogleLogin
+                      onSuccess={(response) => handleGoogleLogin(response)}
+                      onError={()=> console.log("로그인 실패")}
+                  />
+                  </div>
+              </div>
           </div>
-
-              <div id="naverIdLogin"></div>
-
           </div>
       </section>
       )

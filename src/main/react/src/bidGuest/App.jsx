@@ -7,11 +7,12 @@ import Loader from "../Loader/Loader";
 import ChatTable from "../bidHost/ChatTable";
 import OtherAuction from "./OtherAuction";
 import DoBid from "./DoBid";
+import StatusMessage from "./StatusMessage";
 
 
 export default function App() {
 
-    const [bidItems, setBidItems] = useState({}); // key:item , value:{currentBidAmount,finalUserId}
+    const [isAuctionEnded, setIsAuctionEnded] = useState(false);  // 경매 종료 여부
 
     const [msg, setMsg] = useState("");
     // 로딩 창
@@ -63,8 +64,10 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const [roomId, setRoomId] = useState(null);
     const [userId, setUserId] = useState(null);
+    const [userInfo,setUserInfo] = useState(null);
     const [userCount, setUserCount] = useState(0);
 
+    const [tags,setTags] = useState([]);
     // const [producerIdToSocketId, setProducerIdToSocketId] = useState({});
     const [socketIdToProducerId, setSocketIdToProducerId] = useState({});
     const socketIdToProducerIdRef = useRef({});
@@ -77,7 +80,7 @@ export default function App() {
 
     // 채팅 목록
     const [chats, setChats] = useState([]);
-    const MAX_CHAT_COUNT = 20;
+    const MAX_CHAT_COUNT = 40;
 
 
     useEffect(() => {
@@ -85,39 +88,108 @@ export default function App() {
         userIdRef.current = userId;
     }, [roomId, userId]);
 
+    useEffect(() => {
+        if (!roomId) return;
+
+        const getRoomStatus = async () => {
+            try {
+                const response = await fetch("/fetch/auction/auction-status", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ roomId })
+                });
+
+                const status = await response.text();
+                if (status === "종료") {
+                    setIsAuctionEnded(true);  // 👈 이 부분!
+                }
+            } catch (error) {
+                console.error("경매 상태 확인 실패:", error);
+            }
+        };
+
+        getRoomStatus();
+    }, [roomId]);
+
+
+    // 소켓아이디로 닉네임, 입찰가격 매칭
+    const [userInfoMap, setUserInfoMap] = useState({});
+    const userInfoMapRef = useRef(userInfoMap);
+
+
+    useEffect(()=>{
+        userInfoMapRef.current = userInfoMap;
+    },[userInfoMap])
+
 
     useEffect(() => {
         // const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
-        setUserId(params.get("userId"));
-        console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
+        // setUserId(params.get("userId"));
 
         // 세션데이터
-        // const fetchUserInfo = async () => {
-        //     try {
-        //         const response = await fetch("/api/v1/getUserInfo", {
-        //             method: "POST",
-        //             credentials: "include",
-        //             headers: {
-        //                 "Content-Type": "application/json"
-        //             }
-        //         });
-        //
-        //         if (!response.ok) {
-        //             location.href='/login.do';
-        //             return;
-        //         }
-        //
-        //         const data = await response.json();
-        //         console.log("사용자 정보:", data);
-        //         setUserId(data.loginId);
-        //     } catch (error) {
-        //         // console.error("사용자 정보 요청 실패:", error);
-        //     }
-        // };
-        // fetchUserInfo();
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    location.href='/login.do';
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("사용자 정보:", data);
+                setUserId(data.loginId);
+                setUserInfo(data);
+            } catch (error) {
+                // console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
+
+
+
     }, []);
 
+    useEffect(()=>{
+        if(!roomId) return;
+
+        const fetchTagList = async() =>{
+
+            try{
+                const response = await fetch("/fetch/auction/tagList", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({roomId})
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버오류");
+                }
+
+                const data = await response.json();
+                console.log("태그정보", data);
+
+                setTags(data);
+            }catch(error){
+                console.error("태그 목록 가져오기 실패:", error);
+            }
+        };
+
+        fetchTagList();
+    },[roomId])
 
     useEffect(() => {
         if (!roomId || !userId) return;
@@ -137,18 +209,17 @@ export default function App() {
         })
 
 
-
-        socket.current.emit('join-auction', {auctionId: roomId}, (response) => {
-            const {joined, hostSocketId, userCount, hostLoginId, chats,selectProduct} = response
+        socket.current.emit('join-auction', {auctionId: roomId,loginId:userId}, (response) => {
+            const {joined, hostSocketId, userCount, hostLoginId, chats, selectProduct} = response
             if (joined) {
-                // if(hostLoginId===userId){
-                //     location.href=`/bidHost.do?roomId=${roomId}`;
-                //     return;
-                // }
+                if(hostLoginId===userId){
+                    location.href=`/bidHost.do?roomId=${roomId}`;
+                    return;
+                }
 
 
-                if(selectProduct) {
-                    console.log("선택상품받아옴",selectProduct);
+                if (selectProduct) {
+                    console.log("선택상품받아옴", selectProduct);
                     setSelectedProduct(selectProduct);
                 }
 
@@ -163,7 +234,7 @@ export default function App() {
                 console.log("채팅내역 설정")
                 setChats(prevChats => {
                     const combinedChats = [...prevChats, ...formattedChats];
-                    const trimmedChats = combinedChats.slice(-20); // 뒤에서 20개만
+                    const trimmedChats = combinedChats.slice(-40); // 뒤에서 20개만
                     return trimmedChats;
                 });
 
@@ -183,7 +254,7 @@ export default function App() {
                     contents: chat.contents,
                     regdate: chat.regdate,
                 }];
-                return newChats.slice(-20); // 최신 20개 유지
+                return newChats.slice(-40); // 최신 20개 유지
             });
         });
 
@@ -196,6 +267,31 @@ export default function App() {
             console.log(`Auction ${roomId} current users: ${userCount}`);
             // 화면에 인원수 표시 업데이트
             setUserCount(userCount);
+        });
+
+        // 소켓아이디에 따른 닉네임, 입찰가격
+        socket.current.on("user-status-update", (statusList) => {
+            if(!statusList) return;
+
+
+            setUserInfoMap(prev => {
+                const updated = {...prev};
+
+                Object.entries(statusList).forEach(([socketId, data]) => {
+                    updated[socketId] = {
+                        ...updated[socketId],
+                        ...data,
+                        bids: {
+                            ...(updated[socketId]?.bids || {}),
+                            ...(data.bids || {})
+                        }
+                    };
+                });
+
+                return updated;
+            });
+
+            console.log("유저인포:",statusList);
         });
 
         // 초기 시작 함수: mediasoup 라우터 연결 및 송수신 준비
@@ -383,6 +479,15 @@ export default function App() {
 
         });
 
+
+        // 경매종료
+        socket.current.on('auction-ended', ({ auctionId, message }) => {
+            alert(message); // 또는 UI 상태 변경하여 경매 종료 표시
+
+            // 경매 종료 후 입찰 버튼 비활성화, 화면 갱신 등 처리
+            setIsAuctionEnded(true);
+        });
+
         // 상대방 producer 스트림을 consume 하는 함수
         async function consume(producerId, socketId) {
 
@@ -506,50 +611,57 @@ export default function App() {
     }, [roomId, userId])
 
 
-
     // 호스트가 상품선택 / 낙찰 / 유찰시 작동
 
     const [selectedProduct, setSelectedProduct] = useState(null); // 선택된 상품
     const [statusMessage, setStatusMessage] = useState(null);     // 낙찰/유찰 메시지
-    const [isAuctionEnded, setIsAuctionEnded] = useState(false);  // 경매 종료 여부
 
 
-    function normalizeProduct(rawProduct) {
-        return {
-            prodKey: rawProduct.prod_key,
-            aucKey:rawProduct.auc_key,
-            prodName: rawProduct.prod_name,
-            prodDetail:rawProduct.prod_detail,
-            initPrice:rawProduct.init_price,
-            finalPrice: rawProduct.final_price,
-            winnerId: rawProduct.winner_id,
-        };
-    }
+
+    // function normalizeProduct(rawProduct) {
+    //     return {
+    //         prodKey: rawProduct.prod_key,
+    //         aucKey:rawProduct.auc_key,
+    //         prodName: rawProduct.prod_name,
+    //         prodDetail:rawProduct.prod_detail,
+    //         unitValue:rawProduct.unit_value,
+    //         initPrice:rawProduct.init_price,
+    //         currentPrice:rawProduct.current_price,
+    //         finalPrice: rawProduct.final_price,
+    //         winnerId: rawProduct.winner_id,
+    //         prodStatus:rawProduct.prod_status,
+    //     };
+    // }
 
     useEffect(() => {
         if (!socket.current) return;
 
         // 🟢 호스트가 상품 선택 시
-        socket.current.on("host-selected-product", ({ product }) => {
+        socket.current.on("host-selected-product", ({product}) => {
             console.log("선택된 상품:", product);
             setSelectedProduct(product); // 게스트 화면에 선택 상품 표시
         });
 
         // 🟡 낙찰 또는 유찰 시
-        socket.current.on("bid-status", ({ prodKey,winner, status }) => {
-            console.log("상품 상태 변경:", prodKey, status);
+        socket.current.on("bid-status", ({prodKey, winner, nickname, status}) => {
+            console.log("상품 상태 변경:", winner, prodKey, status);
 
-            if(status==="유찰") setStatusMessage("❌ 유찰!");
-            if(winner===userId && status==="낙찰"){
-                setStatusMessage("🎉 낙찰!");
+            if (status === "유찰") setStatusMessage("❌ 유찰!");
+
+            if (status === "낙찰") {
+                if (winner === userId) {
+                    setStatusMessage("🎉 낙찰!");
+                }
+                else setStatusMessage(`${nickname}님께 최종 낙찰되었습니다.`)
             }
 
+            setSelectedProduct(null);
             // setStatusMessage(`${status === "낙찰" ? "🎉 낙찰!" : "❌ 유찰!"}`); // 잠깐 표시 후 사라지게
 
             // 예: 몇 초 뒤 메시지 사라짐
             setTimeout(() => {
                 setStatusMessage(null);
-            }, 2000);
+            }, 1000);
         });
 
         // 🔴 경매 종료 알림
@@ -559,20 +671,23 @@ export default function App() {
         });
 
         // 입찰 결과//
-        socket.current.on("bid-update", ({ product, bidder }) => {
+        socket.current.on("bid-update", ({product, bidder}) => {
             console.log("입찰 갱신:", product, bidder);
-            const formattedProduct = normalizeProduct(product);
-            setSelectedProduct(formattedProduct);
+            setSelectedProduct(product);
 
             // 만약 본인이 입찰자라면 별도 UI 표시 가능
             if (bidder.socketId === socket.current.id) {
-                alert(`🎉 당신이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+                setStatusMessage(`🎉 당신이 ${product.prodName}에 입찰 성공!`);
             } else {
-                alert(`${bidder.userName} 님이 ${product.prodName} 입찰에 성공했습니다! 현재 가격: ${product.final_price.toLocaleString()}원`);
+                setStatusMessage(`${bidder.nickName} 님이 ${product.prodName}에 입찰 성공!`);
             }
+
+            setTimeout(() => {
+                setStatusMessage(null);
+            }, 1000);
         });
 
-        socket.current.on("bid-rejected", ({ reason }) => {
+        socket.current.on("bid-rejected", ({reason}) => {
             alert(`입찰 실패: ${reason}`);
         });
 
@@ -585,10 +700,6 @@ export default function App() {
             socket.current.off("bid-rejected");
         };
     }, [mySocketId]);
-
-
-
-
 
 
     // socketIdToProducerIdRef 상태 동기화
@@ -745,13 +856,16 @@ export default function App() {
             <div className="contentWrap">
                 <div className="videoContent">
                     <div className="titleWrap">
-                        <p className="title">매물명:{selectedProduct?.prodName}</p>
-                        <p className="price">현재최고가:{(selectedProduct?.finalPrice??0).toLocaleString()}원</p>
+                        <p className="title">매물명: {isAuctionEnded ? '-' : (selectedProduct?.prodName ?? '-')}</p>
+
+                        <p className="price">현재최고가: {isAuctionEnded ? '-' : (selectedProduct?.finalPrice ?? 0).toLocaleString()}원</p>
                     </div>
                     <VideoGrid peers={peers}
                                hostSocketId={hostId}
                                mySocketId={mySocketId}
                                isAuctionEnded={isAuctionEnded}
+                               userInfoMap={userInfoMap}
+                               product={selectedProduct}
                     >
                         <div onClick={toggleStreaming} className="streaming-btn">
                             {isStreaming ? (isHost ? '📴 호스트 방송 중단' : '📴 손님 송출 중단') : (isHost ? '📡 호스트 방송 시작' : '📡 손님 화면 송출')}
@@ -759,16 +873,14 @@ export default function App() {
                     </VideoGrid>
                     <div className="video-bottom-wrap">
                         <p className="auctionTitle">경매제목</p>
-                        <DoBid product={selectedProduct} socket={socket} userId={userId} roomId={roomId}/>
+                        <DoBid product={selectedProduct} socket={socket} userId={userId} userInfo={userInfo} roomId={roomId} handleStatusMsg={setStatusMessage} isAuctionEnded={isAuctionEnded}/>
                     </div>
                     <div className="countTagWrap">
                         <p className="guestCount">{userCount}명 시청중</p>
                         <div className="tagWrap">
-                            {() => ( // 태그리스트받기
-                                <span className="tag">태그1</span>
-                            )}
-                            <span className="tag">태그2</span>
-                            <span className="tag">태그3</span>
+                            {tags.map((tag, idx) => (
+                                <div key={idx} className="tag">{tag}</div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -776,13 +888,9 @@ export default function App() {
 
             </div>
 
-            <OtherAuction />
+            <OtherAuction/>
 
-            {statusMessage && (
-                <div className="status-popup">
-                    {statusMessage}
-                </div>
-            )}
+            <StatusMessage message={statusMessage}/>
         </>
     )
 }

@@ -31,26 +31,10 @@
     font-weight:600;
 }
 
-.main-videoWrapper >.streaming-btn-wrap{
-    display:flex;
-    justify-content: flex-end;
-    padding: 5px 10px 0 0;
 
-}
-.main-videoWrapper>.streaming-btn-wrap> .streaming-btn{
-    padding: 6px 12px;
-    margin-bottom: 10px;
-    background-color:#ff9a7e;
-    color:white;
-    border-radius: 20px;
-    font-size:12px;
-    cursor:pointer;
-    transition:background-color 0.5s ease-out;
-}
 
-.main-videoWrapper>.streaming-btn-wrap> .streaming-btn.active{
-    background-color: #ea6946;
-}
+
+
 
 
 .videoWrapper{
@@ -389,27 +373,35 @@ video {
     justify-content: space-between;
 }
 
-.bidInfo > p>.guide{
+.bidInfo >.amountContainer> p>.guide{
     color:black;
     font-size:25px;
     font-weight:600;
 }
 
-.bidInfo> p> .amount{
+.bidInfo> .amountContainer> p> .amount,.bidInfo> .amountContainer> p> .winner{
     color:#EA6946;
     font-size:25px;
     padding-left:2px;
     font-weight:600;
 }
 
-.bidInfo > div{
-    width:35%;
+.amountContainer> p:nth-child(2) >.guide,
+.amountContainer> p:nth-child(2) >.amount,
+.amountContainer> p:nth-child(2) >.winner{
+    font-size:18px;
 }
-.bidInfo > div > p{
+
+
+
+.bidInfo > .tagContainer{
+    width:40%;
+}
+.bidInfo > .tagContainer > p{
     font-weight:600;
     font-size:18px;
 }
-.bidInfo > div > .tagWrap{
+.bidInfo > .tagContainer > .tagWrap{
     width:100%;
     display:flex;
     gap:10px;
@@ -417,7 +409,7 @@ video {
     margin-top:10px;
 }
 
-.bidInfo > div > .tagWrap > .tag{
+.bidInfo > .tagContainer > .tagWrap > .tag{
     padding:4px 12px;
     background-color:#EA6946;
     color:white;
@@ -439,7 +431,7 @@ video {
 .arrowWrap > div > img{
     width:30px;
     cursor:pointer;
-    margin-bottom: 25px;
+    margin-bottom: 85px;
 }
 
 .bidInfoWrapper > .sliderWrap>.bidProdWrap{
@@ -471,6 +463,9 @@ video {
     width:100%;
     height:100%;
 }
+
+
+
 .bidProdList.selected >.bidProd-picture  {
     border: 2px solid #3b82f6; /* 파란 테두리 */
 }
@@ -511,7 +506,6 @@ video {
 }
 
 .bidProdList > .bidProd-btnWrap{
-    position: relative;
     display: flex;
     flex-direction:column;
     align-items: center;
@@ -529,11 +523,20 @@ video {
     pointer-events: none;
 }
 
+
 .bidProdList:hover > .bidProd-btnWrap{
-    max-height: 100px; /* 버튼 3개 정도 보여질 만큼 */
+    max-height: 150px;
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+}
+
+/* 낙찰/유찰인 경우 hover 비활성화 */
+.bidProdList.completed:hover > .bidProd-btnWrap,
+.bidProdList.cancelled:hover > .bidProd-btnWrap {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .bidProd-btnWrap > .bidProd{
@@ -557,7 +560,12 @@ video {
 .bidProd.cancelBtn{
     background-color:#B23F25;
 }
-
+.bidProd.unitBtn{
+    background-color: #722817;
+}
+.bidProd.revertBtn{
+    background-color:#551B10FF;
+}
 
 .modal-backdrop {
     position: fixed;
@@ -585,12 +593,76 @@ video {
     padding: 8px 16px;
     font-weight: bold;
     cursor: pointer;
+    border-radius: 4px;
     border:none;
+    transition:background-color,color 0.5s ease;
+}
+.modal-buttons button:hover{
+    background-color:#777;
+    color:white;
+}
+
+.error-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: rgba(255, 80, 80, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 999;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+ /*메인 비디오 부분*/
+
+.main-videoWrapper >.streaming-btn-wrap{
+    display:flex;
+    justify-content: space-between;
+    padding: 5px 10px 0 0;
+
+}
+.main-videoWrapper>.streaming-btn-wrap .auction-end-btn{
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    background-color: #848282;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.auction-end-btn:hover{
+    background-color: #666464;
+}
+
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn{
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    background-color:#ff9a7e;
+    color:white;
+    border-radius: 20px;
+    font-size:12px;
+    cursor:pointer;
+    transition:background-color 0.5s ease-out;
+}
+
+.main-videoWrapper>.streaming-btn-wrap> .streaming-btn.active{
+    background-color: #ea6946;
 }
 
 
 
- /*메인 비디오 부분*/
 .contentWrap-under >.main-videoWrapper{
     margin-top:40px;
     width: 400px;
@@ -613,7 +685,6 @@ video {
     font-size:25px;
     font-weight:700;
     padding:0 12px;
-
 }
 .main-video-stop{
     width: 100%;
@@ -623,4 +694,50 @@ video {
     justify-content: center;
     align-items: center;
     color: #fff;
+}
+
+/*모달창*/
+.confirmModal{
+    position: fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-msg-wrap{
+    background-color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    max-width: 300px;
+    text-align: center;
+}
+
+.confirm-msg-wrap > .confirm-msg{
+    font-weight: 500;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+.confirm-msg-wrap > button{
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor:pointer;
+}
+
+.unitChange > p{
+    padding: 10px 0;
+}
+
+.unitChange > select{
+    width: 100%;
+    padding: 5px 5px;
+    border-radius: 4px;
+    border: 1px solid #9e9e9e;
+    outline: none;
 }

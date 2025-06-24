@@ -1,9 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 import Calendar from "../calendar/calendar";
-import RegAuction from "../regauction/regauction";
+import RegAuction from "../regauction/App";
 import Loader from "../Loader/Loader";
-import {TbCalendarTime, TbCalendarPause, TbCalendarX} from "react-icons/tb";
+
+import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
+import { RiMenuSearchLine } from "react-icons/ri";
+import { MdOutlineCalendarMonth } from "react-icons/md";
+import { RiAuctionLine } from "react-icons/ri";
+
 
 
 const images = [
@@ -30,6 +35,7 @@ export default function App() {
     const [notices, setNotices] = useState([]);
     const [noticeIdx, setNoticeIdx] = useState(0);
 
+    const [showMenu, setShowMenu] = useState(false); // 메뉴 토글 상태
 
     // 공지사항 목록을 DB에서 fetch
     useEffect(() => {
@@ -110,38 +116,38 @@ export default function App() {
 
     // App.jsx 최상단
 
-    const scrollYRef = useRef(0);
-
-    // useEffect 내부
-    useEffect(() => {
-        if (showRegAuction) {
-            // 스크롤 고정
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollYRef.current}px`;
-            document.body.style.left = '0';
-            document.body.style.right = '0';
-            document.body.style.overflowY = 'scroll'; // 스크롤바 유지
-        } else {
-            // 고정 해제 및 스크롤 위치 복원
-            const scrollY = scrollYRef.current;
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.left = '';
-            document.body.style.right = '';
-            document.body.style.overflowY = '';
-            window.scrollTo(0, scrollY);
-        }
-
-        return () => {
-            const scrollY = scrollYRef.current;
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.left = '';
-            document.body.style.right = '';
-            document.body.style.overflowY = '';
-            window.scrollTo(0, scrollY);
-        };
-    }, [showRegAuction]);
+    // const scrollYRef = useRef(0);
+    //
+    // // useEffect 내부
+    // useEffect(() => {
+    //     if (showRegAuction) {
+    //         // 스크롤 고정
+    //         document.body.style.position = 'fixed';
+    //         document.body.style.top = `-${scrollYRef.current}px`;
+    //         document.body.style.left = '0';
+    //         document.body.style.right = '0';
+    //         document.body.style.overflowY = 'scroll'; // 스크롤바 유지
+    //     } else {
+    //         // 고정 해제 및 스크롤 위치 복원
+    //         const scrollY = scrollYRef.current;
+    //         document.body.style.position = '';
+    //         document.body.style.top = '';
+    //         document.body.style.left = '';
+    //         document.body.style.right = '';
+    //         document.body.style.overflowY = '';
+    //         window.scrollTo(0, scrollY);
+    //     }
+    //
+    //     return () => {
+    //         const scrollY = scrollYRef.current;
+    //         document.body.style.position = '';
+    //         document.body.style.top = '';
+    //         document.body.style.left = '';
+    //         document.body.style.right = '';
+    //         document.body.style.overflowY = '';
+    //         window.scrollTo(0, scrollY);
+    //     };
+    // }, [showRegAuction]);
 
     //이미지 슬라이드
     useEffect(() => {
@@ -294,6 +300,9 @@ export default function App() {
 
     //로그아웃
     const logoutHandler = async () => {
+        localStorage.removeItem('com.naver.nid.oauth.state_token');
+        localStorage.removeItem('com.naver.nid.access_token');
+
         const response = await fetch("/logout", {
             method: "POST",
             credentials: "include", // 쿠키 전달
@@ -310,6 +319,11 @@ export default function App() {
         }
     };
 
+    // 메뉴 리스트
+    const toggleMenu = () => {
+        setShowMenu(prev => !prev);
+    };
+
     if (isLoading) {
         return (
             <Loader/>
@@ -323,6 +337,7 @@ export default function App() {
              onClick={handleContainerClick}>
 
             {/*경매장 등록버튼 클릭시 활성*/}
+
             {showRegAuction && (
                 <>
                     <div
@@ -339,6 +354,24 @@ export default function App() {
                     </div>
                 </>
             )}
+
+            {/*{showRegAuction && (*/}
+            {/*    <>*/}
+            {/*        <div*/}
+            {/*            className="modal-backdrop"*/}
+            {/*            onClick={() => setShowRegAuction(false)}*/}
+            {/*        />*/}
+            {/*        <div className="modal-container">*/}
+            {/*            <div*/}
+            {/*                className="modal"*/}
+            {/*                onClick={(e) => e.stopPropagation()}*/}
+            {/*            >*/}
+            {/*                <RegAuction onClose={() => setShowRegAuction(false)} />*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    </>*/}
+            {/*)}*/}
+
 
             <div className="top-section">
                 <img
@@ -445,6 +478,7 @@ export default function App() {
                                     {leftColumn.map((item, idx) => {
                                         const status = getAuctionStatus(item.startTime, item.endTime);
                                         return (
+                                            <a href={`/bidGuest.do?roomId=${item.auctionId}`}>
                                             <div className="auction-item" key={item.auctionId || idx}>
                                                 <div className="auction-icon">
                                                     {getStatusImage(status)}
@@ -454,6 +488,7 @@ export default function App() {
                                                     <div className="auction-time">{formatTime(item.startTime)}</div>
                                                 </div>
                                             </div>
+                                            </a>
                                         );
                                     })}
                                 </div>
@@ -461,6 +496,7 @@ export default function App() {
                                     {rightColumn.map((item, idx) => {
                                         const status = getAuctionStatus(item.startTime, item.endTime);
                                         return (
+                                            <a href={`/bidGuest.do?roomId=${item.auctionId}`}>
                                             <div className="auction-item" key={item.auctionId || idx}>
                                                 <div className="auction-icon">
                                                     {getStatusImage(status)}
@@ -470,6 +506,7 @@ export default function App() {
                                                     <div className="auction-time">{formatTime(item.startTime)}</div>
                                                 </div>
                                             </div>
+                                            </a>
                                         );
                                     })}
                                 </div>
@@ -478,10 +515,42 @@ export default function App() {
                     </div>
                 </div>
             </div>
+
             {!showRegAuction && (
                 <button className="floating-btn" style={{bottom: `${btnBottom}px`}}
                         onClick={regAuc}
                 >＋</button>
+
+            {!showRegAuction &&(
+                <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
+                        // onClick={regAuc}
+                        onClick={toggleMenu}
+                >
+                    <img src="./img/hamburger.png" alt="메뉴" className="floating-icon" width='35px' />
+                </button>
+            )}
+            {showMenu && (
+                <div className="floating-menu">
+
+                    <div className="menu-item" onClick={() => window.location.href = "/regAuction.do"}>
+                        <h5>경매 등록</h5>
+                        <div className="wrap-btn">
+                            <RiAuctionLine size={30} />
+                        </div>
+                    </div>
+                    <div className="menu-item" onClick={() => window.location.href = "/schedule.do"}>
+                        <h5>경매 일정</h5>
+                        <div className="wrap-btn">
+                            <MdOutlineCalendarMonth size={30} />
+                        </div>
+                    </div>
+                    <div className="menu-item" onClick={() => window.location.href = "/search.do"}>
+                        <h5>경매 검색</h5>
+                        <div className="wrap-btn">
+                            <RiMenuSearchLine size={30} />
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
 

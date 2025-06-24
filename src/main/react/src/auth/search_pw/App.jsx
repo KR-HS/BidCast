@@ -1,8 +1,16 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import Loader from "../../Loader/Loader";
 export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    const idRef = useRef();
+    const email1Ref = useRef();
+    const email2Ref = useRef();
+    const nameRef = useRef();
+    const phone2Ref = useRef();
+    const phone3Ref = useRef();
+    const phoneRegex = /^[0-9]+$/;
+
 
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
@@ -26,7 +34,7 @@ export default function App() {
         email1: '',
         email2: '',
         name: '',
-        phone1: '',
+        phone1: '010',
         phone2: '',
         phone3: '',
     });
@@ -43,6 +51,39 @@ export default function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if(formData.id.length < 7 || formData.id.length > 20) {
+            alert("아이디는 7자 이상 20자 이하로 입력해주세요.");
+            idRef.current?.focus();
+            return;
+        }
+
+        if(formData.name.length < 1 || formData.name.length > 20) {
+            alert(" 이름은 1자 이상 20자 이하로 입력해주세요.");
+            nameRef.current?.focus();
+            return;
+        }
+
+        if(formData.email1 === '' || formData.email2 === '') {
+            alert("이메일을 입력해주세요.");
+            if(formData.email1 === '') {
+                email1Ref.current?.focus();
+                return;
+            }
+            email2Ref.current?.focus();
+            return;
+        }
+
+        if (!phoneRegex.test(formData.phone2) || formData.phone2.length < 3 || formData.phone2.length > 4) {
+            alert("연락처 중간 자리는 숫자 3~4자리로 입력해주세요.");
+            phone2Ref.current?.focus();
+            return;
+        }
+        if (!phoneRegex.test(formData.phone3) || formData.phone3.length !== 4) {
+            alert("연락처 마지막 자리는 숫자 4자리로 입력해주세요.");
+            phone3Ref.current?.focus();
+            return;
+        }
+
         const response = await fetch('api/v1/searchPw',{
             method: 'POST',
             headers: {
@@ -53,8 +94,11 @@ export default function App() {
 
         if(response.ok) {
             const data = await response.json();
-            alert(`비밀번호는 입니다.`);
-            window.location.href = '/findcomplete.do';
+
+            const userKey = data.user.userKey;
+
+            sessionStorage.setItem("userKey", userKey);
+            window.location.href = '/changepw.do';
         } else{
             alert("회원을 찾을 수 없습니다.");
         }
@@ -84,6 +128,7 @@ export default function App() {
                         <td>
                             <input type="text"
                                    name="id"
+                                      ref={idRef}
                                    value={formData.id}
                                    onChange={handleChange}
                             />
@@ -94,6 +139,7 @@ export default function App() {
                         <td>
                             <input type="text"
                                    name="name"
+                                      ref={nameRef}
                                    value={formData.name}
                                    onChange={handleChange}/>
                         </td>
@@ -103,12 +149,14 @@ export default function App() {
                         <td className="email-box">
                             <input type="text" style={{width:'130px'}}
                                    name="email1"
+                                      ref={email1Ref}
                                    value={formData.email1}
                                    onChange={handleChange}
                             />
                             <span style={{margin:"0 3px"}}>@</span>
                             <input type="text" style={{width:'78px'}}
                                    name="email2"
+                                      ref={email2Ref}
                                    value={formData.email2}
                                    onChange={handleChange}
                             />
@@ -146,13 +194,23 @@ export default function App() {
                             <span style={{margin:"0 6px"}}>-</span>
                             <input type="text" style={{width:'100px'}}
                                    name="phone2"
+                                   maxLength={4}
                                    value={formData.phone2}
-                                   onChange={handleChange}/>
+                                      ref={phone2Ref}
+                                   onChange={(e) => {
+                                       const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                       setFormData({ ...formData, phone2: onlyNums });
+                                   }}/>
                             <span style={{margin:"0 6px"}}>-</span>
                             <input type="text" style={{width:'100px'}}
                                    name="phone3"
+                                   maxLength={4}
                                    value={formData.phone3}
-                                   onChange={handleChange}
+                                        ref={phone3Ref}
+                                   onChange={(e) => {
+                                       const onlyNums = e.target.value.replace(/\D/g, ''); // 숫자만
+                                       setFormData({ ...formData, phone3: onlyNums });
+                                   }}
                             />
                         </td>
                     </tr>

@@ -23,8 +23,16 @@ public interface AuctionMapper {
 
     List<AuctionItemDTO> selectWinningProductsByUserId(Integer userKey);
 
+
     List<AuctionScheduleDTO> selectAuctionSchedule(@Param("date") String date, @Param("tag") String tag);
 
+
+    @Select("SELECT status FROM auction WHERE auction_id=#{auctionId}")
+    String getAuctionStatus(int auctionId);
+    @Select("SELECT tag_key, tag_name FROM tag")
+    List<TagDTO> selectTag();
+
+    void regAuction(AuctionDTO auctionDTO);
 
 }
 
