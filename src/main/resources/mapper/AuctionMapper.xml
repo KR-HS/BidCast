@@ -115,8 +115,8 @@
     </select>
 
     <insert id="regAuction" parameterType="AuctionDTO" keyProperty="auctionId" keyColumn="auction_id" useGeneratedKeys="true">
-        INSERT INTO auction(host_id, created_at, title, start_time, end_time, status)
-        VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행예정')
+        INSERT INTO auction(host_id, created_at, title, start_time, end_time, status, thumbnail_url)
+        VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행예정', #{thumbnailUrl})
         RETURNING auction_id
     </insert>
 

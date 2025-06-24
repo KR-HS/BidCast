@@ -20,5 +20,6 @@ public class AuctionDTO {
         private String status;
         private Integer viewCount;
         private String hostId;
+        private String thumbnailUrl;
 
 }

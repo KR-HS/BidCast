@@ -6,6 +6,7 @@ import com.project.bidcast.service.auth.CustomUserDetails;
 
 import com.project.bidcast.util.GetSession;
 
+import com.project.bidcast.util.S3UploadService;
 import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,7 +31,8 @@ public class AuctionController {
 
     @Autowired
     AuctionService auctionService;
-
+    @Autowired
+    private S3UploadService s3UploadService;
 
     @GetMapping("/top6")
     public List<AuctionDTO> getFirst6Auctions() {
@@ -87,6 +89,7 @@ public class AuctionController {
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
             LocalDateTime endTime,
             @RequestParam(value = "tags", required = false) List<Integer> tags,
+            @RequestParam("thumbnail") MultipartFile thumbnail,
             @RequestParam("images") MultipartFile[] images,
             @RequestParam("itemNames") List<String> itemNames,
             @RequestParam("content") List<String> content
@@ -99,13 +102,8 @@ public class AuctionController {
                                 .title(title)
                                 .startTime(startTime)
                                 .endTime(endTime)
+                                .thumbnailUrl(s3UploadService.upload(thumbnail))
                                 .build();
-
-        System.out.println(auctionDTO.toString());
-        System.out.println("itemNames = " + itemNames);
-        System.out.println("images count = " + images.length);
-        System.out.println("images = " + images);
-
         /*경매장 생성*/
 
         //경매회차등록

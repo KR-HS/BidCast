@@ -8,10 +8,11 @@ export default function App() {
         startTime: '',
         endTime: '',
         tags: [],
+        thumbnail: null,
+        thumbnailPreview: null,
         items: [{ name: '', content:'', image: null, preview: null }]
     });
     const [tags, setTags] = useState([]);
-
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -49,6 +50,18 @@ export default function App() {
         setFormData({ ...formData, [name]: value });
     };
 
+    const handleThumbnailChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const preview = URL.createObjectURL(file);
+            setFormData(prev => ({
+                ...prev,
+                thumbnail: file,
+                thumbnailPreview: preview
+            }));
+        }
+    };
+
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...formData.items];
         updatedItems[index][field] = value;
@@ -81,7 +94,7 @@ export default function App() {
     const addItem = () => {
         setFormData({
             ...formData,
-            items: [...formData.items, { name: '', image: null, preview: null }]
+            items: [...formData.items, { name: '', content: '', image: null, preview: null }]
         });
     };
 
@@ -102,13 +115,17 @@ export default function App() {
             formDataToSend.append("tags", tag);
         });
 
+        if (formData.thumbnail) {
+            formDataToSend.append("thumbnail", formData.thumbnail);
+        }
+
         formData.items.forEach((item) => {
             formDataToSend.append("itemNames", item.name);
             formDataToSend.append("content", item.content);
             if (item.image) {
                 formDataToSend.append("images", item.image);
             } else {
-                formDataToSend.append("images", new Blob()); // 빈 이미지 처리 (null이면 오류)
+                formDataToSend.append("images", new Blob()); // 빈 이미지 처리
             }
         });
 
@@ -183,6 +200,49 @@ export default function App() {
                                 />
                             </td>
                         </tr>
+
+                        <tr>
+                            <td>썸네일 이미지</td>
+                            <td>
+                                <div
+                                    onClick={() => document.getElementById('thumbnailUpload').click()}
+                                    style={{
+                                        border: '2px dashed #ccc',
+                                        borderRadius: '10px',
+                                        padding: '20px',
+                                        textAlign: 'center',
+                                        cursor: 'pointer',
+                                        width: '200px',
+                                        height: '150px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: '#f9f9f9'
+                                    }}
+                                >
+                                    {formData.thumbnailPreview ? (
+                                        <img
+                                            src={formData.thumbnailPreview}
+                                            alt="썸네일 미리보기"
+                                            style={{ maxHeight: '100%', maxWidth: '100%', borderRadius: '8px' }}
+                                        />
+                                    ) : (
+                                        <div style={{ color: '#888' }}>
+                                            <FaRegImage size={50} />
+                                            <div>클릭하여 썸네일 선택</div>
+                                        </div>
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    id="thumbnailUpload"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleThumbnailChange}
+                                />
+                            </td>
+                        </tr>
+
                         <tr>
                             <td>태그</td>
                             <td>
