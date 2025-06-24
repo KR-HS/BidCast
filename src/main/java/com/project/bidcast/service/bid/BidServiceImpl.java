@@ -5,6 +5,7 @@ import com.project.bidcast.mapper.BidMapper;
 import com.project.bidcast.mapper.UserMapper;
 import com.project.bidcast.vo.NickDTO;
 import com.project.bidcast.vo.ProdDTO;
+import com.project.bidcast.vo.TagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class BidServiceImpl implements BidService {
 
     @Autowired
     private UserMapper userMapper;
+
 
     @Override
     public String getAuctionStatus(int roomId) {
@@ -55,4 +57,6 @@ public class BidServiceImpl implements BidService {
     public int unitUpdate(ProdDTO product) {
         return bidMapper.unitUpdate(product);
     }
+
+
 }

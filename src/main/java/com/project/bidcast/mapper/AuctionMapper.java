@@ -13,8 +13,9 @@ import java.util.List;
 @Mapper
 public interface AuctionMapper {
 
-    @Select("SELECT auction_id AS auctionId, title, created_at AS createdAt, start_time AS startTime ,end_time AS endTime FROM auction ORDER BY start_time ASC LIMIT 6")
-    List<AuctionDTO> getFirst6ByStartTime();
+    @Select("SELECT auction_id AS auctionId, title, created_at AS createdAt, start_time AS startTime, end_time AS endTime, status FROM auction WHERE to_char(start_time, 'YYYY.MM.DD') = #{date} ORDER BY start_time ASC LIMIT 6")
+    List<AuctionDTO> getFirst6ByStartTimeAndDate(@Param("date") String date);
+
     // Mapper 인터페이스
     List<AuctionHistoryDTO> getAuctionHistoryByUserId(@Param("loginId") String loginId);
 

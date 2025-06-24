@@ -71,7 +71,7 @@ export default function App() {
                             </div>
                             <div className="right-section">
                                 <div className="date">진행일자: {auction.startTime?.slice(0, 10)}</div>
-                                <div className={`status ${status === '예정' ? 'upcoming' : status === '진행중' ? 'ongoing' : 'ended'}`}>
+                                <div className={`status ${status === '진행예정' ? 'upcoming' : status === '진행중' ? 'ongoing' : 'ended'}`}>
                                     {status}
                                 </div>
                             </div>
