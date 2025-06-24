@@ -29,6 +29,8 @@ public interface AuctionMapper {
     List<TagDTO> selectTag();
 
     void regAuction(AuctionDTO auctionDTO);
+
+    List<AuctionTagDTO> getOtherAuctions(int auctionId);
 }
 
 

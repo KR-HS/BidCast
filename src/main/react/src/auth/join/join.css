@@ -4,24 +4,32 @@ section{
 }
 table{
     margin: 0 auto;
-    border-spacing: 35px;
+    border-spacing:35px 20px;
 }
 .sec h1{
     text-align: center;
     font-size: 45px;
     margin-bottom: 1rem;
 }
+tr{
+    vertical-align: top;
+}
 td{
-    font-size: 20px;
+    font-size: 16px;
 }
 td input, select{
     width: 320px;
     height: 30px;
-    font-size: 15px;
+    font-size: 13px;
     padding-left: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
+input::placeholder {
+    font-size: 12px;
+    color: #777;
+}
+
 .email-box input{
 width: 130px;
 
@@ -34,9 +42,13 @@ width: 130px;
     padding:0;
     font-size: 11px;
 }
-
+.phonenum{
+    display:flex;
+    justify-content: space-around;
+    align-items: center;
+}
 .phonenum select{
-    width: 70px;
+    width: 80px;
     height: 34px;
 }
 .phonenum input{
@@ -60,5 +72,25 @@ button{
 .join-btn{
     display: flex;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 30px;
+}
+
+
+/* 달력 부분 다자인*/
+.MuiPaper-root{
+    width:334px !important;
+}
+
+.MuiInputBase-root>input{
+    padding: 5.5px 0px !important;
+    width: 285px !important;
+}
+.MuiInputBase-root{
+    padding:0 14px !important;
+}
+.MuiButtonBase-root{
+    width:auto;
+    padding:0 !important;
+    margin:0;
+    height:auto;
 }
