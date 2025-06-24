@@ -8,6 +8,7 @@ import com.project.bidcast.util.GetSession;
 
 import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,22 +69,26 @@ public class AuctionController {
     public List<AuctionScheduleDTO> getAuctionSchedule(@RequestParam(required = true) String date,
                                                        @RequestParam(required = false) String tag) {
         return auctionService.getAuctionSchedule(date, tag);
+    }
 
     @GetMapping("/tags")
-    public List<TagDTO> getTags() {
+    public List<TagDTO> getTags () {
         return auctionService.getTags();
-
     }
 
     @PostMapping(value = "/regAuction", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> registerAuction(
+    public ResponseEntity<?> registerAuction (
             @RequestParam("title") String title,
-            @RequestParam("startTime") LocalDateTime startTime,
-            @RequestParam("endTime") LocalDateTime endTime,
-            @RequestParam(value = "tags", required = false) List<String> tags,
-            @RequestPart("images") List<MultipartFile> images,
-            @RequestParam("itemNames") List<String> itemNames
-    ) {
+            @RequestParam("startTime")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+                    LocalDateTime startTime,
+            @RequestParam("endTime")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+                    LocalDateTime endTime,
+            @RequestParam(value = "tags", required = false) List < String > tags,
+            @RequestParam("images") MultipartFile[]images,
+            @RequestParam("itemNames") List < String > itemNames
+){
         AuctionDTO auctionDTO = new AuctionDTO();
 
         Integer userKey = GetSession.getUserKey();
@@ -96,17 +101,19 @@ public class AuctionController {
                 .build();
 
 
-
         System.out.println("title = " + title);
         System.out.println("startTime = " + startTime);
         System.out.println("endTime = " + endTime);
         System.out.println("tags = " + tags);
         System.out.println("itemNames = " + itemNames);
-        System.out.println("images count = " + images.size());
+        System.out.println("images count = " + images.length);
         System.out.println("images = " + images);
+
+        auctionService.regAuction(auctionDTO);
 
         return ResponseEntity.ok(Map.of("success", true));
     }
 
 }
+
 
