@@ -77,10 +77,48 @@
         ORDER BY p.prod_key DESC
     </select>
 
+
+    <select id="selectAuctionSchedule" resultType="com.project.bidcast.vo.AuctionScheduleDTO">
+        SELECT
+        a.auction_id,
+        to_char(a.start_time, '%Y.%m.%d') AS date,
+        a.title,
+        i.file_data AS image,
+        a.status,
+        a.view_count AS guestCount,
+        u.user_name AS hostName,
+        string_agg(t.tag_name,',') AS tags
+        FROM auction a
+        LEFT JOIN users u ON a.host_id = u.login_id
+        LEFT JOIN product p ON a.auction_id = p.auc_key
+        LEFT JOIN (
+        SELECT prod_key, MIN(reg_date) AS min_regdate
+        FROM file
+        GROUP BY prod_key
+        ) fi ON p.prod_key = fi.prod_key
+        LEFT JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
+        LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
+        LEFT JOIN tag t ON at.tag_key = t.tag_key
+        <where>
+            <if test="date != null and date != ''">
+                to_char(a.start_time, 'YYYY.MM.DD') = #{date}
+            </if>
+            <if test="tag != null and tag != ''">
+                AND EXISTS (
+                SELECT 1 FROM auctiontag at2
+                JOIN tag t2 ON at2.tag_key = t2.tag_key
+                WHERE at2.auc_key = a.auction_id AND t2.tag_name = #{tag}
+                )
+            </if>
+        </where>
+        GROUP BY a.auction_id, a.start_time, a.title, i.file_data, a.status, a.view_count, u.user_name
+    </select>
+
     <insert id="regAuction" >
         INSERT INTO auction(host_id, created_at, title, start_time, end_time, status)
         VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행중')
     </insert>
+
 
 
 </mapper>

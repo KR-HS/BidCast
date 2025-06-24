@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -44,6 +45,12 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
+    public List<AuctionScheduleDTO> getAuctionSchedule(String date, String tag) {
+        List<AuctionScheduleDTO> scheduleTag = auctionMapper.selectAuctionSchedule(date, tag);
+        System.out.println(scheduleTag);
+        return scheduleTag;
+    }
+
     public List<TagDTO> getTags() {
 
         return auctionMapper.selectTag();

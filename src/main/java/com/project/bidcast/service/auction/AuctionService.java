@@ -14,6 +14,10 @@ public interface AuctionService {
    List<AuctionHistoryDTO> getAuctionHistoryByUserId(String loginId);
    AuctionDetailDTO getAuctionDetail(Integer auctionId);
    List<AuctionItemDTO> getWinningProductsByUserKey(Integer userKey);
+
+   List<AuctionScheduleDTO>  getAuctionSchedule(String date,String tag);
+
    List<TagDTO> getTags();
     void regAuction(AuctionDTO auctionDTO);
+
 }

@@ -69,9 +69,8 @@
 
 }
 
-
 /* 기존 item-list 유지 */
-.item-list {
+.item-list:not(.scrollable-list) {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -80,17 +79,16 @@
 
 .item-list.scrollable-list {
     display: flex;
-    flex-wrap: nowrap;
+    width: 80%;
     overflow-x: auto;
-    white-space: nowrap;
     padding: 10px;
-    gap: 16px; /* 카드 간 간격 */
+    gap: 16px;
 }
 
 
 .item-card {
     border-radius: 14px;
-    width: 210px;
+    min-width: 180px;
     padding: 0 0 18px;
     display: flex;
     flex-direction: column;

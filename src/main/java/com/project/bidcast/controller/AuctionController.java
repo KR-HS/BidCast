@@ -3,7 +3,9 @@ package com.project.bidcast.controller;
 
 import com.project.bidcast.service.auction.AuctionService;
 import com.project.bidcast.service.auth.CustomUserDetails;
+
 import com.project.bidcast.util.GetSession;
+
 import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import org.springframework.web.multipart.MultipartFile;
+
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,9 +63,16 @@ public class AuctionController {
         return auctionService.getWinningProductsByUserKey(userKey);
     }
 
+
+    @GetMapping("/schedule")
+    public List<AuctionScheduleDTO> getAuctionSchedule(@RequestParam(required = true) String date,
+                                                       @RequestParam(required = false) String tag) {
+        return auctionService.getAuctionSchedule(date, tag);
+
     @GetMapping("/tags")
     public List<TagDTO> getTags() {
         return auctionService.getTags();
+
     }
 
     @PostMapping(value = "/regAuction", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
