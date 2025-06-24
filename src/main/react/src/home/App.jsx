@@ -520,6 +520,8 @@ export default function App() {
                 <button className="floating-btn" style={{bottom: `${btnBottom}px`}}
                         onClick={regAuc}
                 >＋</button>
+            )
+            }
 
             {!showRegAuction &&(
                 <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}

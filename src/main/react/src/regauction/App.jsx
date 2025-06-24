@@ -8,7 +8,7 @@ export default function App() {
         startTime: '',
         endTime: '',
         tags: [],
-        items: [{ name: '', image: null, preview: null }]
+        items: [{ name: '', content:'', image: null, preview: null }]
     });
     const [tags, setTags] = useState([]);
 
@@ -104,6 +104,7 @@ export default function App() {
 
         formData.items.forEach((item) => {
             formDataToSend.append("itemNames", item.name);
+            formDataToSend.append("content", item.content);
             if (item.image) {
                 formDataToSend.append("images", item.image);
             } else {
@@ -164,7 +165,7 @@ export default function App() {
                             <td>시작일자</td>
                             <td>
                                 <input
-                                    type="date"
+                                    type="datetime-local"
                                     name="startTime"
                                     value={formData.startTime}
                                     onChange={handleChange}
@@ -175,7 +176,7 @@ export default function App() {
                             <td>종료일자</td>
                             <td>
                                 <input
-                                    type="date"
+                                    type="datetime-local"
                                     name="endTime"
                                     value={formData.endTime}
                                     onChange={handleChange}
@@ -263,6 +264,16 @@ export default function App() {
                                                 X
                                             </button>
                                         )}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                        <textarea
+                                            placeholder="설명"
+                                            value={item.content}
+                                            onChange={(e) => handleItemChange(index, "content", e.target.value)}
+                                            className="content-box"
+                                        />
                                     </td>
                                 </tr>
                                 <tr>
