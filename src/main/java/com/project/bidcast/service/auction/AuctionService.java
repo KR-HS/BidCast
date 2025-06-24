@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AuctionService {
 
-   List<AuctionDTO> getFirst6ByStartTime();
+   List<AuctionDTO> getFirst6ByStartTimeAndDate(String date);
    List<AuctionHistoryDTO> getAuctionHistoryByUserId(String loginId);
    AuctionDetailDTO getAuctionDetail(Integer auctionId);
    List<AuctionItemDTO> getWinningProductsByUserKey(Integer userKey);

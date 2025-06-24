@@ -18,8 +18,8 @@ public class AuctionServiceImpl implements AuctionService {
     private AuctionMapper auctionMapper;
 
     @Override
-    public List<AuctionDTO> getFirst6ByStartTime() {
-        return auctionMapper.getFirst6ByStartTime();
+    public List<AuctionDTO> getFirst6ByStartTimeAndDate(String date) {
+        return auctionMapper.getFirst6ByStartTimeAndDate(date);
     }
 
     @Override

@@ -17,6 +17,8 @@ public class AuctionScheduleDTO {
     private String title;
     private String image;
     private List<String> tags;  // 태그 여러 개 가능
+    private String startTime;
+    private String endTime;
     private String status;
     private int guestCount;
     private String hostName;

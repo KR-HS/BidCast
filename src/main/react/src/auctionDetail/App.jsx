@@ -56,7 +56,7 @@ export default function App() {
         const start = new Date(startTime);
         const end = new Date(endTime);
 
-        if(now < start) return "예정";
+        if(now < start) return "진행예정";
         if(now >= start && now <= end) return "진행중";
         return "종료";
     }
@@ -117,7 +117,7 @@ export default function App() {
                     let priceCell = "";
                     let winnerCell = "";
 
-                    if (auctionStatus === "예정") {
+                    if (auctionStatus === "진행예정") {
                         // 예정: 빈칸
                         priceCell = "";
                         winnerCell = "";

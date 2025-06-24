@@ -33,8 +33,8 @@ public class AuctionController {
 
 
     @GetMapping("/top6")
-    public List<AuctionDTO> getFirst6Auctions() {
-        List<AuctionDTO> auctions = auctionService.getFirst6ByStartTime();
+    public List<AuctionDTO> getFirst6AuctionsByDate(@RequestParam String date) {
+        List<AuctionDTO> auctions = auctionService.getFirst6ByStartTimeAndDate(date);
         System.out.println("Top6 리스트: " + auctions);
         return auctions;
     }

@@ -1,6 +1,7 @@
 package com.project.bidcast.mapper;
 
 import com.project.bidcast.vo.ProdDTO;
+import com.project.bidcast.vo.TagDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -19,4 +20,5 @@ public interface BidMapper {
 
     @Update("UPDATE product SET unit_value=#{unitValue} WHERE prod_key=#{prodKey}")
     int unitUpdate(ProdDTO product);
+
 }
