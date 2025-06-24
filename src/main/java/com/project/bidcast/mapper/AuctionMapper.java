@@ -1,10 +1,7 @@
 package com.project.bidcast.mapper;
 
 
-import com.project.bidcast.vo.AuctionDTO;
-import com.project.bidcast.vo.AuctionDetailDTO;
-import com.project.bidcast.vo.AuctionHistoryDTO;
-import com.project.bidcast.vo.AuctionItemDTO;
+import com.project.bidcast.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -25,6 +22,9 @@ public interface AuctionMapper {
     List<AuctionItemDTO> selectAuctionItemsByAuctionId(Integer auctionId);
 
     List<AuctionItemDTO> selectWinningProductsByUserId(Integer userKey);
+
+    List<AuctionScheduleDTO> selectAuctionSchedule(@Param("date") String date, @Param("tag") String tag);
+
 
 }
 

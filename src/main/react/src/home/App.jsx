@@ -3,7 +3,7 @@ import './App.css'
 import Calendar from "../calendar/calendar";
 import RegAuction from "../regauction/regauction";
 import Loader from "../Loader/Loader";
-import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
+import {TbCalendarTime, TbCalendarPause, TbCalendarX} from "react-icons/tb";
 
 
 const images = [
@@ -48,7 +48,7 @@ export default function App() {
 
     // 날짜 포맷: "YYYY-MM-DD"
     const formatDate = (date) =>
-        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
     // 시간 포맷: "08:00"
     const formatTime = (isoString) => {
@@ -195,9 +195,12 @@ export default function App() {
 
     // 선택한 날짜에 해당하는 경매만 필터링
     const selectedDateStr = formatDate(selectedDate); // "YYYY-MM-DD"
-    const filteredAuctions = auctions.filter(item =>
-        item.startTime && item.startTime.startsWith(selectedDateStr)
-    );
+    const filteredAuctions = auctions.filter(item => {
+        if (!item.startTime) return false;
+        // "2025-06-16T08:30:00" → "2025.06.16"
+        const itemDate = item.startTime.substr(0, 10).replace(/-/g, ".");
+        return itemDate === selectedDateStr;
+    });
 
     // 2단 분할 (최대 6개만)
     const visibleAuctions = filteredAuctions.slice(0, 6);
@@ -205,7 +208,6 @@ export default function App() {
     const rightColumn = visibleAuctions.filter((_, idx) => idx % 2 === 1);
 
 
-
     //세션 데이터
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -260,7 +262,6 @@ export default function App() {
         fetchUserInfo();
 
     }, []);
-    
 
 
     useEffect(() => {
@@ -302,7 +303,6 @@ export default function App() {
         });
 
 
-
         if (response.redirected) {
             window.location.href = response.url;
         } else {
@@ -334,7 +334,7 @@ export default function App() {
                             className="modal"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <RegAuction onClose={() => setShowRegAuction(false)} />
+                            <RegAuction onClose={() => setShowRegAuction(false)}/>
                         </div>
                     </div>
                 </>
@@ -348,7 +348,9 @@ export default function App() {
                 />
                 <div className="action-buttons">
                     <div className="main-actions">
-                        <div className="action" onClick={()=>{window.location.href="./search.do"}}>
+                        <div className="action" onClick={() => {
+                            window.location.href = "./search.do"
+                        }}>
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/751/751463.png"
                                 alt="경매검색"
@@ -356,7 +358,9 @@ export default function App() {
                             />
                             <div className="action-label">경매검색</div>
                         </div>
-                        <div className="action" onClick={()=>{window.location.href="./schedule.do"}}>
+                        <div className="action" onClick={() => {
+                            window.location.href = "./schedule.do"
+                        }}>
 
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
@@ -370,18 +374,23 @@ export default function App() {
                         <div className="my-page" onClick={handleMyPageClick}>마이페이지</div>
 
                         {/*로그인이 여부 확인*/}
-                        {user === null?(
+                        {user === null ? (
                             <>
-                                <button className="btn login" onClick={()=> {window.location.href="login.do"}}>로그인</button>
+                                <button className="btn login" onClick={() => {
+                                    window.location.href = "login.do"
+                                }}>로그인
+                                </button>
                                 <div className="signup-row">
-                                    <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
+                                    <span className="signup-link" onClick={() => {
+                                        window.location.href = "join.do"
+                                    }}>회원가입</span>
                                 </div>
                                 <div className="login-desc">
-                                    지금 로그인하세요!<br />
+                                    지금 로그인하세요!<br/>
                                     경매를 실시간으로 즐길 수 있습니다<span role="img" aria-label="smile">😊</span>
                                 </div>
                             </>
-                        ):(
+                        ) : (
                             <>
                                 <div className="welcome-message">
                                     <h2>{user.nickName}님 환영합니다!</h2>
@@ -390,8 +399,8 @@ export default function App() {
                                     <span className="signup-link" onClick={logoutHandler}>로그아웃</span>
                                 </div>
                                 <div className="login-desc">
-                                    이제 경매를 즐길 시간이에요!<br />
-                                    {user.nickName}님,  지금 바로 둘러보세요. <span role="img" aria-label="smile">🔍</span>
+                                    이제 경매를 즐길 시간이에요!<br/>
+                                    {user.nickName}님, 지금 바로 둘러보세요. <span role="img" aria-label="smile">🔍</span>
                                 </div>
                             </>
                         )}
@@ -415,7 +424,7 @@ export default function App() {
             </div>
             <div className="main-section">
                 <div className="calendar-section">
-                    <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+                    <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
                 </div>
                 <div className="auction-list">
                     <div className="auction-list-header">
@@ -423,7 +432,9 @@ export default function App() {
                             {formatDate(selectedDate)}
                             {isToday(selectedDate) && <span className="today-label"> (오늘)</span>}
                         </span>
-                        <span className="auction-dropdown" onClick={()=>{window.location.href="./schedule.do"}}>경매일정 전체보기 &gt;</span>
+                        <span className="auction-dropdown" onClick={() => {
+                            window.location.href = "./schedule.do"
+                        }}>경매일정 전체보기 &gt;</span>
                     </div>
                     <div className="auction-two-column-list">
                         {filteredAuctions.length === 0 ? (
@@ -467,8 +478,8 @@ export default function App() {
                     </div>
                 </div>
             </div>
-            {!showRegAuction &&(
-                <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
+            {!showRegAuction && (
+                <button className="floating-btn" style={{bottom: `${btnBottom}px`}}
                         onClick={regAuc}
                 >＋</button>
             )}

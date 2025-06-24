@@ -3,17 +3,11 @@ package com.project.bidcast.controller;
 
 import com.project.bidcast.service.auction.AuctionService;
 import com.project.bidcast.service.auth.CustomUserDetails;
-import com.project.bidcast.vo.AuctionDTO;
-import com.project.bidcast.vo.AuctionDetailDTO;
-import com.project.bidcast.vo.AuctionHistoryDTO;
-import com.project.bidcast.vo.AuctionItemDTO;
+import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,6 +53,11 @@ public class AuctionController {
         return auctionService.getWinningProductsByUserKey(userKey);
     }
 
+    @GetMapping("/schedule")
+    public List<AuctionScheduleDTO> getAuctionSchedule(@RequestParam(required = true) String date,
+                                                       @RequestParam(required = false) String tag) {
+        return auctionService.getAuctionSchedule(date, tag);
+    }
 
 
 }
