@@ -2,6 +2,7 @@ package com.project.bidcast.mapper;
 
 
 import com.project.bidcast.vo.*;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -34,6 +35,13 @@ public interface AuctionMapper {
 
     void regAuction(AuctionDTO auctionDTO);
 
+    @Insert("INSERT INTO auctiontag (auc_key, tag_key) VALUES (#{auctionId}, #{tagKey})")
+    void regAuctionTag(AuctionTagDTO auctionTagDTO);
+
+    void regProduct(ProdDTO prodDTO);
+
+    @Insert("INSERT INTO file (auc_key, file_url, prod_key) VALUES (#{aucKey}, #{fileUrl}, #{prodKey})")
+    void regAuctionImg(FileDTO fileDTO);
 }
 
 

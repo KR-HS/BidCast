@@ -114,9 +114,17 @@
         GROUP BY a.auction_id, a.start_time, a.title, i.file_data, a.status, a.view_count, u.user_name
     </select>
 
-    <insert id="regAuction" >
+    <insert id="regAuction" parameterType="AuctionDTO" keyProperty="auctionId" keyColumn="auction_id" useGeneratedKeys="true">
         INSERT INTO auction(host_id, created_at, title, start_time, end_time, status)
-        VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행중')
+        VALUES (#{hostId}, NOW(), #{title}, #{startTime}, #{endTime}, '진행예정')
+        RETURNING auction_id
+    </insert>
+
+
+    <insert id="regProduct" parameterType="ProdDTO" keyProperty="prodKey" keyColumn="prod_key" useGeneratedKeys="true">
+        INSERT INTO product (auc_key, prod_name)
+        VALUES (#{aucKey}, #{prodName})
+        RETURNING prod_key
     </insert>
 
 
