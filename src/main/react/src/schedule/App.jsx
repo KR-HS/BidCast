@@ -152,7 +152,7 @@ export default function App() {
                             return (
                                 <div className="card" key={item.auctionId || item.id}>
                                     <div className="thumbnail">
-                                        <img src={item.image || item.imgUrl || "./img/thumbnail.png"} alt="썸네일"/>
+                                        <img src={item.thumbnailUrl} alt="썸네일"/>
                                         <span className={`cast-state status-${status}`}>{status}</span>
                                         <button
                                             className={`like-btn${liked ? ' liked' : ''}`}
