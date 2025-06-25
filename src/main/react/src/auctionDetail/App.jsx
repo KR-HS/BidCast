@@ -6,7 +6,6 @@ import Loader from "../Loader/Loader";
 function getAuctionIdFromQuery() {
     const params = new URLSearchParams(window.location.search);
     return params.get("auctionId");
-
 }
 
 
@@ -50,19 +49,6 @@ export default function App() {
         );
     }
 
-    //경매 상태 계산
-    function getAuctionStatus(startTime, endTime){
-        const now = new Date();
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-
-        if(now < start) return "진행예정";
-        if(now >= start && now <= end) return "진행중";
-        return "종료";
-    }
-
-    const auctionStatus = getAuctionStatus(auctionData.startTime,auctionData.endTime);
-
     function handleBid(prodId) {
         // 실제로는 API 호출 필요
         // 예시: fetch(`/api/auctions/bid`, {method: 'POST', body: ...})
@@ -78,6 +64,8 @@ export default function App() {
         }));
     }
 
+    const auctionStatus = auctionData.status;
+
     return (
         <div className="auction-wrapper">
             <div className="header">
@@ -88,7 +76,7 @@ export default function App() {
 
             <div className="auction-info">
                 <div className="auction-summary">
-                    <span className="auction-session">{auctionData.session}회차</span>
+                    <span className="auction-session">{auctionData.auctionId}회차</span>
                     <div className="tags">
                         {auctionData.tags && auctionData.tags.map((tag, idx) => (
                             <span key={idx}>{tag}</span>
@@ -97,8 +85,14 @@ export default function App() {
                 </div>
                 <p className="auctioneer">경매사:{auctionData.auctioneer}</p>
                 <div className="auction-details">
-                    <div>진행일자: {auctionData.date}</div>
-                    <div>낙찰물품수:{auctionData.itemCount} </div>
+                    <div>진행일자: {auctionData.startTime.slice(0, 10)}</div>
+                    <div>
+                        낙찰물품수: {
+                        auctionData.items
+                            ? auctionData.items.filter(item => item.winner).length
+                            : 0
+                    }
+                    </div>
                 </div>
             </div>
 

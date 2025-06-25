@@ -33,16 +33,6 @@ export default function App() {
             });
     }, []);
 
-    // 경매 상태 판별
-    function getAuctionStatus(startTime, endTime) {
-        const now = new Date();
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-
-        if (now < start) return "예정";
-        if (now >= start && now <= end) return "진행중";
-        return "종료";
-    }
 
     // 로딩 중일 때
     if (isLoading) {
