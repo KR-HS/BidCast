@@ -21,5 +21,10 @@ public interface AuctionService {
    List<TagDTO> getTags();
    Integer regAuction(AuctionDTO auctionDTO);
    void regProduct(Integer auctionId, List<Integer> tagKey, List<String> itemNames, List<String> itemContent, MultipartFile[] images);
+   List<AuctionDTO> getAuctionsByPage(int offset, int size);
+   List<AuctionDTO> getAuctionsByPageAndStatus(int offset, int size, String status);
+   List<AuctionDTO> getAuctionsByPageAndFilter(int offset, int size, String status, String title);
+
+
 }
 

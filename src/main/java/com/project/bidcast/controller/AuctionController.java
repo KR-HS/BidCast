@@ -116,6 +116,19 @@ public class AuctionController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 
+    @GetMapping
+    public List<AuctionDTO> getAuctionsByPage(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String title
+    ) {
+        int offset = page * size;
+        return auctionService.getAuctionsByPageAndFilter(offset, size, status, title);
+    }
+
+
+
 }
 
 
