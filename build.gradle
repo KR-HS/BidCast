@@ -31,6 +31,7 @@ dependencies {
 	//보안관련
 	implementation 'com.auth0:java-jwt:4.4.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 
 	//mybatis
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'

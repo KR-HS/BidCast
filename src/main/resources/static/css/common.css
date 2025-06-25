@@ -148,6 +148,9 @@ header>.header-right>.searchWrap>.searchIcon>img{
 header>.header-right>.alarm>img,header>.header-right>.announce>img{
     height:30px;
 }
+.logout>img{
+    height: 30px;
+}
 
 /*---------------------------------*/
 /* 내용 부분*/
