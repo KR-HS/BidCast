@@ -124,8 +124,8 @@
 .logout-wrap{
     display:flex;
     justify-content: flex-end;
-    margin: 0 44px 10px 0;
-    gap: 30px;
+    margin: 0 24px 10px 0;
+    gap: 155px;
 }
 
 .logout-btn {

@@ -6,6 +6,7 @@ export default function App() {
 
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {

@@ -59,6 +59,7 @@ public class AuctionController {
 
     @GetMapping("/winning-history")
     public List<AuctionItemDTO> getWinningHistoryAuctions(Authentication authentication) {
+        System.out.println(authentication.getPrincipal());
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Integer userKey = userDetails.getUser().getUserKey();
 
@@ -105,8 +106,6 @@ public class AuctionController {
         Integer auctionId = auctionService.regAuction(auctionDTO);
         //경매 태그, 상품 등록
         auctionService.regProduct(auctionId, tags, itemNames, content, images);
-
-
 
         return ResponseEntity.ok(Map.of("success", true));
     }

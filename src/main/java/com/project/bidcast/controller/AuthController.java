@@ -3,6 +3,7 @@ package com.project.bidcast.controller;
 
 import com.project.bidcast.config.JWTConfig;
 import com.project.bidcast.service.auth.AuthService;
+import com.project.bidcast.service.auth.CustomUserDetails;
 import com.project.bidcast.util.GetSession;
 import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,9 +97,11 @@ public class AuthController {
 
         UsersDTO user = authService.socialLogin(userInfo);
 
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                        user,
+                        customUserDetails,
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
