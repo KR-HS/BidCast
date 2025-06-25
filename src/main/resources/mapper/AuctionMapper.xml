@@ -6,7 +6,7 @@
         SELECT
             a.auction_id AS auctionId,
             a.title AS title,
-            i.file_data AS imgUrl,
+            i.file_url AS imgUrl,
             a.session AS session,
         a.start_time AS startTime,
         a.end_time AS endTime,
@@ -23,7 +23,7 @@
             LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
             LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE a.host_id = #{loginId}
-        GROUP BY a.auction_id, a.title, i.file_data, a.session, a.created_at, a.start_time, a.end_time
+        GROUP BY a.auction_id, a.title, i.file_url, a.session, a.created_at, a.start_time, a.end_time
     </select>
 
 
@@ -48,7 +48,7 @@
             p.prod_key AS prodId,
             p.prod_name AS prodName,
             (
-                SELECT f.file_data
+                SELECT f.file_url
                 FROM file f
                 WHERE f.prod_key = p.prod_key
                 LIMIT 1
@@ -66,7 +66,7 @@
             p.prod_key AS prodId,
             p.prod_name AS prodName,
             (
-                SELECT f.file_data
+                SELECT f.file_url
                 FROM file f
                 WHERE f.prod_key = p.prod_key
                 LIMIT 1
@@ -83,7 +83,15 @@
         a.auction_id,
         to_char(a.start_time, 'YYYY.MM.DD') AS date,
         a.title,
-        i.file_data AS image,
+        -- 대표 이미지 하나만 서브쿼리로 가져오기
+        (
+        SELECT f.file_url
+        FROM product p2
+        LEFT JOIN file f ON p2.prod_key = f.prod_key
+        WHERE p2.auc_key = a.auction_id
+        ORDER BY f.reg_date ASC
+        LIMIT 1
+        ) AS image,
         a.start_time,
         a.end_time,
         a.status,
@@ -92,13 +100,6 @@
         COALESCE(string_agg(t.tag_name, ','), '') AS tags
         FROM auction a
         LEFT JOIN users u ON a.host_id = u.login_id
-        LEFT JOIN product p ON a.auction_id = p.auc_key
-        LEFT JOIN (
-        SELECT prod_key, MIN(reg_date) AS min_regdate
-        FROM file
-        GROUP BY prod_key
-        ) fi ON p.prod_key = fi.prod_key
-        LEFT JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
         LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
         LEFT JOIN tag t ON at.tag_key = t.tag_key
         <where>
@@ -113,7 +114,7 @@
                 )
             </if>
         </where>
-        GROUP BY a.auction_id, a.start_time, a.title, i.file_data, a.start_time, a.end_time ,a.status, a.view_count, u.user_name
+        GROUP BY a.auction_id, a.start_time, a.title, a.end_time, a.status, a.view_count, u.user_name
     </select>
 
 
@@ -143,6 +144,50 @@
         VALUES (#{aucKey}, #{prodName})
         RETURNING prod_key
     </insert>
+
+    <select id="selectAuctionsByPage" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT
+            a.auction_id AS auctionId,
+            a.title AS title,
+            a.status,
+            a.start_time AS startTime,
+            a.end_time AS endTime,
+            a.created_at AS createdAt,
+            a.view_count AS viewCount
+        FROM auction a
+        ORDER BY a.start_time DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectAuctionsByPageAndStatus" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT auction_id AS auctionId, title, start_time AS startTime, end_time AS endTime, status, host_id AS hostId
+        FROM auction
+        WHERE status = #{status}
+        ORDER BY start_time DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectAuctionsByPageAndFilter" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT auction_id AS auctionId,
+        title,
+        created_at AS createdAt,
+        start_time AS startTime,
+        end_time AS endTime,
+        status,
+        host_id AS hostId
+        FROM auction
+        WHERE 1=1
+        <if test="status != null and status != ''">
+            AND LOWER(status) LIKE CONCAT('%', LOWER(#{status}), '%')
+        </if>
+        <if test="title != null and title != ''">
+            AND LOWER(title) LIKE CONCAT('%', LOWER(#{title}), '%')
+        </if>
+        ORDER BY start_time DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+
 
 
 

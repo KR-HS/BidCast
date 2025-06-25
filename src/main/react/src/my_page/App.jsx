@@ -9,6 +9,8 @@ export default function myPage() {
     const [items, setItems] = useState([]);
     const [winningItems, setWinningItems] = useState([]);
     const [activeTab, setActiveTab] = useState('경매이력');
+    const [favoriteItems, setFavoriteItems] = useState([]);
+    const [userKey, setUserKey] = useState(null);
 
     const handleClick = (auctionId) =>{
         window.location.href = `/auctionDetail.do?auctionId=${auctionId}`;
@@ -72,6 +74,36 @@ export default function myPage() {
                 });
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const res = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                setUserKey(data.userKey); // userKey 상태 저장
+            } catch (err) {
+                console.error("유저 정보 가져오기 실패:", err);
+            }
+        };
+        fetchUserInfo();
+    }, []);
+
+
+    useEffect(() => {
+        if (activeTab === '관심경매' && userKey) {
+            fetch(`/api/favorites/${userKey}`)
+                .then(res => res.json())
+                .then(data => setFavoriteItems(data))
+                .catch(err => console.log('관심경매 요청 실패:', err));
+        }
+    }, [activeTab, userKey]);
+
+
 
     if (isLoading) {
         return (
@@ -155,11 +187,19 @@ export default function myPage() {
                     <div className="content-box">
                         <div className="section-title">관심경매</div>
                         <div className="item-list">
-                            {items.map(item => (
-                                <div className="item-card" key={item.id}>
-                                    <img src={item.imgUrl} alt={item.title} className="item-img" />
+                            {favoriteItems.length === 0 && (
+                                <div className="empty-message">아직 등록한 관심경매가 없습니다.</div>
+                            )}
+                            {favoriteItems.map(item => (
+                                <a
+                                    href={`/bidGuest.do?roomId=${item.auctionId}`}
+                                    key={item.auctionId || idx}
+                                    className="item-card"
+                                    style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+                                >
+                                    <img src={item.image} alt={item.title} className="item-img" />
                                     <div className="item-title">{item.title}</div>
-                                </div>
+                                </a>
                             ))}
                         </div>
                     </div>

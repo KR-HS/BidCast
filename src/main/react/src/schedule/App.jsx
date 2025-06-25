@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Calendar from "./calendar";
 import Loader from "../Loader/Loader";
 import {FaHeart, FaRegHeart} from "react-icons/fa";
@@ -17,6 +17,7 @@ export default function App() {
     const [tagList, setTagList] = useState([]);
     // 경매 리스트
     const [auctionData, setAuctionData] = useState([]);
+    const [userKey, setUserKey] = useState(null);
 
     // 날짜 포맷 함수
     const formatDate = (date) =>
@@ -58,6 +59,7 @@ export default function App() {
                     const data = await response.json();
                     // console.log("사용자 정보:", data);
                     setUser(data);
+                    setUserKey(data.userKey)
                 }
             } catch (error) {
                 console.error("사용자 정보 요청 실패:", error);
@@ -71,10 +73,7 @@ export default function App() {
     useEffect(() => {
         fetch('/api/auctions/tags')
             .then(res => res.json())
-            .then(data => {
-                // data가 [{tagKey: 1, tagName: "패션"}, ...] 구조라면
-                setTagList(data.map(tag => tag.tagName));
-            })
+            .then(data => setTagList(data.map(tag => tag.tagName)))
             .catch(err => {
                 console.error('태그 목록 불러오기 실패:', err);
                 setTagList([]);
@@ -85,7 +84,7 @@ export default function App() {
     useEffect(() => {
         const fetchAuctionData = async () => {
             setAuctionData([]);
-            const params = new URLSearchParams({date: formatDate(selectedDate)});
+            const params = new URLSearchParams({ date: formatDate(selectedDate) });
             if (selectedTag) params.append('tag', selectedTag);
 
             try {
@@ -97,19 +96,25 @@ export default function App() {
                 setAuctionData([]);
             }
         };
-
         fetchAuctionData();
     }, [selectedDate, selectedTag]);
 
     useEffect(() => {
-        // 새로운 경매 데이터가 들어오면 likedMap에 초기값(false) 세팅
-        const newMap = {};
-        auctionData.forEach(item => {
-            newMap[item.auctionId] = likedMap[item.auctionId] || false;
-        });
-        setLikedMap(newMap);
-        // eslint-disable-next-line
-    }, [auctionData]);
+        const fetchLikedAuctionIds = async () => {
+            try {
+                const res = await fetch(`/api/favorites/${userKey}`);
+                const likedIds = await res.json(); // ex) [8, 10, 13]
+                const newLikedMap = {};
+                likedIds.forEach(id => {
+                    newLikedMap[id] = true;
+                });
+                setLikedMap(newLikedMap);
+            } catch (err) {
+                console.error("좋아요 목록 불러오기 실패:", err);
+            }
+        };
+        fetchLikedAuctionIds();
+    }, []);
 
 
     // 오늘인지 판별
@@ -118,12 +123,33 @@ export default function App() {
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear();
 
-    const handleLikeToggle = (auctionId) => {
-        setLikedMap(prev => ({
-            ...prev,
-            [auctionId]: !prev[auctionId]
-        }));
-        // 실제 서비스에서는 여기서 API 호출로 좋아요 상태를 서버에 반영해야 함
+    // 좋아요 토글
+    const handleLikeToggle = async (auctionId) => {
+        if (!userKey) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const liked = likedMap[auctionId] || false;
+
+        try {
+            if (liked) {
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                    method: 'DELETE'
+                });
+            } else {
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                    method: 'POST'
+                });
+            }
+
+            setLikedMap(prev => ({
+                ...prev,
+                [auctionId]: !liked
+            }));
+        } catch (err) {
+            console.error("좋아요 처리 실패:", err);
+        }
     };
 
     if (isLoading) {
@@ -202,9 +228,9 @@ export default function App() {
                                             aria-label={liked ? "좋아요 취소" : "좋아요"}
                                         >
                                             {liked ? (
-                                                <FaHeart color="red" size={20}/>
+                                                <FaHeart color="red" size={20} className="heart-icon" />
                                             ) : (
-                                                <FaRegHeart color="black" size={20}/>
+                                                <FaRegHeart color="black" size={20} className="heart-icon" />
                                             )}
                                         </button>
 
