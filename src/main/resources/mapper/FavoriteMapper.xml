@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.bidcast.mapper.FavoriteMapper">
+
+    <insert id="insertLike">
+        INSERT INTO likelist (user_key, auc_key)
+        VALUES (#{userKey}, #{auc_key})
+    </insert>
+
+    <delete id="deleteLike">
+        DELETE FROM likelist
+        WHERE user_key = #{userKey}
+          AND auc_key = #{auc_key}
+    </delete>
+
+
+    <select id="selectLikedAuctionsByUser" resultType="com.project.bidcast.vo.AuctionScheduleDTO">
+        SELECT
+            a.auction_id,
+            to_char(a.start_time, 'YYYY.MM.DD') AS date,
+        a.title,
+        i.file_url AS image,
+        a.start_time,
+        a.end_time,
+        a.status,
+        a.view_count AS guestCount,
+        u.user_name AS hostName,
+        COALESCE(string_agg(t.tag_name, ','), '') AS tags
+        FROM likelist l
+            JOIN auction a ON l.auc_key = a.auction_id
+            LEFT JOIN users u ON a.host_id = u.login_id
+            LEFT JOIN product p ON a.auction_id = p.auc_key
+            LEFT JOIN (
+            SELECT prod_key, MIN(reg_date) AS min_regdate
+            FROM file
+            GROUP BY prod_key
+            ) fi ON p.prod_key = fi.prod_key
+            LEFT JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
+            LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
+            LEFT JOIN tag t ON at.tag_key = t.tag_key
+        WHERE l.user_key = #{userKey}
+        GROUP BY a.auction_id, a.start_time, a.title, i.file_url, a.end_time, a.status, a.view_count, u.user_name
+        ORDER BY l.list_key DESC
+    </select>
+
+    <select id="existsFavorite" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM likelist
+            WHERE user_key = #{userKey}
+              AND auc_key = #{auc_key}
+        )
+    </select>
+
+
+</mapper>

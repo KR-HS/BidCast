@@ -5,27 +5,20 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const today = new Date();
 
-
 export default function App() {
-    // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
-    // 선택 날짜
     const [selectedDate, setSelectedDate] = useState(today);
-    // 선택된 태그
     const [selectedTag, setSelectedTag] = useState(null);
-    // 태그 목록
     const [tagList, setTagList] = useState([]);
-    // 경매 리스트
     const [auctionData, setAuctionData] = useState([]);
+    const [userKey, setUserKey] = useState(null);
 
-    // 날짜 포맷 함수
     const formatDate = (date) =>
         `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
-    //좋아요
+
     const [likedMap, setLikedMap] = useState({});
 
-    // 로딩 처리
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
@@ -40,21 +33,34 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
-    //태그 불러옴
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const res = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                setUserKey(data.userKey); // userKey 상태 저장
+            } catch (err) {
+                console.error("유저 정보 가져오기 실패:", err);
+            }
+        };
+        fetchUserInfo();
+    }, []);
+
     useEffect(() => {
         fetch('/api/auctions/tags')
             .then(res => res.json())
-            .then(data => {
-                // data가 [{tagKey: 1, tagName: "패션"}, ...] 구조라면
-                setTagList(data.map(tag => tag.tagName));
-            })
+            .then(data => setTagList(data.map(tag => tag.tagName)))
             .catch(err => {
                 console.error('태그 목록 불러오기 실패:', err);
                 setTagList([]);
             });
     }, []);
 
-    // 날짜/태그가 바뀔 때마다 API 호출
     useEffect(() => {
         const fetchAuctionData = async () => {
             setAuctionData([]);
@@ -70,34 +76,65 @@ export default function App() {
                 setAuctionData([]);
             }
         };
-
         fetchAuctionData();
     }, [selectedDate, selectedTag]);
 
     useEffect(() => {
-        // 새로운 경매 데이터가 들어오면 likedMap에 초기값(false) 세팅
-        const newMap = {};
-        auctionData.forEach(item => {
-            newMap[item.auctionId] = likedMap[item.auctionId] || false;
-        });
-        setLikedMap(newMap);
-        // eslint-disable-next-line
-    }, [auctionData]);
+        if (!userKey) return; // 로그인 안 되어 있으면 좋아요 목록 호출 안함
+
+        const fetchLikedAuctionIds = async () => {
+            try {
+                const res = await fetch(`/api/favorites/${userKey}`);
+                const likedIds = await res.json(); // ex) [8, 10, 13]
+                const newLikedMap = {};
+                likedIds.forEach(id => {
+                    newLikedMap[id] = true;
+                });
+                setLikedMap(newLikedMap);
+            } catch (err) {
+                console.error("좋아요 목록 불러오기 실패:", err);
+            }
+        };
+        fetchLikedAuctionIds();
+    }, [userKey]);
 
 
-    // 오늘인지 판별
+
     const isToday = (date) =>
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear();
 
-    const handleLikeToggle = (auctionId) => {
-        setLikedMap(prev => ({
-            ...prev,
-            [auctionId]: !prev[auctionId]
-        }));
-        // 실제 서비스에서는 여기서 API 호출로 좋아요 상태를 서버에 반영해야 함
+    // 좋아요 토글
+    const handleLikeToggle = async (auctionId) => {
+        if (!userKey) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const liked = likedMap[auctionId] || false;
+
+        try {
+            if (liked) {
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                    method: 'DELETE'
+                });
+            } else {
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                    method: 'POST'
+                });
+            }
+
+            setLikedMap(prev => ({
+                ...prev,
+                [auctionId]: !liked
+            }));
+        } catch (err) {
+            console.error("좋아요 처리 실패:", err);
+        }
     };
+
+
 
     if (isLoading) {
         return <Loader />;
@@ -150,9 +187,9 @@ export default function App() {
                             const status = item.status;
                             const liked = likedMap[item.auctionId] || false;
                             return (
-                                <div className="card" key={item.auctionId || item.id}>
+                                <div className="card" key={item.auctionId}>
                                     <div className="thumbnail">
-                                        <img src={item.thumbnailUrl} alt="썸네일"/>
+                                        <img src={item.image} alt="썸네일"/>
                                         <span className={`cast-state status-${status}`}>{status}</span>
                                         <button
                                             className={`like-btn${liked ? ' liked' : ''}`}
@@ -160,12 +197,11 @@ export default function App() {
                                             aria-label={liked ? "좋아요 취소" : "좋아요"}
                                         >
                                             {liked ? (
-                                                <FaHeart color="red" size={20} />
+                                                <FaHeart color="red" size={20} className="heart-icon" />
                                             ) : (
-                                                <FaRegHeart color="black" size={20} />
+                                                <FaRegHeart color="black" size={20} className="heart-icon" />
                                             )}
                                         </button>
-
                                     </div>
                                     <div className="info">
                                         <div className="info-title">
@@ -186,9 +222,9 @@ export default function App() {
                                             <span key={tag} className="tag">{tag}</span>
                                         ))}
                                     </div>
-                            </div>
-                        );
-                    })}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

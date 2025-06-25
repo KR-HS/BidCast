@@ -47,7 +47,6 @@ public interface AuctionMapper {
     @Insert("INSERT INTO file (auc_key, file_url, prod_key) VALUES (#{aucKey}, #{fileUrl}, #{prodKey})")
     void regAuctionImg(FileDTO fileDTO);
 
-
     List<AuctionDTO> selectAuctionsByPage(@Param("offset") int offset, @Param("size") int size);
     List<AuctionDTO> selectAuctionsByPageAndStatus(
             @Param("offset") int offset,
@@ -60,7 +59,6 @@ public interface AuctionMapper {
             @Param("status") String status,
             @Param("title") String title
     );
-
 
 
 
