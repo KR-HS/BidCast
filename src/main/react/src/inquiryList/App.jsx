@@ -73,7 +73,7 @@ export default function InquiryList() {
     return (
         <div className="box">
             <div className="head">
-                <h1>고객센터</h1>
+                <h3>고객센터</h3>
                 <p>BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!</p>
                 <div className="nav">
                     <a href="/faq.do" className="faq">FAQ</a>

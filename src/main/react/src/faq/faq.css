@@ -34,7 +34,7 @@
 .nav a {
     color: #ffffffa8;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 20px;
     transition: background 0.2s, color 0.2s;
     margin: 0 12px;
@@ -45,8 +45,8 @@
 .nav a.active {
     background: #fff;
     color: #EA6946;
-    font-weight: 600;
-    padding: 6px 15px 6px;
+    font-weight: 400;
+    padding: 8px 15px;
 }
 
 .container {

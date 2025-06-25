@@ -1,12 +1,7 @@
-/* 공통 레이아웃 */
-body {
-    background: #fff;
-    min-height: 100vh;
-    margin: 0;
-}
-
 .box {
     width: 100%;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .head {
@@ -15,11 +10,12 @@ body {
     text-align: center;
 }
 
-.head h1 {
-    font-size: 50px;
-    margin-bottom: 20px;
-    color: white;
-    font-weight: 700;
+.head h3 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
 }
 
 .head p {
@@ -38,19 +34,19 @@ body {
 .nav a {
     color: #ffffffa8;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 20px;
     transition: background 0.2s, color 0.2s;
     margin: 0 12px;
-    padding: 6px 18px;
+    padding: 6px 15px 1px 15px;
     border-radius: 20px;
 }
 
 .nav a.active {
     background: #fff;
     color: #EA6946;
-    font-weight: 600;
-    padding: 9px 18px;
+    font-weight: 400;
+    padding: 8px 15px;
 }
 
 .nav a.faq {
@@ -176,11 +172,12 @@ body {
 }
 
 .faq-badge {
-    padding: 2px 10px 4px;
+    padding:6px;
     font-size: 0.82rem;
     font-weight: 600;
     border-radius: 20px;
     white-space: nowrap;
+
 }
 
 .faq-badge.complete {
@@ -203,7 +200,7 @@ body {
     font-weight: 700;
     transition: background-color .4s;
     border-radius: 6px;
-    padding: 2px 10px 5px;
+    padding: 2px 10px 3px;
     font-size: .92rem;
 }
 
@@ -243,6 +240,7 @@ body {
     padding: 16px;
     transition: height 0.4s ease, opacity 0.4s ease, padding 0.4s ease, margin 0.4s ease;
 }
+
 .board-list li:not(.faq-open) .faq-a {
     height: 0 !important;
     opacity: 0;
@@ -255,7 +253,6 @@ body {
     font-size: 18px;
     font-weight: 700;
     color: #333;
-    margin-bottom: 4px;
 }
 
 .faq-answer {
@@ -279,7 +276,7 @@ body {
     font-weight: 700;
     font-size: 20px;
     color: #B3B2B2;
-    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), color 0.3s;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s;
     display: inline-block;
 }
 
@@ -376,6 +373,7 @@ body {
     text-align: left;
     margin-left: 20px;
 }
+
 .no-result {
     text-align: center;
     padding: 2rem;
