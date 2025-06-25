@@ -23,7 +23,7 @@
             LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
             LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE a.host_id = #{loginId}
-        GROUP BY a.auction_id, a.title, i.file_urls, a.session, a.created_at, a.start_time, a.end_time
+        GROUP BY a.auction_id, a.title, i.file_url, a.session, a.created_at, a.start_time, a.end_time
     </select>
 
 

@@ -1,6 +1,7 @@
 package com.project.bidcast.service.like;
 
 import com.project.bidcast.mapper.FavoriteMapper;
+import com.project.bidcast.vo.AuctionScheduleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     FavoriteMapper favoriteMapper;
 
     @Override
-    public List<Integer> getLikedAuctionIds(int userKey) {
-        return favoriteMapper.selectLikedAuctionIdsByUser(userKey);
+    public List<AuctionScheduleDTO> getLikedAuctionIds(int userKey) {
+        return favoriteMapper.selectLikedAuctionsByUser(userKey);
     }
 
     @Override

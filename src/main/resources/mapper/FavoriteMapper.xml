@@ -17,7 +17,7 @@
     </delete>
 
 
-    <select id="selectLikedAuctionsByUser" resultType="com.project.bidcast.vo.AuctionScheduleDTO">
+    <select id="selectLikedAuctionsByUser" resultType="com.project.bidcast.vo.AuctionScheduleDTO" >
         SELECT
             a.auction_id,
             to_char(a.start_time, 'YYYY.MM.DD') AS date,
@@ -42,7 +42,7 @@
             LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
             LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE l.user_key = #{userKey}
-        GROUP BY a.auction_id, a.start_time, a.title, i.file_url, a.end_time, a.status, a.view_count, u.user_name
+        GROUP BY a.auction_id, a.start_time, a.title, i.file_url, a.end_time, a.status, a.view_count, u.user_name, l.list_key
         ORDER BY l.list_key DESC
     </select>
 
