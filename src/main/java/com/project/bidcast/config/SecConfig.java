@@ -47,7 +47,8 @@ public class SecConfig {
                         "/searchpw.do",
                         "/search.do",
                         "/schedule.do",
-                        "/introduce.do"
+                        "/introduce.do",
+                        "/"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

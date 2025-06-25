@@ -9,6 +9,12 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 public class MainController {
+
+    @GetMapping("/")
+    public String redirectToHome() {
+        return "redirect:/home.do";
+    }
+
     @GetMapping("/{pageName}.do") //.do 해주세요
     public String page(HttpSession session , @PathVariable String pageName, Model model) {
         model.addAttribute("pageName", pageName);
