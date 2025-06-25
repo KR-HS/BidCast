@@ -1,0 +1,39 @@
+.box{
+    text-align: center;
+}
+
+.box img{
+    width: 500px;
+}
+
+.introLet2{
+    width: 800px;
+}
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.arrow-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: #EA6946;
+    margin: 0 auto;
+    animation: blink 1s infinite;
+}
+
+/* 기존 hover 효과 제거 또는 다음과 같이 수정 가능 */
+.arrow-circle:hover {
+    background-color: #f89187;
+    animation: none; /* 호버 시 깜빡임 중단 */
+}
+
+.arrow-circle img{
+    width: 110px;
+    height: 90px;
+    margin-top: 30px;
+}
+
+

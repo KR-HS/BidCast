@@ -30,7 +30,7 @@ CREATE TABLE announce(
 	reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE linklist(
+CREATE TABLE likelist(
 	list_key SERIAL PRIMARY KEY,
 	user_key INT,
 	auc_key INT
