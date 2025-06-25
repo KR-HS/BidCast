@@ -7,9 +7,9 @@
             a.auction_id AS auctionId,
             a.title AS title,
             i.file_url AS imgUrl,
-            a.session AS session,
             a.start_time AS startTime,
             a.end_time AS endTime,
+            a.status,
             a.created_at AS auctionDate,
             string_agg(DISTINCT t.tag_name, ', ') AS tags
         FROM auction a
@@ -23,7 +23,7 @@
             LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
             LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE a.host_id = #{loginId}
-        GROUP BY a.auction_id, a.title, i.file_url, a.session, a.created_at, a.start_time, a.end_time
+        GROUP BY a.auction_id, a.title, i.file_url, a.created_at,a.status
         ORDER BY a.auction_id, a.start_time DESC
     </select>
 
