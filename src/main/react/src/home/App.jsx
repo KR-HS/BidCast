@@ -276,13 +276,13 @@ export default function App() {
                                 <div className="welcome-message">
                                     <h2>{user.nickName}님 환영합니다!</h2>
                                 </div>
-                                <div className="logout-wrap">
-                                    <span className="my-page" onClick={handleMyPageClick}>마이페이지</span>
-                                    <span className="signup-link" onClick={logoutHandler}>로그아웃</span>
-                                </div>
                                 <div className="login-desc">
                                     이제 경매를 즐길 시간이에요!<br />
                                     {user.nickName}님, 지금 바로 둘러보세요. <span role="img" aria-label="smile">🔍</span>
+                                </div>
+                                <div className="logout-wrap">
+                                    <span className="my-page" onClick={handleMyPageClick}>마이페이지</span>
+                                    <span className="signup-link" onClick={logoutHandler}>로그아웃</span>
                                 </div>
                             </>
                         )}
