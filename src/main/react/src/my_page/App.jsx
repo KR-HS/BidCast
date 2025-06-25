@@ -95,13 +95,24 @@ export default function myPage() {
 
 
     useEffect(() => {
-        if (activeTab === '관심경매' && userKey) {
-            fetch(`/api/favorites/${userKey}`)
-                .then(res => res.json())
-                .then(data => setFavoriteItems(data))
-                .catch(err => console.log('관심경매 요청 실패:', err));
+        if (activeTab === '관심경매') {
+            fetch(`/api/favorites/list/${userKey}`)
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '/login.do';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) setFavoriteItems(data);
+                })
+                .catch(err => {
+                    console.error('관심경매 요청 실패:', err);
+                });
         }
-    }, [activeTab, userKey]);
+    }, [activeTab]);
+
 
 
 
@@ -193,7 +204,7 @@ export default function myPage() {
                             {favoriteItems.map(item => (
                                 <a
                                     href={`/bidGuest.do?roomId=${item.auctionId}`}
-                                    key={item.auctionId || idx}
+                                    key={item.auctionId}
                                     className="item-card"
                                     style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
                                 >

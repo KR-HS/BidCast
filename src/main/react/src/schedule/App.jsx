@@ -100,21 +100,19 @@ export default function App() {
     }, [selectedDate, selectedTag]);
 
     useEffect(() => {
-        const fetchLikedAuctionIds = async () => {
-            try {
-                const res = await fetch(`/api/favorites/${userKey}`);
-                const likedIds = await res.json(); // ex) [8, 10, 13]
-                const newLikedMap = {};
-                likedIds.forEach(id => {
-                    newLikedMap[id] = true;
-                });
-                setLikedMap(newLikedMap);
-            } catch (err) {
-                console.error("좋아요 목록 불러오기 실패:", err);
-            }
-        };
-        fetchLikedAuctionIds();
-    }, []);
+        if (!userKey) return;
+
+        fetch(`/api/favorites/ids/${userKey}`)
+            .then(res => res.json())
+            .then(ids => {
+                const map = {};
+                ids.forEach(id => { map[id] = true; });
+                setLikedMap(map);
+            })
+            .catch(err => {
+                console.error("좋아요 ID 목록 불러오기 실패:", err);
+            });
+    }, [userKey]);
 
 
     // 오늘인지 판별
@@ -127,30 +125,28 @@ export default function App() {
     const handleLikeToggle = async (auctionId) => {
         if (!userKey) {
             alert("로그인이 필요합니다.");
+            window.location.href = '/login.do';
             return;
         }
 
         const liked = likedMap[auctionId] || false;
-
         try {
             if (liked) {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
-                    method: 'DELETE'
-                });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'DELETE' });
             } else {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
-                    method: 'POST'
-                });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'POST' });
             }
-
-            setLikedMap(prev => ({
-                ...prev,
-                [auctionId]: !liked
-            }));
+            // 좋아요 변경 후 서버에서 최신 상태 다시 fetch
+            const res = await fetch(`/api/favorites/ids/${userKey}`);
+            const likedIds = await res.json();
+            const newLikedMap = {};
+            likedIds.forEach(id => { newLikedMap[id] = true; });
+            setLikedMap(newLikedMap);
         } catch (err) {
             console.error("좋아요 처리 실패:", err);
         }
     };
+
 
     if (isLoading) {
         return <Loader/>;
@@ -224,10 +220,12 @@ export default function App() {
                                         <span className={`cast-state status-${status}`}>{status}</span>
                                         <button
                                             className={`like-btn${liked ? ' liked' : ''}`}
-                                            onClick={() => handleLikeToggle(item.auctionId)}
-                                            aria-label={liked ? "좋아요 취소" : "좋아요"}
+                                            onClick={(e) => {
+                                                e.stopPropagation();  // 이거 꼭 있어야 함
+                                                handleLikeToggle(item.auctionId);
+                                            }}
                                         >
-                                            {liked ? (
+                                        {liked ? (
                                                 <FaHeart color="red" size={20} className="heart-icon" />
                                             ) : (
                                                 <FaRegHeart color="black" size={20} className="heart-icon" />
