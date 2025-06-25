@@ -13,10 +13,6 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Autowired
     FavoriteMapper favoriteMapper;
 
-    @Override
-    public List<AuctionScheduleDTO> getLikedAuctionIds(int userKey) {
-        return favoriteMapper.selectLikedAuctionsByUser(userKey);
-    }
 
     @Override
     public void addLike(int userKey, int aucKey) {
@@ -30,5 +26,15 @@ public class FavoriteServiceImpl implements FavoriteService {
         if (favoriteMapper.existsFavorite(userKey, aucKey)) {
             favoriteMapper.deleteLike(userKey, aucKey);
         }
+    }
+
+    @Override
+    public List<Integer> getLikedAuctionIds(int userKey) {
+        return favoriteMapper.selectLikedAuctionsIdsByUser(userKey);
+    }
+
+    @Override
+    public List<AuctionScheduleDTO> getLikedAuctions(int userKey) {
+        return favoriteMapper.selectLikedAuctionsByUser(userKey);
     }
 }

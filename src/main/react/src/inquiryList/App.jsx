@@ -21,7 +21,7 @@ export default function InquiryList() {
                     return;
                 }
                 const data = await res.json();
-                console.log(data);
+                // console.log(data);
                 setInquiries(Array.isArray(data) ? data : []);
             } catch (err) {
                 alert('문의 목록을 불러오지 못했습니다.');
@@ -73,20 +73,20 @@ export default function InquiryList() {
     return (
         <div className="box">
             <div className="head">
-                <h1>고객센터</h1>
+                <h3>고객센터</h3>
                 <p>BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!</p>
                 <div className="nav">
-                    <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inquiry.do" className="active">1:1문의</a>
-                    <a href="notice.do">공지사항</a>
+                    <a href="/faq.do" className="faq">FAQ</a>
+                    <a href="/inquiry.do" className="active">1:1문의</a>
+                    <a href="/notice.do">공지사항</a>
                 </div>
             </div>
 
             <div className="container">
                 <div className="centered-nav-row">
-                    <a href="inquiryList.do" className="nav-link">내가 문의한 내역</a>
-                    <img src="./img/dot.png" alt="구분점" />
-                    <a href="inquiry.do" className="nav-text">1:1 문의하기</a>
+                    <a href="/inquiryList.do" className="nav-link">내가 문의한 내역</a>
+                    <img src="/img/dot.png" alt="구분점" />
+                    <a href="/inquiry.do" className="nav-text">1:1 문의하기</a>
                 </div>
 
                 <div className="board-top">
@@ -103,7 +103,7 @@ export default function InquiryList() {
                             }}
                         />
                         <button className="search-btn">
-                            <img src="./img/search2.png" alt="검색" />
+                            <img src="/img/search2.png" alt="검색" />
                         </button>
                     </div>
                 </div>

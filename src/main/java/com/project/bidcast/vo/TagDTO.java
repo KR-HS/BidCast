@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TagDTO {
 
-    int auctagKey;
-    int tagKey;
-    String tagName;
+    private int auctagKey;
+    private int tagKey;
+    private String tagName;
 }

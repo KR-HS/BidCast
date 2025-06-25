@@ -52,14 +52,14 @@ export default function Notice() {
     return (
         <div className="box">
             <div className="head">
-                <h1>고객센터</h1>
+                <h3>고객센터</h3>
                 <p>
                     BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!
                 </p>
                 <div className="nav">
-                    <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inquiry.do">1:1문의</a>
-                    <a href="notice.do" className="active">공지사항</a>
+                    <a href="/faq.do" className="faq">FAQ</a>
+                    <a href="/inquiry.do">1:1문의</a>
+                    <a href="/notice.do" className="active">공지사항</a>
                 </div>
             </div>
             <div className="container">
@@ -77,7 +77,7 @@ export default function Notice() {
                             }}
                         />
                         <button className="search-btn" aria-label="검색">
-                            <img src="./img/search2.png" alt="검색" />
+                            <img src="/img/search2.png" alt="검색" />
                         </button>
                     </div>
                 </div>
@@ -89,13 +89,13 @@ export default function Notice() {
                             <li
                                 key={notice.noticeKey}
                                 className="notice-link"
-                                onClick={() => window.location.href = `noticeDetail.do?id=${notice.noticeKey}`}
+                                onClick={() => window.location.href = `/noticeDetail.do?id=${notice.noticeKey}`}
                                 style={{ cursor: 'pointer' }}
                             >
                                 <div className="num">{notice.noticeKey}</div>
-                                <div className="title">
+                                <div className="title-head">
                                     <span className="badge">공지</span>
-                                    {notice.title}
+                                    <div className="title">{notice.title}</div>
                                 </div>
                                 <div className="date">
                                     {notice.regDate

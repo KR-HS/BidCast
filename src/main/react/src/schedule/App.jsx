@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import Calendar from "./calendar";
 import Loader from "../Loader/Loader";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import {FaHeart, FaRegHeart} from "react-icons/fa";
 
 const today = new Date();
 
+
 export default function App() {
+    // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
+    // 선택 날짜
     const [selectedDate, setSelectedDate] = useState(today);
+    // 선택된 태그
     const [selectedTag, setSelectedTag] = useState(null);
+    // 태그 목록
     const [tagList, setTagList] = useState([]);
+    // 경매 리스트
     const [auctionData, setAuctionData] = useState([]);
     const [userKey, setUserKey] = useState(null);
 
+    // 날짜 포맷 함수
     const formatDate = (date) =>
         `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
-
+    //좋아요
     const [likedMap, setLikedMap] = useState({});
 
+    // 로딩 처리
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
@@ -33,24 +41,35 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
+
+    const [user, setUser] = useState(null);
     useEffect(() => {
+        // 세션데이터
         const fetchUserInfo = async () => {
             try {
-                const res = await fetch("/api/v1/getUserInfo", {
+                const response = await fetch("/api/v1/getUserInfo", {
                     method: "POST",
                     credentials: "include",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
                 });
-                if (!res.ok) return;
-                const data = await res.json();
-                setUserKey(data.userKey); // userKey 상태 저장
-            } catch (err) {
-                console.error("유저 정보 가져오기 실패:", err);
+
+                if (response) {
+                    const data = await response.json();
+                    // console.log("사용자 정보:", data);
+                    setUser(data);
+                    setUserKey(data.userKey)
+                }
+            } catch (error) {
+                console.error("사용자 정보 요청 실패:", error);
             }
         };
         fetchUserInfo();
     }, []);
 
+
+    //태그 불러옴
     useEffect(() => {
         fetch('/api/auctions/tags')
             .then(res => res.json())
@@ -61,6 +80,7 @@ export default function App() {
             });
     }, []);
 
+    // 날짜/태그가 바뀔 때마다 API 호출
     useEffect(() => {
         const fetchAuctionData = async () => {
             setAuctionData([]);
@@ -80,24 +100,22 @@ export default function App() {
     }, [selectedDate, selectedTag]);
 
     useEffect(() => {
-        const fetchLikedAuctionIds = async () => {
-            try {
-                const res = await fetch(`/api/favorites/${userKey}`);
-                const likedIds = await res.json(); // ex) [8, 10, 13]
-                const newLikedMap = {};
-                likedIds.forEach(id => {
-                    newLikedMap[id] = true;
-                });
-                setLikedMap(newLikedMap);
-            } catch (err) {
-                console.error("좋아요 목록 불러오기 실패:", err);
-            }
-        };
-        fetchLikedAuctionIds();
-    }, []);
+        if (!userKey) return;
+
+        fetch(`/api/favorites/ids/${userKey}`)
+            .then(res => res.json())
+            .then(ids => {
+                const map = {};
+                ids.forEach(id => { map[id] = true; });
+                setLikedMap(map);
+            })
+            .catch(err => {
+                console.error("좋아요 ID 목록 불러오기 실패:", err);
+            });
+    }, [userKey]);
 
 
-
+    // 오늘인지 판별
     const isToday = (date) =>
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
@@ -107,35 +125,31 @@ export default function App() {
     const handleLikeToggle = async (auctionId) => {
         if (!userKey) {
             alert("로그인이 필요합니다.");
+            window.location.href = '/login.do';
             return;
         }
 
         const liked = likedMap[auctionId] || false;
-
         try {
             if (liked) {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
-                    method: 'DELETE'
-                });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'DELETE' });
             } else {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
-                    method: 'POST'
-                });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'POST' });
             }
-
-            setLikedMap(prev => ({
-                ...prev,
-                [auctionId]: !liked
-            }));
+            // 좋아요 변경 후 서버에서 최신 상태 다시 fetch
+            const res = await fetch(`/api/favorites/ids/${userKey}`);
+            const likedIds = await res.json();
+            const newLikedMap = {};
+            likedIds.forEach(id => { newLikedMap[id] = true; });
+            setLikedMap(newLikedMap);
         } catch (err) {
             console.error("좋아요 처리 실패:", err);
         }
     };
 
 
-
     if (isLoading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     return (
@@ -146,7 +160,7 @@ export default function App() {
                 </div>
                 <div className="main-section">
                     <div className="calendar-section">
-                        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+                        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
                     </div>
                     <div className="auction-list">
                         <div className="auction-list-header">
@@ -185,21 +199,39 @@ export default function App() {
                             const status = item.status;
                             const liked = likedMap[item.auctionId] || false;
                             return (
-                                <div className="card" key={item.auctionId}>
+                                <div className="card"
+                                     key={item.auctionId || item.id}
+                                     onClick={() => {
+                                         if (!user || !user.loginId) {
+                                             window.location.href = '/login.do';
+                                             return;
+                                         }
+
+                                         if (user.loginId === item.hostId) {
+                                             window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
+                                         } else {
+                                             window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
+                                         }
+                                     }}
+                                     style={{cursor: "pointer"}}
+                                >
                                     <div className="thumbnail">
-                                        <img src={item.image} alt="썸네일"/>
+                                        <img src={item.thumbnailUrl} alt="썸네일"/>
                                         <span className={`cast-state status-${status}`}>{status}</span>
                                         <button
                                             className={`like-btn${liked ? ' liked' : ''}`}
-                                            onClick={() => handleLikeToggle(item.auctionId)}
-                                            aria-label={liked ? "좋아요 취소" : "좋아요"}
+                                            onClick={(e) => {
+                                                e.stopPropagation();  // 이거 꼭 있어야 함
+                                                handleLikeToggle(item.auctionId);
+                                            }}
                                         >
-                                            {liked ? (
+                                        {liked ? (
                                                 <FaHeart color="red" size={20} className="heart-icon" />
                                             ) : (
                                                 <FaRegHeart color="black" size={20} className="heart-icon" />
                                             )}
                                         </button>
+
                                     </div>
                                     <div className="info">
                                         <div className="info-title">

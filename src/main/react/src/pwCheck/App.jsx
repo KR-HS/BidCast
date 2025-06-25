@@ -40,7 +40,7 @@ export default function App() {
         const result = await res.json();
 
         if (result.success) {
-           window.location.href="./memberModify.do";
+           window.location.href="/memberModify.do";
         } else {
             alert("비밀번호가 일치하지 않습니다.")
         }

@@ -112,7 +112,7 @@ export default function App() {
     return (
         <section>
             <div className="sec">
-            <img src="./img/search1.png" alt="Logo" width="120px" height="120px" />
+            <img src="/img/search1.png" alt="Logo" width="120px" height="120px" />
             <h1>
                 비밀번호찾기
             </h1>

@@ -33,16 +33,6 @@ export default function App() {
             });
     }, []);
 
-    // 경매 상태 판별
-    function getAuctionStatus(startTime, endTime) {
-        const now = new Date();
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-
-        if (now < start) return "예정";
-        if (now >= start && now <= end) return "진행중";
-        return "종료";
-    }
 
     // 로딩 중일 때
     if (isLoading) {
@@ -55,18 +45,18 @@ export default function App() {
             <h3 className="bidHistory-title">경매 이력</h3>
 
             {auctionHistory.map((auction, index) => {
-                const status = getAuctionStatus(auction.startTime, auction.endTime);
+                const status = auction.status;
 
                 return (
                     <div
                         key={index}
                         className="history-card"
                         style={{ cursor: 'pointer' }}
-                        onClick={() => window.location.href = `./auctionDetail.do?auctionId=${auction.auctionId}`}
+                        onClick={() => window.location.href = `/auctionDetail.do?auctionId=${auction.auctionId}`}
                     >
                         <div className="card-header">
                             <div className="left-section">
-                                <span className="round-number">{auction.session}회차</span>
+                                <span className="round-number">{auction.auctionId}회차</span>
                                 <div className="bid-title">경매 제목: {auction.title}</div>
                             </div>
                             <div className="right-section">

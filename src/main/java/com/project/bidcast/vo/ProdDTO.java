@@ -11,14 +11,16 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class ProdDTO {
-    int prodKey;
-    int aucKey;
-    String prodName;
-    String prodDetail;
-    int unitValue; // 경매단위
-    int initPrice;
-    Integer currentPrice; //
-    Integer finalPrice;
-    Integer winnerId;
-    char prodStatus;
+    private int prodKey;
+    private int aucKey;
+    private String prodName;
+    private String prodDetail;
+    private int unitValue; // 경매단위
+    private int initPrice;
+    private Integer currentPrice; //
+    private Integer finalPrice;
+    private Integer winnerId;
+    private char prodStatus;
+
+    private String fileUrl;
 }

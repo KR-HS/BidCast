@@ -32,11 +32,11 @@ export default function CustomerCenter() {
                 const res = await fetch('http://localhost:8888/api/inquiry/auth-check', { credentials: 'include' });
                 if (res.status === 401) {
                     alert('로그인이 필요합니다.');
-                    window.location.href = '/login.do';
+                    window.location.href = './login.do';
                 }
             } catch (err) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login.do';
+                window.location.href = './login.do';
             }
         };
         checkAuth();
@@ -63,13 +63,13 @@ export default function CustomerCenter() {
             });
             if (response.status === 401) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login.do';
+                window.location.href = './login.do';
                 return;
             }
             if (response.ok) {
                 alert('문의가 등록 되었습니다.');
                 setForm({ title: '', content: '' });
-                window.location.href = 'inquiryList.do';
+                window.location.href = '/inquiryList.do';
             } else {
                 alert('등록 실패');
             }
@@ -86,19 +86,19 @@ export default function CustomerCenter() {
     return (
         <div className="box">
             <div className="head">
-                <h1>고객센터</h1>
+                <h3>고객센터</h3>
                 <p>BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!</p>
                 <div className="nav">
-                    <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inquiry.do" className="active">1:1문의</a>
-                    <a href="notice.do">공지사항</a>
+                    <a href="/faq.do" className="faq">FAQ</a>
+                    <a href="/inquiry.do" className="active">1:1문의</a>
+                    <a href="/notice.do">공지사항</a>
                 </div>
             </div>
             <div className="container">
                 <div className="centered-nav-row">
-                    <a href="inquiryList.do" className="nav-text">내가 문의한 내역</a>
-                    <img src="./img/dot.png" alt="검색" />
-                    <a href="inquiry.do" className="nav-link">1:1 문의하기</a>
+                    <a href="/inquiryList.do" className="nav-text">내가 문의한 내역</a>
+                    <img src="/img/dot.png" alt="검색" />
+                    <a href="/inquiry.do" className="nav-link">1:1 문의하기</a>
                 </div>
                 <form className="inquiry-form" onSubmit={handleSubmit}>
                     <div className="form-group">

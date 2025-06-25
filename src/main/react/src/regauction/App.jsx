@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Loader from "../Loader/Loader";
 import { FaRegImage } from "react-icons/fa6";
+import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import TextField from "@mui/material/TextField";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import koLocale from "date-fns/locale/ko";
+import { format } from 'date-fns';
 
 export default function App() {
     const [formData, setFormData] = useState({
@@ -14,8 +19,10 @@ export default function App() {
     });
     const [tags, setTags] = useState([]);
 
+    const [error,setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
@@ -103,8 +110,41 @@ export default function App() {
         setFormData({ ...formData, items: updatedItems });
     };
 
+
+    const validateForm = () => {
+        if (!formData.title.trim()) {
+            alert('경매장 제목을 입력해주세요.');
+            return false;
+        }
+
+        if (!formData.startTime) {
+            alert('시작 시간을 선택해주세요.');
+            return false;
+        }
+
+        if (formData.items.some(item => !item.name.trim())) {
+            alert('모든 물품의 이름을 입력해주세요.');
+            return false;
+        }
+
+        if (formData.items.some(item => !item.content.trim())) {
+            alert('모든 물품의 설명을 입력해주세요.');
+            return false;
+        }
+
+        if (!formData.thumbnail) {
+            alert('썸네일 이미지를 선택해주세요.');
+            return false;
+        }
+
+        return true;
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if(!validateForm()) return;
 
         const formDataToSend = new FormData();
         formDataToSend.append("title", formData.title);
@@ -181,44 +221,54 @@ export default function App() {
                         <tr>
                             <td>시작일자</td>
                             <td>
-                                <input
-                                    type="datetime-local"
-                                    name="startTime"
-                                    value={formData.startTime}
-                                    onChange={handleChange}
-                                />
+                                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={koLocale}>
+                                    <DateTimePicker
+                                        label={null}
+                                        value={formData.startTime ? new Date(formData.startTime) : null}
+                                        onChange={(date) => {
+                                            const formatted = date ? format(date, "yyyy-MM-dd'T'HH:mm") : ''; // yyyy-MM-ddTHH:mm
+                                            handleChange({
+                                                target: {
+                                                    name: 'startTime',
+                                                    value: formatted,
+                                                },
+                                            });
+                                        }}
+                                        ampm={true}
+                                        inputFormat="yyyy-MM-dd'T'HH:mm"
+                                        enableAccessibleFieldDOMStructure={false}
+                                        open={datePickerOpen}
+                                        onOpen={() => setDatePickerOpen(true)}
+                                        onClose={() => setDatePickerOpen(false)}
+                                        slots={{
+                                            textField: (props) => (
+                                                <TextField
+                                                    {...props}
+                                                    onClick={() => setDatePickerOpen(true)}
+                                                />
+                                            ),
+                                        }}
+                                    />
+                                </LocalizationProvider>
                             </td>
                         </tr>
-                        <tr>
-                            <td>종료일자</td>
-                            <td>
-                                <input
-                                    type="datetime-local"
-                                    name="endTime"
-                                    value={formData.endTime}
-                                    onChange={handleChange}
-                                />
-                            </td>
-                        </tr>
+                        {/*<tr>*/}
+                        {/*    <td>종료일자</td>*/}
+                        {/*    <td>*/}
+                        {/*        <input*/}
+                        {/*            type="datetime-local"*/}
+                        {/*            name="endTime"*/}
+                        {/*            value={formData.endTime}*/}
+                        {/*            onChange={handleChange}*/}
+                        {/*        />*/}
+                        {/*    </td>*/}
+                        {/*</tr>*/}
 
                         <tr>
                             <td>썸네일 이미지</td>
                             <td>
-                                <div
+                                <div className="thumbnailImgWrap"
                                     onClick={() => document.getElementById('thumbnailUpload').click()}
-                                    style={{
-                                        border: '2px dashed #ccc',
-                                        borderRadius: '10px',
-                                        padding: '20px',
-                                        textAlign: 'center',
-                                        cursor: 'pointer',
-                                        width: '200px',
-                                        height: '150px',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#f9f9f9'
-                                    }}
                                 >
                                     {formData.thumbnailPreview ? (
                                         <img
@@ -246,35 +296,15 @@ export default function App() {
                         <tr>
                             <td>태그</td>
                             <td>
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: '26px 13px',
-                                        alignItems: 'center',
-                                        width: '310px'
-                                    }}
-                                >
+                                <div className="tagWrap">
                                     {tags.map(tag => (
-                                        <label
-                                            key={tag.tagKey}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                fontSize: '14px',
-                                                gap: '4px',
-                                            }}
-                                        >
+                                        <label key={tag.tagKey} className="tag">
                                             <input
                                                 type="checkbox"
+                                                className="tagInput"
                                                 value={String(tag.tagKey)}
                                                 checked={formData.tags.includes(String(tag.tagKey))}
                                                 onChange={handleTagCheckboxChange}
-                                                style={{
-                                                    width: '16px',
-                                                    height: '16px',
-                                                    cursor: 'pointer',
-                                                }}
                                             />
                                             {tag.tagName}
                                         </label>
@@ -287,14 +317,7 @@ export default function App() {
                             <React.Fragment key={index}>
                                 <tr>
                                     <td>물품 {index + 1}</td>
-                                    <td
-                                        style={{
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            alignItems: 'center',
-                                            gap: '5px'
-                                        }}
-                                    >
+                                    <td className="product">
                                         <input
                                             type="text"
                                             placeholder="물품명"
@@ -308,18 +331,8 @@ export default function App() {
                                         {formData.items.length > 1 && (
                                             <button
                                                 type="button"
+                                                className="removeProdBtn"
                                                 onClick={() => removeItem(index)}
-                                                style={{
-                                                    padding: '5px 8px',
-                                                    backgroundColor: '#e74c3c',
-                                                    color: '#fff',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px',
-                                                    whiteSpace: 'nowrap',
-                                                    flexShrink: 0
-                                                }}
                                             >
                                                 X
                                             </button>
@@ -338,24 +351,15 @@ export default function App() {
                                 </tr>
                                 <tr>
                                     <td colSpan={2}>
-                                        <div
+                                        <div className="prodImgWrap"
                                             onClick={() => document.getElementById(`imageUpload-${index}`).click()}
                                             onDragOver={(e) => e.preventDefault()}
                                             onDrop={(e) => handleImageDrop(e, index)}
-                                            style={{
-                                                border: '2px dashed #ccc',
-                                                borderRadius: '10px',
-                                                padding: '20px 0',
-                                                textAlign: 'center',
-                                                cursor: 'pointer',
-                                                backgroundColor: '#f9f9f9',
-                                            }}
                                         >
                                             {item.preview ? (
                                                 <img
                                                     src={item.preview}
                                                     alt="미리보기"
-                                                    style={{ height: '57px', borderRadius: '8px' }}
                                                 />
                                             ) : (
                                                 <div>
@@ -382,16 +386,8 @@ export default function App() {
                             <td colSpan={2} style={{ textAlign: 'center' }}>
                                 <button
                                     type="button"
+                                    className="addProdBtn"
                                     onClick={addItem}
-                                    style={{
-                                        padding: '10px 20px',
-                                        backgroundColor: 'black',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold',
-                                    }}
                                 >
                                     + 물품 추가
                                 </button>

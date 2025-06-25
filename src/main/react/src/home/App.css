@@ -124,8 +124,8 @@
 .logout-wrap{
     display:flex;
     justify-content: flex-end;
-    margin: 0 44px 10px 0;
-    gap: 30px;
+    margin: 0 24px 10px 0;
+    gap: 155px;
 }
 
 .logout-btn {
@@ -142,7 +142,7 @@
 
 
 .notice {
-    background: #f7f7f7;
+    background: rgba(0, 0, 0, 0.1);
     padding: 12px 18px;
     margin: 24px 0 16px 0;
     font-size: 14px;
@@ -260,10 +260,12 @@
 }
 
 .auction-icon {
-    border: 1px solid #777;
     border-radius:7px;
-    padding: 6px;
+    padding : 6px 8px 4px;
+    border:none;
 }
+
+
 .auction-icon .calendar-img {
     width: 40px;
     height: 40px;

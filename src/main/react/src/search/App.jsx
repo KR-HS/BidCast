@@ -146,6 +146,7 @@ export default function AuctionSearch() {
         const url = isHost
             ? `http://localhost:8888/bidHost.do?roomId=${auction.auctionId}`
             : `http://localhost:8888/bidGuest.do?roomId=${auction.auctionId}`;
+
         window.location.href = url;
     };
 

@@ -41,7 +41,7 @@ export default function App() {
         } else{
 
             alert("잘못된 접근 입니다.")
-            window.location.href = "login.do";
+            window.location.href = "/login.do";
         }
     }, []);
 
@@ -83,7 +83,7 @@ export default function App() {
     return (
         <section>
             <div className="sec">
-            <img src="./img/password1.png" alt="Logo" width="120px" height="120px" />
+            <img src="/img/password1.png" alt="Logo" width="120px" height="120px" />
             <h1>
                 비밀번호 재설정
             </h1>

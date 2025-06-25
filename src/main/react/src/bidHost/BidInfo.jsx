@@ -610,7 +610,11 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
                                 className={`bidProdList${selectedProductIdx === idx ? ' selected' : ''}${p.prodStatus === 'C' ? ' completed' : ''}${p.prodStatus === 'F' ? ' cancelled' : ''}`}>
                                 <p className="prodName">{p.prodName}</p>
                                 <div className="bidProd-picture">
-                                    <img src={"/img/img2.jpeg"} alt={"1"}/>
+                                    {p.fileUrl ? (
+                                        <img src={p.fileUrl} alt={`${idx}번째 파일 사진`} />
+                                    ) : (
+                                        <div className="no-image">이미지 없음</div>
+                                    )}
                                     {selectedProductIdx === idx && !completed[idx] &&
                                         <div className="checkMark">✔</div>}
                                     {completed[idx] === "낙찰" && <div className="overlay-text">낙찰</div>}

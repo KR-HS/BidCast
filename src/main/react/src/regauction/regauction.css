@@ -81,3 +81,91 @@ body{
     justify-content: center;
     padding: 1px;
 }
+
+
+.MuiInputBase-input{
+    padding: 5.5px 10px !important;
+    width: 245px !important;
+}
+
+
+.thumbnailImgWrap{
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    width: 200px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.tagWrap{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px 13px;
+    align-items: center;
+    width: 310px;
+}
+.tag{
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    gap: 4px;
+}
+.tagInput{
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.product{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+
+
+
+.removeProdBtn{
+    padding: 5px 8px;
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+
+.prodImgWrap{
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.prodImgWrap > img{
+    height: 180px;
+    border-radius: 8px;
+}
+.addProdBtn{
+    padding: 10px 20px;
+    background-color: black;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}

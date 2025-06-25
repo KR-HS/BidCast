@@ -12,6 +12,8 @@ export default function myPage() {
     const [favoriteItems, setFavoriteItems] = useState([]);
     const [userKey, setUserKey] = useState(null);
 
+    const [isSocial, setIsSocial] = useState(false);
+
     const handleClick = (auctionId) =>{
         window.location.href = `/auctionDetail.do?auctionId=${auctionId}`;
     }
@@ -45,7 +47,7 @@ export default function myPage() {
                 return res.json();
             })
             .then(data => {
-                console.log("서버응답 data 확인:" + data);
+                // console.log("서버응답 data 확인:" + data);
                 if (data) {
                     setItems(data);
                 }
@@ -85,6 +87,8 @@ export default function myPage() {
                 });
                 if (!res.ok) return;
                 const data = await res.json();
+
+                setIsSocial(data.loginId.includes("socialId_"));
                 setUserKey(data.userKey); // userKey 상태 저장
             } catch (err) {
                 console.error("유저 정보 가져오기 실패:", err);
@@ -95,13 +99,24 @@ export default function myPage() {
 
 
     useEffect(() => {
-        if (activeTab === '관심경매' && userKey) {
-            fetch(`/api/favorites/${userKey}`)
-                .then(res => res.json())
-                .then(data => setFavoriteItems(data))
-                .catch(err => console.log('관심경매 요청 실패:', err));
+        if (activeTab === '관심경매') {
+            fetch(`/api/favorites/list/${userKey}`)
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '/login.do';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) setFavoriteItems(data);
+                })
+                .catch(err => {
+                    console.error('관심경매 요청 실패:', err);
+                });
         }
-    }, [activeTab, userKey]);
+    }, [activeTab]);
+
 
 
 
@@ -117,6 +132,7 @@ export default function myPage() {
             <div className="header">
                 <div className="header-title">마이페이지</div>
                 <div className="header-desc">경매를 똑똑하게 즐기기, BidCast</div>
+                {!isSocial && (
                 <nav className="nav-menu">
                     {['경매이력', '낙찰내역', '문의', '내 정보수정','관심경매'].map((tab) => (
                         <button
@@ -124,9 +140,9 @@ export default function myPage() {
                             className={`nav-item ${activeTab === tab ? 'nav-item-active' : ''}`}
                             onClick={() => {
                             if (tab === '문의') {
-                                window.location.href = './inquiryList.do';
+                                window.location.href = '/inquiryList.do';
                             } else if (tab === '내 정보수정') {
-                                window.location.href = './pwCheck.do';
+                                window.location.href = '/pwCheck.do';
                             } else {
                                 setActiveTab(tab);
                             }
@@ -136,6 +152,28 @@ export default function myPage() {
                         </button>
                     ))}
                 </nav>
+                )}
+                {isSocial && (
+                    <nav className="nav-menu">
+                        {['경매이력', '낙찰내역', '문의', '닉네임 변경','관심경매'].map((tab) => (
+                            <button
+                                key={tab}
+                                className={`nav-item ${activeTab === tab ? 'nav-item-active' : ''}`}
+                                onClick={() => {
+                                    if (tab === '문의') {
+                                        window.location.href = '/inquiryList.do';
+                                    } else if (tab === '닉네임 변경') {
+                                        window.location.href = '/memberModify.do';
+                                    } else {
+                                        setActiveTab(tab);
+                                    }
+                                }}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </nav>
+                )}
             </div>
 
             {activeTab === '경매이력' && (
@@ -193,7 +231,7 @@ export default function myPage() {
                             {favoriteItems.map(item => (
                                 <a
                                     href={`/bidGuest.do?roomId=${item.auctionId}`}
-                                    key={item.auctionId || idx}
+                                    key={item.auctionId}
                                     className="item-card"
                                     style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
                                 >

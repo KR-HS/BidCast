@@ -37,7 +37,6 @@ public class AuctionController {
     @GetMapping("/top6")
     public List<AuctionDTO> getFirst6AuctionsByDate(@RequestParam String date) {
         List<AuctionDTO> auctions = auctionService.getFirst6ByStartTimeAndDate(date);
-        System.out.println("Top6 리스트: " + auctions);
         return auctions;
     }
 
@@ -60,6 +59,7 @@ public class AuctionController {
 
     @GetMapping("/winning-history")
     public List<AuctionItemDTO> getWinningHistoryAuctions(Authentication authentication) {
+        System.out.println(authentication.getPrincipal());
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Integer userKey = userDetails.getUser().getUserKey();
 
@@ -85,9 +85,6 @@ public class AuctionController {
             @RequestParam("startTime")
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
             LocalDateTime startTime,
-            @RequestParam("endTime")
-            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-            LocalDateTime endTime,
             @RequestParam(value = "tags", required = false) List<Integer> tags,
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @RequestParam("images") MultipartFile[] images,
@@ -101,7 +98,6 @@ public class AuctionController {
                                 .hostId(loginId)
                                 .title(title)
                                 .startTime(startTime)
-                                .endTime(endTime)
                                 .thumbnailUrl(s3UploadService.upload(thumbnail))
                                 .build();
         /*경매장 생성*/
@@ -110,8 +106,6 @@ public class AuctionController {
         Integer auctionId = auctionService.regAuction(auctionDTO);
         //경매 태그, 상품 등록
         auctionService.regProduct(auctionId, tags, itemNames, content, images);
-
-
 
         return ResponseEntity.ok(Map.of("success", true));
     }

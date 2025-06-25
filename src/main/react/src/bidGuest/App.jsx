@@ -147,7 +147,7 @@ export default function App() {
                 }
 
                 const data = await response.json();
-                console.log("사용자 정보:", data);
+                // console.log("사용자 정보:", data);
                 setUserId(data.loginId);
                 setUserInfo(data);
             } catch (error) {
@@ -180,7 +180,7 @@ export default function App() {
                 }
 
                 const data = await response.json();
-                console.log("태그정보", data);
+                // console.log("태그정보", data);
 
                 setTags(data);
             }catch(error){
@@ -219,11 +219,11 @@ export default function App() {
 
 
                 if (selectProduct) {
-                    console.log("선택상품받아옴", selectProduct);
+                    // console.log("선택상품받아옴", selectProduct);
                     setSelectedProduct(selectProduct);
                 }
 
-                console.log("채팅내역 가져오기", chats)
+                // console.log("채팅내역 가져오기", chats)
 
                 const formattedChats = response.chats.map(chat => ({
                     username: chat.nickname,
@@ -231,7 +231,7 @@ export default function App() {
                     regdate: chat.regdate,
                 }));
 
-                console.log("채팅내역 설정")
+                // console.log("채팅내역 설정")
                 setChats(prevChats => {
                     const combinedChats = [...prevChats, ...formattedChats];
                     const trimmedChats = combinedChats.slice(-40); // 뒤에서 20개만
@@ -239,10 +239,10 @@ export default function App() {
                 });
 
 
-                console.log("경매사이트 입장")
+                // console.log("경매사이트 입장")
                 setHostId(hostSocketId)
                 setUserCount(userCount);
-                console.log("호스트소켓아이디" + hostSocketId);
+                // console.log("호스트소켓아이디" + hostSocketId);
             }
         })
 
@@ -260,11 +260,11 @@ export default function App() {
 
         socket.current.on('host-available', ({auctionId, hostSocketId}) => {
             setHostId(hostSocketId);
-            console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
+            // console.log(`Host is now available for auction ${auctionId}`, hostSocketId);
         });
 
         socket.current.on('user-count-update', ({roomId, userCount}) => {
-            console.log(`Auction ${roomId} current users: ${userCount}`);
+            // console.log(`Auction ${roomId} current users: ${userCount}`);
             // 화면에 인원수 표시 업데이트
             setUserCount(userCount);
         });
@@ -291,7 +291,7 @@ export default function App() {
                 return updated;
             });
 
-            console.log("유저인포:",statusList);
+            // console.log("유저인포:",statusList);
         });
 
         // 초기 시작 함수: mediasoup 라우터 연결 및 송수신 준비
@@ -340,7 +340,7 @@ export default function App() {
                                 // console.log('myProducerIds entries:', Array.from(myProducerIds.current));
                                 setSocketIdToProducerId(prev => {
                                     const existing = prev[socket.current.id] || {}
-                                    console.log("이미 가지고 있는 것들", existing)
+                                    // console.log("이미 가지고 있는 것들", existing)
                                     return {
                                         ...prev,
                                         [socket.current.id]: {
@@ -349,7 +349,7 @@ export default function App() {
                                         }
                                     };
                                 });
-                                console.log("프로듀서아이디들", socketIdToProducerId)
+                                // console.log("프로듀서아이디들", socketIdToProducerId)
                                 callback({id})
                             })
                         })
@@ -373,8 +373,8 @@ export default function App() {
                         // 기존에 존재하는 producer 리스트 요청
                         socket.current.emit('get-existing-producers', {roomId: roomId},
                             ({existingProducers, hostSocketId}) => {
-                                console.log("프로듀서 리스트 받아옴", existingProducers);
-                                console.log("호스트아이디도 받아옴", hostSocketId);
+                                // console.log("프로듀서 리스트 받아옴", existingProducers);
+                                // console.log("호스트아이디도 받아옴", hostSocketId);
                                 // setHostId(hostSocketId);
                                 existingProducers
                                     .filter(({producerId}) => !myProducerIds.current.has(producerId))
@@ -389,18 +389,18 @@ export default function App() {
                                                 }
                                             }
                                         })
-                                        console.log("consuming producer", producerId, "from", socketId);
+                                        // console.log("consuming producer", producerId, "from", socketId);
                                         consume(producerId, socketId);
                                     });
 
-                                console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!", socketIdToProducerId);
+                                // console.log("소켓아이디랑 프로듀서아이디 매칭됨!!!!!!!!!!!!!", socketIdToProducerId);
                             });
                     })
                 })
 
                 // 새로운 producer
                 socket.current.on('new-producer', ({producerId, socketId: remoteSocketId, kind}) => {
-                    console.log('new-producer received:', producerId, remoteSocketId);
+                    // console.log('new-producer received:', producerId, remoteSocketId);
                     if (remoteSocketId === socket.current.id) return; // 내 producer면 무시
 
                     // setProducerIdToSocketId(prev => ({ ...prev, [producerId]: socketId }));
@@ -414,14 +414,14 @@ export default function App() {
                             }
                         };
                     });
-                    console.log('New producer from other:', producerId)
+                    // console.log('New producer from other:', producerId)
                     consume(producerId, remoteSocketId)
 
                 })
 
                 // 상대 유저가 연결을 끊었을 때 처리
                 socket.current.on('user-disconnected', ({socketId, producerId}) => {
-                    console.log('User disconnected:', socketId, producerId)
+                    // console.log('User disconnected:', socketId, producerId)
 
                     // 1. consumers 객체에서 해당 consumer 종료 및 삭제
                     if (consumers.current[producerId]) {
@@ -495,12 +495,12 @@ export default function App() {
 
             // ✅ 자기 자신의 producerId는 무시
             if (producerId === myProducers.video || producerId === myProducers.audio) {
-                console.log('👤 자기 자신의 producerId, consume 생략:', producerId);
+                // console.log('👤 자기 자신의 producerId, consume 생략:', producerId);
                 return;
             }
 
             if (!device.current || !recvTransport.current || consumers.current[producerId]) {
-                console.log('consume 중복 또는 조건 미충족, return:', producerId)
+                // console.log('consume 중복 또는 조건 미충족, return:', producerId)
                 return
             }
 
@@ -520,10 +520,10 @@ export default function App() {
                     })
 
                     // consumer 저장
-                    console.log('consume 후 consumer 할당:', producerId, consumer)
+                    // console.log('consume 후 consumer 할당:', producerId, consumer)
                     consumers.current[producerId] = consumer
 
-                    console.log('consume 후 consumers.current 상태:', consumers.current)
+                    // console.log('consume 후 consumers.current 상태:', consumers.current)
                     // 새 미디어스트림 생성 후 consumer 트랙 추가
                     // consumer.track =  Mediasoup에서 consume() 호출 후 생성된 소비자 객체의 미디어 트랙(오디오/비디오)
                     const stream = new MediaStream()
@@ -598,7 +598,7 @@ export default function App() {
                 if (roomId) {
                     socket.current.emit('close-producer', {roomId: roomIdRef.current});
                 } else {
-                    console.warn('roomId is undefined, skipping close-producer emit');
+                    // console.warn('roomId is undefined, skipping close-producer emit');
                 }
                 setIsStreaming(false)
             }
@@ -638,13 +638,13 @@ export default function App() {
 
         // 🟢 호스트가 상품 선택 시
         socket.current.on("host-selected-product", ({product}) => {
-            console.log("선택된 상품:", product);
+            // console.log("선택된 상품:", product);
             setSelectedProduct(product); // 게스트 화면에 선택 상품 표시
         });
 
         // 🟡 낙찰 또는 유찰 시
         socket.current.on("bid-status", ({prodKey, winner, nickname, status}) => {
-            console.log("상품 상태 변경:", winner, prodKey, status);
+            // console.log("상품 상태 변경:", winner, prodKey, status);
 
             if (status === "유찰") setStatusMessage("❌ 유찰!");
 
@@ -672,7 +672,7 @@ export default function App() {
 
         // 입찰 결과//
         socket.current.on("bid-update", ({product, bidder}) => {
-            console.log("입찰 갱신:", product, bidder);
+            // console.log("입찰 갱신:", product, bidder);
             setSelectedProduct(product);
 
             // 만약 본인이 입찰자라면 별도 UI 표시 가능
@@ -840,7 +840,7 @@ export default function App() {
         });
 
         // 2) 서버에 메시지 전송 (웹소켓)
-        console.log("서버로 메시지 전송")
+        // console.log("서버로 메시지 전송")
         socket.current.emit('chat-message', {auctionId: roomId, userId, contents: msg});
         setMsg("");
     }
