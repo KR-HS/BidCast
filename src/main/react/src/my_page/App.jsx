@@ -43,7 +43,7 @@ export default function myPage() {
                 return res.json();
             })
             .then(data => {
-                console.log("서버응답 data 확인:" + data);
+                // console.log("서버응답 data 확인:" + data);
                 if (data) {
                     setItems(data);
                 }
@@ -92,9 +92,9 @@ export default function myPage() {
                             className={`nav-item ${activeTab === tab ? 'nav-item-active' : ''}`}
                             onClick={() => {
                             if (tab === '문의') {
-                                window.location.href = './inquiryList.do';
+                                window.location.href = '/inquiryList.do';
                             } else if (tab === '내 정보수정') {
-                                window.location.href = './pwCheck.do';
+                                window.location.href = '/pwCheck.do';
                             } else {
                                 setActiveTab(tab);
                             }

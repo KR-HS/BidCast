@@ -85,9 +85,6 @@ public class AuctionController {
             @RequestParam("startTime")
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
             LocalDateTime startTime,
-            @RequestParam("endTime")
-            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-            LocalDateTime endTime,
             @RequestParam(value = "tags", required = false) List<Integer> tags,
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @RequestParam("images") MultipartFile[] images,
@@ -101,7 +98,6 @@ public class AuctionController {
                                 .hostId(loginId)
                                 .title(title)
                                 .startTime(startTime)
-                                .endTime(endTime)
                                 .thumbnailUrl(s3UploadService.upload(thumbnail))
                                 .build();
         /*경매장 생성*/

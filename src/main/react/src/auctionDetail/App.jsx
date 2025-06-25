@@ -168,7 +168,7 @@ export default function App() {
 
             </table>
 
-            <button className="bidHistory-btn" onClick={()=> window.location.href='./bidHistory.do'}>목록</button>
+            <button className="bidHistory-btn" onClick={()=> window.location.href='/bidHistory.do'}>목록</button>
         </div>
     );
 }

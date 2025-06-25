@@ -38,17 +38,17 @@ export default function App() {
         } else{
 
             alert("잘못된 접근 입니다.")
-            window.location.href = "login.do";
+            window.location.href = "/login.do";
         }
     }, []);
 
 
     const btn = (e) => {
         if(e.target.className === 'button1'){
-            window.location.href="login.do";
+            window.location.href="/login.do";
         }
         if(e.target.className === 'button2'){
-            window.location.href="searchPw.do"
+            window.location.href="/searchPw.do"
         }
     }
 
@@ -61,7 +61,7 @@ export default function App() {
     return (
         <section>
             <div className="sec">
-            <img src="./img/checkRing.png" alt="Logo" width="120px" height="120px" />
+            <img src="/img/checkRing.png" alt="Logo" width="120px" height="120px" />
             <h1>
                 아이디 찾기 완료
             </h1>

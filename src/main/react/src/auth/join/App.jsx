@@ -73,7 +73,7 @@ export default function App() {
             ...formData,
             [name]: value
         });
-        console.log(value)
+        // console.log(value)
 
         if (name === 'id') {
             // 유효성 검사
@@ -84,22 +84,18 @@ export default function App() {
             setIdDuplicate(null);
 
             if (idCheckTimeout.current) clearTimeout(idCheckTimeout.current);
-            console.log("유효성검사",valid);
+            // console.log("유효성검사",valid);
             if (valid) {
-                console.log("요청보냄");
+                // console.log("요청보냄");
                 idCheckTimeout.current = setTimeout(() => {
-                    console.log("fetch 시작");
                     fetch(`/fetch/check-id?id=${value}`)
                         .then(res => {
-                            console.log("fetch 응답 상태:", res.status);
                             return res.json();
                         })
                         .then(data => {
-                            console.log("요청결과받아옴", data.duplicate);
                             setIdDuplicate(data.duplicate);
                         })
                         .catch((err) => {
-                            console.error("fetch 에러:", err);
                             setIdDuplicate(null);
                         });
                 }, 500);
@@ -123,7 +119,7 @@ export default function App() {
 
 
         if (!idRegex.test(formData.id)) {
-            alert("아이디는 6자 이상 20자 이하로 입력해주세요.");
+            // alert("아이디는 6자 이상 20자 이하로 입력해주세요.");
             idRef.current?.focus();
             return;
         }
@@ -227,7 +223,7 @@ export default function App() {
                                     />
                                     {formData.id && !idValid && (
                                         <p className="validationInfo" style={{ color: 'red', fontSize: '12px' }}>
-                                            영문과 숫자 조합 6~20자로 입력해주세요.
+                                            영문,숫자 6~20자로 입력해주세요.
                                         </p>
                                     )}
                                     {idValid && idDuplicate === false && (

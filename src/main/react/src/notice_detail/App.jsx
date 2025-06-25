@@ -46,9 +46,9 @@ export default function NoticeDetail() {
                     무엇이든 물어보세요!
                 </p>
                 <div className="nav">
-                    <a href="faq.do" className="faq">FAQ</a>
-                    <a href="inquiry.do">1:1문의</a>
-                    <a href="notice.do" className="active">공지사항</a>
+                    <a href="/faq.do" className="faq">FAQ</a>
+                    <a href="/inquiry.do">1:1문의</a>
+                    <a href="/notice.do" className="active">공지사항</a>
                 </div>
             </div>
 
@@ -68,7 +68,7 @@ export default function NoticeDetail() {
                     ))}
                 </div>
                 <div className="notice-btn-wrap">
-                    <a href="notice.do"><button className="notice-list-btn">목록</button></a>
+                    <a href="/notice.do"><button className="notice-list-btn">목록</button></a>
                 </div>
             </div>
         </div>

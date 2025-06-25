@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NickDTO {
 
-    int UserKey;
-    String nickname;
+    private int UserKey;
+    private String nickname;
 }

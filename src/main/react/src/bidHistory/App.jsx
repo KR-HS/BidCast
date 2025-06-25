@@ -62,7 +62,7 @@ export default function App() {
                         key={index}
                         className="history-card"
                         style={{ cursor: 'pointer' }}
-                        onClick={() => window.location.href = `./auctionDetail.do?auctionId=${auction.auctionId}`}
+                        onClick={() => window.location.href = `/auctionDetail.do?auctionId=${auction.auctionId}`}
                     >
                         <div className="card-header">
                             <div className="left-section">

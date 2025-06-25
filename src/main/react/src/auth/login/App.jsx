@@ -118,14 +118,14 @@ export default function App() {
                             const birthyear = naverLogin.user.birthyear;
                             const mobile = naverLogin.user.mobile;
 
-                            console.log("네이버 로그인 성공:", email, name, nickName, birthyear, birthday, mobile);
+                            // console.log("네이버 로그인 성공:", email, name, nickName, birthyear, birthday, mobile);
 
                             // 백엔드로 로그인 정보 전송
                             handleNaverLogin(id,email, name, nickName, birthyear, birthday, mobile);
                         }
                     });
 
-                    console.log('네이버 로그인 초기화 성공');
+                    // console.log('네이버 로그인 초기화 성공');
                 } else {
                     console.error('window.naver 객체가 존재하지 않음');
                 }
@@ -151,7 +151,7 @@ export default function App() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log("네이버 로그인 서버 응답:", data);
+                // console.log("네이버 로그인 서버 응답:", data);
 
                 // 로그인 성공 후 처리 (예: 홈페이지로 리다이렉트)
                 window.location.href = "/home.do";
@@ -189,7 +189,7 @@ export default function App() {
 
             if (res.ok) {
                 const data = await res.json();
-                console.log("구글 로그인 서버 응답:", data);
+                // console.log("구글 로그인 서버 응답:", data);
 
                 // 로그인 성공 후 처리 (예: 홈페이지로 리다이렉트)
                 window.location.href = "/home.do";
@@ -243,7 +243,7 @@ export default function App() {
           {isLoading && <Loader/>}
           <div className="sec">
           <div>
-              <img src="./img/logo.png" alt="Logo" width="200px" height="200px" />
+              <img src="/img/logo.png" alt="Logo" width="200px" height="200px" />
           </div>
               <form onSubmit={loginBtn}>
           <div className="ip-box">
@@ -276,9 +276,9 @@ export default function App() {
           </div>
               </form>
           <div className="side-btn">
-              <a href="searchid.do">아이디 찾기</a>|
-              <a href="searchpw.do">비밀번호 찾기</a>|
-              <a href="join.do">회원가입</a>
+              <a href="/searchid.do">아이디 찾기</a>|
+              <a href="/searchpw.do">비밀번호 찾기</a>|
+              <a href="/join.do">회원가입</a>
           </div>
           <div className="login-btn-group">
               <button type="submit"

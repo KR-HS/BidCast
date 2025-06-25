@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Calendar from "./calendar";
 import Loader from "../Loader/Loader";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import {FaHeart, FaRegHeart} from "react-icons/fa";
 
 const today = new Date();
 
@@ -40,6 +40,33 @@ export default function App() {
         return () => clearTimeout(timer);
     }, []);
 
+
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        // 세션데이터
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("/api/v1/getUserInfo", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response) {
+                    const data = await response.json();
+                    // console.log("사용자 정보:", data);
+                    setUser(data);
+                }
+            } catch (error) {
+                console.error("사용자 정보 요청 실패:", error);
+            }
+        };
+        fetchUserInfo();
+    }, []);
+
+
     //태그 불러옴
     useEffect(() => {
         fetch('/api/auctions/tags')
@@ -58,7 +85,7 @@ export default function App() {
     useEffect(() => {
         const fetchAuctionData = async () => {
             setAuctionData([]);
-            const params = new URLSearchParams({ date: formatDate(selectedDate) });
+            const params = new URLSearchParams({date: formatDate(selectedDate)});
             if (selectedTag) params.append('tag', selectedTag);
 
             try {
@@ -100,7 +127,7 @@ export default function App() {
     };
 
     if (isLoading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     return (
@@ -111,7 +138,7 @@ export default function App() {
                 </div>
                 <div className="main-section">
                     <div className="calendar-section">
-                        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+                        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
                     </div>
                     <div className="auction-list">
                         <div className="auction-list-header">
@@ -150,7 +177,22 @@ export default function App() {
                             const status = item.status;
                             const liked = likedMap[item.auctionId] || false;
                             return (
-                                <div className="card" key={item.auctionId || item.id}>
+                                <div className="card"
+                                     key={item.auctionId || item.id}
+                                     onClick={() => {
+                                         if (!user || !user.loginId) {
+                                             window.location.href = '/login.do';
+                                             return;
+                                         }
+
+                                         if (user.loginId === item.hostId) {
+                                             window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
+                                         } else {
+                                             window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
+                                         }
+                                     }}
+                                     style={{cursor: "pointer"}}
+                                >
                                     <div className="thumbnail">
                                         <img src={item.thumbnailUrl} alt="썸네일"/>
                                         <span className={`cast-state status-${status}`}>{status}</span>
@@ -160,9 +202,9 @@ export default function App() {
                                             aria-label={liked ? "좋아요 취소" : "좋아요"}
                                         >
                                             {liked ? (
-                                                <FaHeart color="red" size={20} />
+                                                <FaHeart color="red" size={20}/>
                                             ) : (
-                                                <FaRegHeart color="black" size={20} />
+                                                <FaRegHeart color="black" size={20}/>
                                             )}
                                         </button>
 
@@ -186,9 +228,9 @@ export default function App() {
                                             <span key={tag} className="tag">{tag}</span>
                                         ))}
                                     </div>
-                            </div>
-                        );
-                    })}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

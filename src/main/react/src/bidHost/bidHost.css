@@ -365,6 +365,7 @@ video {
     width: 750px;
     padding: 0 44px;
     box-sizing:border-box;
+    margin-top:10px;
 }
 
 .bidInfoWrapper>.bidInfo{
@@ -446,6 +447,10 @@ video {
 .sliderWrap>.bidProdWrap::-webkit-scrollbar {
     display: none;
 }
+.bidProdWrap > .bidProdList{
+    min-height:300px;
+}
+
 .bidProdWrap > .bidProdList > .prodName{
     text-align:center;
     font-size: 15px;
@@ -456,10 +461,13 @@ video {
     width:186px;
     aspect-ratio: 16/12;
     position: relative;
-    border:2px solid transparent;
+    display: flex;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    justify-content: center;
+    align-items: center;
+    padding:5px 0 ;
 }
 .bidProd-picture > img{
-    width:100%;
     height:100%;
 }
 
@@ -662,7 +670,7 @@ video {
 
 
 .contentWrap-under >.main-videoWrapper{
-    margin-top:40px;
+    margin-top:45px;
     width: 400px;
     height: calc(400px * 9 / 16); /* 가로세로 비율 고정 */
     padding-left: 40px;

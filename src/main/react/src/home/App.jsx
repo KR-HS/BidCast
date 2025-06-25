@@ -61,11 +61,11 @@ export default function App() {
     const getStatusImage = (status) => {
         switch (status) {
             case "진행예정":
-                return <TbCalendarTime size={25}/>;
+                return <TbCalendarTime size={25} stroke={"blue"}/>;
             case "진행중":
-                return <TbCalendarPause size={25}/>;
+                return <TbCalendarPause size={25} stroke={"green"}/>;
             case "종료":
-                return <TbCalendarX size={25}/>;
+                return <TbCalendarX size={25} stroke={"red"}/>;
             default:
                 return null;
         }
@@ -185,9 +185,9 @@ export default function App() {
 
     const handleMyPageClick = () => {
         if (user === null) {
-            window.location.href = "login.do";
+            window.location.href = "/login.do";
         } else {
-            window.location.href = "myPage.do";
+            window.location.href = "/myPage.do";
         }
     };
 
@@ -240,7 +240,7 @@ export default function App() {
                 />
                 <div className="action-buttons">
                     <div className="main-actions">
-                        <div className="action" onClick={() => window.location.href = "./search.do"}>
+                        <div className="action" onClick={() => window.location.href = "/search.do"}>
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/751/751463.png"
                                 alt="경매검색"
@@ -248,7 +248,7 @@ export default function App() {
                             />
                             <div className="action-label">경매검색</div>
                         </div>
-                        <div className="action" onClick={() => window.location.href = "./schedule.do"}>
+                        <div className="action" onClick={() => window.location.href = "/schedule.do"}>
                             <img
                                 src="https://cdn-icons-png.flaticon.com/512/747/747310.png"
                                 alt="경매일정"
@@ -261,10 +261,10 @@ export default function App() {
                         {/*로그인이 여부 확인*/}
                         {user === null?(
                             <>
-                                <button className="btn login" onClick={() => window.location.href = "login.do"}>로그인</button>
+                                <button className="btn login" onClick={() => window.location.href = "/login.do"}>로그인</button>
                                 <div className="signup-row">
                                     {/*<span className="my-page" onClick={handleMyPageClick}>마이페이지</span>*/}
-                                    <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
+                                    <span className="signup-link" onClick={()=> {window.location.href="/join.do"}}>회원가입</span>
                                 </div>
                                 <div className="login-desc">
                                     지금 로그인하세요!<br />
@@ -311,7 +311,7 @@ export default function App() {
                             {formatDate(selectedDate)}
                             {isToday(selectedDate) && <span className="today-label"> (오늘)</span>}
                         </span>
-                        <span className="auction-dropdown" onClick={() => window.location.href = "./schedule.do"}>
+                        <span className="auction-dropdown" onClick={() => window.location.href = "/schedule.do"}>
                             경매일정 전체보기 &gt;
                         </span>
                     </div>
@@ -324,7 +324,22 @@ export default function App() {
                                     {leftColumn.map((item, idx) => {
                                         const status = item.status; // DB에서 받은 status 직접 사용
                                         return (
-                                            <a href={`/bidGuest.do?roomId=${item.auctionId}`} key={item.auctionId || idx}>
+                                            <div
+                                                key={item.auctionId || idx}
+                                                onClick={()=>{
+                                                    if (!user || !user.loginId) {
+                                                        window.location.href = '/login.do';
+                                                        return;
+                                                    }
+
+                                                    if (user.loginId === item.hostId) {
+                                                        window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
+                                                    } else {
+                                                        window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
+                                                    }
+                                                }}
+                                                style={{cursor:"pointer"}}
+                                            >
                                                 <div className="auction-item">
                                                     <div className="auction-icon">{getStatusImage(status)}</div>
                                                     <div className="auction-info">
@@ -332,7 +347,7 @@ export default function App() {
                                                         <div className="auction-time">{formatTime(item.startTime)}</div>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </div>
                                         );
                                     })}
                                 </div>
@@ -340,7 +355,22 @@ export default function App() {
                                     {rightColumn.map((item, idx) => {
                                         const status = item.status; // DB에서 받은 status 직접 사용
                                         return (
-                                            <a href={`/bidGuest.do?roomId=${item.auctionId}`} key={item.auctionId || idx}>
+                                            <div
+                                                key={item.auctionId || idx}
+                                                onClick={()=>{
+                                                    if (!user || !user.loginId) {
+                                                        window.location.href = '/login.do';
+                                                        return;
+                                                    }
+
+                                                    if (user.loginId === item.hostId) {
+                                                        window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
+                                                    } else {
+                                                        window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
+                                                    }
+                                                }}
+                                                style={{cursor:"pointer"}}
+                                            >
                                                 <div className="auction-item">
                                                     <div className="auction-icon">{getStatusImage(status)}</div>
                                                     <div className="auction-info">
@@ -348,7 +378,7 @@ export default function App() {
                                                         <div className="auction-time">{formatTime(item.startTime)}</div>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </div>
                                         );
                                     })}
                                 </div>
@@ -362,7 +392,7 @@ export default function App() {
 
                 <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
                         onClick={toggleMenu}>
-                    <img src="./img/hamburger.png" alt="메뉴" className="floating-icon" width='35px' />
+                    <img src="/img/hamburger.png" alt="메뉴" className="floating-icon" width='35px' />
                 </button>
             )}
             {showMenu && (

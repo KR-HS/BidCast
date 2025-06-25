@@ -34,7 +34,7 @@ export default function App() {
             });
 
             const result = await res.json();
-            console.log(result);
+            // console.log(result);
             if (result) {
                 const user = result;
                 setFormData({
@@ -49,7 +49,7 @@ export default function App() {
                 });
             } else {
                 alert("잘못된 접근입니다.")
-                window.location.href = "login.do";
+                window.location.href = "/login.do";
             }
         };
         fetchUserInfo();
@@ -63,7 +63,7 @@ export default function App() {
             ...formData,
             [name]: value
         });
-        console.log(value)
+        // console.log(value)
     };
 
     const handleSubmit = async (e) => {

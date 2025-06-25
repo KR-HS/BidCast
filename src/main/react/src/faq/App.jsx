@@ -103,9 +103,9 @@ export default function Faq() {
                     무엇이든 물어보세요!
                 </p>
                 <div className="nav">
-                    <a href="faq.do" className="active">FAQ</a>
-                    <a href="inquiry.do">1:1문의</a>
-                    <a href="notice.do">공지사항</a>
+                    <a href="/faq.do" className="active">FAQ</a>
+                    <a href="/inquiry.do">1:1문의</a>
+                    <a href="/notice.do">공지사항</a>
                 </div>
             </div>
             <div className="container">
@@ -123,7 +123,7 @@ export default function Faq() {
                             }}
                         />
                         <button className="search-btn" aria-label="검색">
-                            <img src="./img/search2.png" alt="검색" />
+                            <img src="/img/search2.png" alt="검색" />
                         </button>
                     </div>
                 </div>

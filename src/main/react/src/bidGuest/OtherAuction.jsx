@@ -50,8 +50,8 @@ const OtherAuction = ({socket,userId,auctionId}) => {
                                  className="other-auction"
                                  onClick={() => {
                                      const url = userId === auction.hostId
-                                         ? `bidHost.do?roomId=${auction.auctionId}`
-                                         : `bidGuest.do?roomId=${auction.auctionId}`;
+                                         ? `/bidHost.do?roomId=${auction.auctionId}`
+                                         : `/bidGuest.do?roomId=${auction.auctionId}`;
                                      window.location.href = url;
                                  }}
                             >
