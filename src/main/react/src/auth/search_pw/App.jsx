@@ -45,7 +45,6 @@ export default function App() {
             ...formData,
             [name]: value
         });
-        console.log(value)
     };
 
     const handleSubmit = async (e) => {

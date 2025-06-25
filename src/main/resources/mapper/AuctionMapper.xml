@@ -123,6 +123,20 @@
         RETURNING auction_id
     </insert>
 
+    <select id="getOtherAuctions" resultType="AuctionTagDTO">
+        SELECT *
+        FROM auction
+        WHERE status IN ('진행중', '진행예정')
+            AND auction_id != #{auctionId}
+        ORDER BY
+            CASE status
+                WHEN '진행중' THEN 1
+                WHEN '진행예정' THEN 2
+                ELSE 3
+                END,
+            start_time ASC
+            LIMIT 4;
+    </select>
 
     <insert id="regProduct" parameterType="ProdDTO" keyProperty="prodKey" keyColumn="prod_key" useGeneratedKeys="true">
         INSERT INTO product (auc_key, prod_name)

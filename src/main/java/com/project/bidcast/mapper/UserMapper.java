@@ -12,4 +12,7 @@ public interface UserMapper {
     @Select("SELECT user_key userKey,nickname FROM users")
     List<NickDTO> getNicks();
 
+    @Select("SELECT EXISTS (SELECT 1 FROM users WHERE login_id =#{id}) as duplicate")
+    Boolean isIdExists(String id);
+
 }

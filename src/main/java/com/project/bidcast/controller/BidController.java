@@ -2,6 +2,7 @@ package com.project.bidcast.controller;
 
 
 import com.project.bidcast.service.bid.BidService;
+import com.project.bidcast.vo.AuctionTagDTO;
 import com.project.bidcast.vo.ProdDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -66,8 +67,14 @@ public class BidController {
 
         if(bidService.unitUpdate(product)<1) return "단위변경 실패";
 
-
         return "단위변경 성공";
+    }
+
+    @PostMapping("/otherAuctions")
+    @ResponseBody
+    public List<AuctionTagDTO> otherAuctions(@RequestBody Map<String, Object> map) {
+        int auctionId = Integer.parseInt(map.get("auctionId").toString());
+        return bidService.getOtherAuctions(auctionId);
     }
 
 }

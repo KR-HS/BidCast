@@ -94,7 +94,7 @@ export default function App() {
                 sessionStorage.setItem('recoveredUserId', loginId);
                 sessionStorage.setItem('recoveredUserCreatedAt', createdAt);
 
-                console.log(sessionStorage.getItem('recoveredUserId'));
+                // console.log(sessionStorage.getItem('recoveredUserId'));
 
                 // 페이지 이동
                 window.location.href = '/findComplete.do';
