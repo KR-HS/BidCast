@@ -52,7 +52,7 @@ export default function Notice() {
     return (
         <div className="box">
             <div className="head">
-                <h1>고객센터</h1>
+                <h3>고객센터</h3>
                 <p>
                     BidCast에 대해 궁금하신 점이 있다면<br />무엇이든 물어보세요!
                 </p>
@@ -93,9 +93,9 @@ export default function Notice() {
                                 style={{ cursor: 'pointer' }}
                             >
                                 <div className="num">{notice.noticeKey}</div>
-                                <div className="title">
+                                <div className="title-head">
                                     <span className="badge">공지</span>
-                                    {notice.title}
+                                    <div className="title">{notice.title}</div>
                                 </div>
                                 <div className="date">
                                     {notice.regDate
