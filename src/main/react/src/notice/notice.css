@@ -1,10 +1,7 @@
-body {
-    min-height: 100vh;
-    margin: 0;
-}
-
 .box {
     width: 100%;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .head {
@@ -48,12 +45,10 @@ body {
 .nav a.active {
     background: #fff;
     color: #EA6946;
-    font-weight: 600;
+    font-weight: 400;
+    padding: 8px 15px;
 }
 
-.nav a.faq {
-    /*margin-top: 6px;*/
-}
 
 .container {
     max-width: 900px;
