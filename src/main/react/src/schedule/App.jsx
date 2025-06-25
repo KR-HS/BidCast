@@ -80,8 +80,6 @@ export default function App() {
     }, [selectedDate, selectedTag]);
 
     useEffect(() => {
-        if (!userKey) return; // 로그인 안 되어 있으면 좋아요 목록 호출 안함
-
         const fetchLikedAuctionIds = async () => {
             try {
                 const res = await fetch(`/api/favorites/${userKey}`);
@@ -96,7 +94,7 @@ export default function App() {
             }
         };
         fetchLikedAuctionIds();
-    }, [userKey]);
+    }, []);
 
 
 
