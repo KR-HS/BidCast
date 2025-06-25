@@ -1,10 +1,7 @@
 package com.project.bidcast.vo;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -33,6 +30,4 @@ public class AuctionTagDTO {
     // 경매장 개설시 사용
     private Integer auctagKey;
     private Integer tagKey;
-    private Integer auctionId;
-
 }
