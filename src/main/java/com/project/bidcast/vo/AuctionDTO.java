@@ -19,6 +19,7 @@ public class AuctionDTO {
         private LocalDateTime endTime;
         private String status;
         private Integer viewCount;
-        private Integer hostId;
+        private String hostId;
+        private String thumbnailUrl;
 
 }

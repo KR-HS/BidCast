@@ -1,5 +1,6 @@
 package com.project.bidcast.vo;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,19 +14,25 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class AuctionTagDTO {
 
-    int auctionId;
-    String hostId;
-    Timestamp createdAt;
-    String title;
-    Timestamp startTime;
-    Timestamp endTime;
-    String status;
-    Integer viewCount;
-    Integer session;
-    String thumbnailUrl;
-
-
+    // 클라이언트 경매 화면에서 다른 경매찍을때 
+    private int auctionId;
+    private String hostId;
+    private Timestamp createdAt;
+    private String title;
+    private Timestamp startTime;
+    private Timestamp endTime;
+    private String status;
+    private Integer viewCount;
+    private Integer session;
+    private String thumbnailUrl;
     List<String> tags;
+
+    // 경매장 개설시 사용
+    private Integer auctagKey;
+    private Integer tagKey;
+    private Integer auctionId;
+
 }

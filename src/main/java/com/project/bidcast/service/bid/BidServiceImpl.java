@@ -23,6 +23,7 @@ public class BidServiceImpl implements BidService {
     @Autowired
     private UserMapper userMapper;
 
+
     @Override
     public String getAuctionStatus(int roomId) {
         return auctionMapper.getAuctionStatus(roomId);
@@ -55,6 +56,7 @@ public class BidServiceImpl implements BidService {
         return bidMapper.unitUpdate(product);
     }
 
+
     @Override
     public List<AuctionTagDTO> getOtherAuctions(int currentAuctionId) {
 
@@ -73,4 +75,5 @@ public class BidServiceImpl implements BidService {
         return auctions;
 
     }
+
 }
