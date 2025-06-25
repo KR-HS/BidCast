@@ -11,6 +11,10 @@
     border-radius: 8px;
 }
 
+.auction-title {
+    padding-bottom: 12px;
+}
+
 .auction-status {
     display: inline-block;
     text-align: center;
