@@ -34,7 +34,8 @@ export default defineConfig({
         bidHistory:path.resolve(__dirname,'src/bidHistory/bidHistory.jsx'),
         auctionDetail:path.resolve(__dirname,"src/auctionDetail/auctionDetail.jsx"),
         pwCheck:path.resolve(__dirname,"src/pwCheck/pwCheck.jsx"),
-        regauction: path.resolve(__dirname, 'src/regauction/regauction.jsx')
+        regauction: path.resolve(__dirname, 'src/regauction/regauction.jsx'),
+        introduce: path.resolve(__dirname, "src/introduce/introduce.jsx"),
       },
       preserveEntrySignatures: 'strict',
       output: {
