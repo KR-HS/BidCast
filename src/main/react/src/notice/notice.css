@@ -15,11 +15,10 @@ body {
 }
 
 .head h1 {
-    font-size: 32px;
-    margin-bottom: 6px;
-    color: #fff;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: white;
+    font-weight: 700;
 }
 
 .head p {
@@ -42,7 +41,7 @@ body {
     font-size: 20px;
     transition: background 0.2s, color 0.2s;
     margin: 0 12px;
-    padding: 6px 15px 1px 15px;
+    padding:6px 15px 1px 15px;
     border-radius: 20px;
 }
 
@@ -50,6 +49,7 @@ body {
     background: #fff;
     color: #EA6946;
     font-weight: 600;
+    padding: 6px 15px 1px 15px
 }
 
 .nav a.faq {
