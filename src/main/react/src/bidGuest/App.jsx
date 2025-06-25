@@ -888,7 +888,7 @@ export default function App() {
 
             </div>
 
-            <OtherAuction/>
+            <OtherAuction socket={socket} userId={userId} auctionId={roomId}/>
 
             <StatusMessage message={statusMessage}/>
         </>

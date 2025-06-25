@@ -36,6 +36,9 @@ public interface AuctionMapper {
 
     void regAuction(AuctionDTO auctionDTO);
 
+
+    List<AuctionTagDTO> getOtherAuctions(int auctionId);
+
     @Insert("INSERT INTO auctiontag (auc_key, tag_key) VALUES (#{auctionId}, #{tagKey})")
     void regAuctionTag(AuctionTagDTO auctionTagDTO);
 
@@ -43,6 +46,7 @@ public interface AuctionMapper {
 
     @Insert("INSERT INTO file (auc_key, file_url, prod_key) VALUES (#{aucKey}, #{fileUrl}, #{prodKey})")
     void regAuctionImg(FileDTO fileDTO);
+
 }
 
 

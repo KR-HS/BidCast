@@ -3,9 +3,7 @@ package com.project.bidcast.service.bid;
 import com.project.bidcast.mapper.AuctionMapper;
 import com.project.bidcast.mapper.BidMapper;
 import com.project.bidcast.mapper.UserMapper;
-import com.project.bidcast.vo.NickDTO;
-import com.project.bidcast.vo.ProdDTO;
-import com.project.bidcast.vo.TagDTO;
+import com.project.bidcast.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,5 +56,24 @@ public class BidServiceImpl implements BidService {
         return bidMapper.unitUpdate(product);
     }
 
+
+    @Override
+    public List<AuctionTagDTO> getOtherAuctions(int currentAuctionId) {
+
+        List<AuctionTagDTO> auctions = auctionMapper.getOtherAuctions(currentAuctionId);
+
+        System.out.println("다른경매불러오기:"+auctions.toString());
+
+        for(AuctionTagDTO auction : auctions){
+            int auctionId = auction.getAuctionId();
+            List<String> tags = bidMapper.getTagList(auctionId);
+            System.out.println(auctionId+"의 경매 태그"+tags.toString());
+            auction.builder().tags(tags).build();
+        }
+
+
+        return auctions;
+
+    }
 
 }

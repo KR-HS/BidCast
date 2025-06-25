@@ -24,7 +24,8 @@ section{
 .side-btn a{
     text-decoration: none;
     margin: 0 10px;
-    color : #DBD5D5;
+    color : #777;
+    font-size: 14px;
 }
 
 .sec{
