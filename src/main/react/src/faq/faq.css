@@ -42,7 +42,7 @@ body {
     font-size: 20px;
     transition: background 0.2s, color 0.2s;
     margin: 0 12px;
-    padding: 6px 18px;
+    padding:6px 15px 1px 15px;
     border-radius: 20px;
 }
 
@@ -50,7 +50,7 @@ body {
     background: #fff;
     color: #EA6946;
     font-weight: 600;
-    padding: 9px 18px;
+    padding: 6px 15px 1px 15px
 }
 
 .container {
@@ -234,7 +234,6 @@ body {
 
 .faq-question {
     font-size: 17px;
-    font-weight: 600;
     margin-bottom: 4px;
     color: #222;
 }
@@ -249,7 +248,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
     margin-top: 100px;
 }
 .pagination button,
@@ -265,7 +264,6 @@ body {
 .pagination .active {
     background: #EA6946;
     color: #fff;
-    font-weight: 700;
 }
 .pagination button:disabled {
     color: #ccc;

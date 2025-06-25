@@ -124,12 +124,70 @@
         RETURNING auction_id
     </insert>
 
+    <select id="getOtherAuctions" resultType="AuctionTagDTO">
+        SELECT *
+        FROM auction
+        WHERE status IN ('진행중', '진행예정')
+            AND auction_id != #{auctionId}
+        ORDER BY
+            CASE status
+                WHEN '진행중' THEN 1
+                WHEN '진행예정' THEN 2
+                ELSE 3
+                END,
+            start_time ASC
+            LIMIT 4;
+    </select>
 
     <insert id="regProduct" parameterType="ProdDTO" keyProperty="prodKey" keyColumn="prod_key" useGeneratedKeys="true">
         INSERT INTO product (auc_key, prod_name)
         VALUES (#{aucKey}, #{prodName})
         RETURNING prod_key
     </insert>
+
+    <select id="selectAuctionsByPage" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT
+            a.auction_id AS auctionId,
+            a.title AS title,
+            a.status,
+            a.start_time AS startTime,
+            a.end_time AS endTime,
+            a.created_at AS createdAt,
+            a.view_count AS viewCount
+        FROM auction a
+        ORDER BY a.start_time DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectAuctionsByPageAndStatus" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT auction_id AS auctionId, title, start_time AS startTime, end_time AS endTime, status, host_id AS hostId
+        FROM auction
+        WHERE status = #{status}
+        ORDER BY start_time DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectAuctionsByPageAndFilter" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT auction_id AS auctionId,
+        title,
+        created_at AS createdAt,
+        start_time AS startTime,
+        end_time AS endTime,
+        status,
+        host_id AS hostId
+        FROM auction
+        WHERE 1=1
+        <if test="status != null and status != ''">
+            AND LOWER(status) LIKE CONCAT('%', LOWER(#{status}), '%')
+        </if>
+        <if test="title != null and title != ''">
+            AND LOWER(title) LIKE CONCAT('%', LOWER(#{title}), '%')
+        </if>
+        ORDER BY start_time DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+
 
 
 

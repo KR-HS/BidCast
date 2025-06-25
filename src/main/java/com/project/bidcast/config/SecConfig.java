@@ -39,7 +39,15 @@ public class SecConfig {
                         "/api/**",
                         "/home.do",
                         "/join.do",
-                        "/notice.do"
+                        "/notice.do",
+                        "/noticeDetail.do",
+                        "/faq.do",
+                        "/fetch/**",
+                        "/searchid.do",
+                        "/searchpw.do",
+                        "/search.do",
+                        "/schedule.do"
+
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

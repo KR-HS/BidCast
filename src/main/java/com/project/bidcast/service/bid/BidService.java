@@ -1,5 +1,6 @@
 package com.project.bidcast.service.bid;
 
+import com.project.bidcast.vo.AuctionTagDTO;
 import com.project.bidcast.vo.ProdDTO;
 import com.project.bidcast.vo.TagDTO;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,6 @@ public interface BidService {
     List<String> getTagList(int aucKey);
     Map<Integer,String> getNicks();
     int unitUpdate(ProdDTO dto);
-
-
+  
+    List<AuctionTagDTO> getOtherAuctions(int currentAuctionId);
 }

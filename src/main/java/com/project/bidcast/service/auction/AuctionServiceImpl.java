@@ -101,5 +101,20 @@ public class AuctionServiceImpl implements AuctionService {
             auctionMapper.regAuctionImg(fileDTO);
         }
     }
+
+    @Override
+    public List<AuctionDTO> getAuctionsByPage(int offset, int size) {
+        return auctionMapper.selectAuctionsByPage(offset, size);
+    }
+    @Override
+    public List<AuctionDTO> getAuctionsByPageAndStatus(int offset, int size, String status) {
+        return auctionMapper.selectAuctionsByPageAndStatus(offset, size, status);
+    }
+    @Override
+    public List<AuctionDTO> getAuctionsByPageAndFilter(int offset, int size, String status, String title) {
+        return auctionMapper.selectAuctionsByPageAndFilter(offset, size, status, title);
+    }
+
+
 }
 

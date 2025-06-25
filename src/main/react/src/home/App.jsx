@@ -93,6 +93,8 @@ export default function App() {
         return () => clearInterval(timer);
     }, []);
 
+    const hasInitialized = useRef(false);
+
     // 스크롤 버튼 위치
     useEffect(() => {
         function handleScroll() {
@@ -107,9 +109,29 @@ export default function App() {
                 setBtnBottom(20);
             }
         }
-        window.addEventListener('scroll', handleScroll);
-        handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll);
+
+
+        const wrappedScroll = () => {
+            // 처음엔 무조건 20px로 시작
+            if (!hasInitialized.current) {
+                hasInitialized.current = true;
+                setBtnBottom(20);
+                return;
+            }
+            handleScroll();
+        };
+
+        window.addEventListener('scroll', wrappedScroll);
+
+        // 최초 실행은 지연
+        const timer = setTimeout(() => {
+            wrappedScroll();
+        }, 100);
+
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('scroll', wrappedScroll);
+        };
     }, []);
 
     // 경매 데이터 불러오기 (status 컬럼 포함)
@@ -236,12 +258,13 @@ export default function App() {
                         </div>
                     </div>
                     <div className="login-section">
-                        <div className="my-page" onClick={handleMyPageClick}>마이페이지</div>
-                        {user === null ? (
+                        {/*로그인이 여부 확인*/}
+                        {user === null?(
                             <>
                                 <button className="btn login" onClick={() => window.location.href = "login.do"}>로그인</button>
                                 <div className="signup-row">
-                                    <span className="signup-link" onClick={() => window.location.href = "join.do"}>회원가입</span>
+                                    {/*<span className="my-page" onClick={handleMyPageClick}>마이페이지</span>*/}
+                                    <span className="signup-link" onClick={()=> {window.location.href="join.do"}}>회원가입</span>
                                 </div>
                                 <div className="login-desc">
                                     지금 로그인하세요!<br />
@@ -254,6 +277,7 @@ export default function App() {
                                     <h2>{user.nickName}님 환영합니다!</h2>
                                 </div>
                                 <div className="logout-wrap">
+                                    <span className="my-page" onClick={handleMyPageClick}>마이페이지</span>
                                     <span className="signup-link" onClick={logoutHandler}>로그아웃</span>
                                 </div>
                                 <div className="login-desc">
