@@ -43,6 +43,7 @@ public interface AuctionMapper {
 
     @Insert("INSERT INTO file (auc_key, file_url, prod_key) VALUES (#{aucKey}, #{fileUrl}, #{prodKey})")
     void regAuctionImg(FileDTO fileDTO);
+
 }
 
 
