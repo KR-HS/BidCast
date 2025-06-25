@@ -290,13 +290,24 @@ export default function App() {
                 </div>
             </div>
 
-            <div className="notice">
+            <div
+                className="notice"
+                onClick={() => {
+                    const selected = notices[noticeIdx];
+                    if (selected?.noticeKey) {
+                        window.location.href = `/noticeDetail.do?id=${selected.noticeKey}`;
+                    }
+                }}
+                style={{ cursor: notices.length > 0 ? 'pointer' : 'default' }}
+            >
                 <span role="img" aria-label="notice">📢</span>
                 &nbsp;
                 {notices.length > 0
                     ? notices[noticeIdx].title
                     : "공지사항이 없습니다."}
             </div>
+
+
 
             <div className="calendar-header">
                 <button className="calendar-tab active">경매일정</button>

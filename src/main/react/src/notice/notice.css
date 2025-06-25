@@ -10,12 +10,14 @@
     text-align: center;
 }
 
+
 .head h3 {
     font-size: 32px;
     margin-bottom: 6px;
     color: #fff;
     font-weight: 800;
     letter-spacing: 1px;
+
 }
 
 .head p {
@@ -38,7 +40,7 @@
     font-size: 20px;
     transition: background 0.2s, color 0.2s;
     margin: 0 12px;
-    padding: 6px 15px 1px 15px;
+    padding:6px 15px 1px 15px;
     border-radius: 20px;
 }
 
@@ -47,6 +49,7 @@
     color: #EA6946;
     font-weight: 400;
     padding: 8px 15px;
+
 }
 
 

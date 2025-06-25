@@ -83,12 +83,11 @@
     position: absolute;
     top: 10px;
     left: 10px;
-    background: #EA6946;
+    background: #0054ff;
     color: #fff;
     font-size: 13px;
     padding: 3px 12px;
     border-radius: 8px;
-    font-weight: 600;
 }
 .card-desc {
     padding: 20px 16px 18px 16px;
@@ -98,3 +97,80 @@
     font-weight: 600;
     color: #222;
 }
+.like-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    padding: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.like-btn.liked {
+    background: #ffe6e6;
+}
+
+.info {
+    padding: 0 16px 16px;
+}
+
+.info-title h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+    margin: 10px 0 8px;
+}
+
+.info-content {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #666;
+}
+
+.host-name,
+.guest-count {
+    font-size: 13px;
+    margin-top: 15px
+}
+
+.tag-list-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 16px;
+}
+
+.tag {
+    background-color: #f3f3f3;
+    color: #333;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+
+.status-live {
+    background-color: #2fcd37;
+}
+
+.status-ended {
+    background-color: red;
+}
+
+.status-unknown {
+    background-color: #bbb;
+}
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+

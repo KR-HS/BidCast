@@ -170,24 +170,42 @@
     </select>
 
     <select id="selectAuctionsByPageAndFilter" resultType="com.project.bidcast.vo.AuctionDTO">
-        SELECT auction_id AS auctionId,
-        title,
-        created_at AS createdAt,
-        start_time AS startTime,
-        end_time AS endTime,
-        status,
-        host_id AS hostId
-        FROM auction
+        SELECT
+        a.auction_id AS auctionId,
+        a.title,
+        a.created_at AS createdAt,
+        a.start_time AS startTime,
+        a.end_time AS endTime,
+        a.status,
+        a.host_id AS hostId,
+        u.user_name AS hostName,
+
+        -- ✅ 썸네일: 가장 빠르게 등록된 product -> file 조인해서 가져오기
+        (
+        SELECT f.file_url
+        FROM product p
+        JOIN file f ON p.prod_key = f.prod_key
+        WHERE p.auc_key = a.auction_id
+        ORDER BY f.reg_date ASC
+        LIMIT 1
+        ) AS thumbnailUrl
+
+        FROM auction a
+        LEFT JOIN users u ON a.host_id = u.login_id
+
         WHERE 1=1
         <if test="status != null and status != ''">
-            AND LOWER(status) LIKE CONCAT('%', LOWER(#{status}), '%')
+            AND LOWER(a.status) LIKE CONCAT('%', LOWER(#{status}), '%')
         </if>
         <if test="title != null and title != ''">
-            AND LOWER(title) LIKE CONCAT('%', LOWER(#{title}), '%')
+            AND LOWER(a.title) LIKE CONCAT('%', LOWER(#{title}), '%')
         </if>
-        ORDER BY start_time DESC
+
+        ORDER BY a.start_time DESC
         LIMIT #{size} OFFSET #{offset}
     </select>
+
+
 
 
 
