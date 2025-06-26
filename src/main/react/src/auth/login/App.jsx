@@ -101,7 +101,7 @@ export default function App() {
                 if (window.naver) {
                     const naverLogin = new window.naver.LoginWithNaverId({
                         clientId: "jofTdxFhK3nCE5655eYo",
-                        callbackUrl: "http://localhost:8888/login.do", // 현재 페이지로 변경
+                        callbackUrl: "https://bidcast.kro.kr/login.do", // 현재 페이지로 변경
                         isPopup: false,
                         loginButton: { color: "green", type: 3, height: 40 }
                     });
