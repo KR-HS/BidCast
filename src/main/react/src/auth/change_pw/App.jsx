@@ -34,10 +34,23 @@ export default function App() {
     };
 
     useEffect(() => {
-        const userKey = sessionStorage.getItem("userKey");
-        if (userKey) {
-            setFormData({ ...formData, userKey: userKey });
-            sessionStorage.removeItem('userKey');
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        console.log(token);
+        if (token) {
+            fetch('/api/v1/validateToken?token=' + token)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(data => {
+                    setFormData({ ...formData, userKey: data.userKey });
+                    console.log(formData.userKey);
+                })
+                .catch(() => {
+                    alert("유효하지 않은 토큰입니다.");
+                    window.location.href = "/login.do";
+                });
         } else{
 
             alert("잘못된 접근 입니다.")
@@ -115,6 +128,7 @@ export default function App() {
                 </table>
                 <div>
                     <button type="submit"
+                            className="change-pw-btn"
                     onClick={handleSubmit}>비밀번호 변경</button>
                 </div>
 

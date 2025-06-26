@@ -86,18 +86,13 @@ export default function App() {
             });
 
             if (response.ok) {
-                const result = await response.json();
-                const loginId = result.user.loginId;
-                const createdAt = result.user.createdAt;
+                const data = await response.json();
 
-                // 세션스토리지에 저장
-                sessionStorage.setItem('recoveredUserId', loginId);
-                sessionStorage.setItem('recoveredUserCreatedAt', createdAt);
+                const token = data.token;
+                sessionStorage.setItem("recoveredUserId", data.user.loginId);
+                sessionStorage.setItem("recoveredUserCreatedAt", data.user.createdAt);
 
-                // console.log(sessionStorage.getItem('recoveredUserId'));
-
-                // 페이지 이동
-                window.location.href = '/findComplete.do';
+                window.location.href = `/findcomplete.do?token=${token}`;
             } else {
                 alert('회원을 찾을 수 없습니다.');
             }
@@ -214,6 +209,7 @@ export default function App() {
                 </table>
                 <div>
                     <button type="submit"
+                            className="search-btn"
                             onClick={handleSubmit}>아이디 찾기</button>
                 </div>
 
