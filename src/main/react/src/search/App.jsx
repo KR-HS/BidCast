@@ -51,6 +51,8 @@ export default function AuctionSearch() {
         return 'unknown';
     };
 
+
+    // 1. currentUser 가져오기
     useEffect(() => {
         fetch('/api/v1/getUserInfo', {
             method: 'POST',
@@ -64,21 +66,29 @@ export default function AuctionSearch() {
             .catch(() => setCurrentUser(null));
     }, []);
 
+    // 2. currentUser가 바뀌면 좋아요 목록 불러오기 (완전히 준비됐을 때만)
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser) {
+            setLikedMap({});
+            return;
+        }
 
-        fetch(`/api/favorites/${currentUser.userKey}`, { credentials: 'include' })
-            .then(res => res.json())
+        fetch(`/api/favorites/ids/${currentUser.userKey}`, { credentials: 'include' })
+            .then(res => {
+                if (!res.ok) throw new Error('좋아요 목록 요청 실패');
+                return res.json();
+            })
             .then(data => {
                 const map = {};
-                data.forEach(item => {
-                    map[item.auctionId] = true;
+                data.forEach(id => {
+                    map[id] = true;
                 });
                 setLikedMap(map);
             })
-            .catch(err => console.error('좋아요 목록 불러오기 실패:', err));
+            .catch(() => setLikedMap({}));
     }, [currentUser]);
 
+    // 3. 경매 데이터 불러오기
     const fetchAuctions = async (pageNum = 0, status = '', title = '') => {
         try {
             let url = `/api/auctions?page=${pageNum}&size=${size}`;
@@ -101,14 +111,19 @@ export default function AuctionSearch() {
         } catch (error) {
             console.error(error);
         } finally {
-            setIsLoading(false);
             const loader = document.getElementById('loader');
             if (loader) {
                 loader.classList.add('fade-out');
-                setTimeout(() => loader.style.display = 'none', 500);
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    setIsLoading(false);
+                }, 500);
+            } else {
+                setIsLoading(false);
             }
         }
     };
+
 
     useEffect(() => {
         setIsLoading(true);
@@ -122,7 +137,12 @@ export default function AuctionSearch() {
         setSearchTitle(inputTitle);
     };
 
-    const handleStatusChange = (e) => setInputStatus(e.target.value);
+    const handleStatusChange = (e) => {
+        const value = e.target.value;
+        setInputStatus(value);
+        setSearchStatus(value); // 상태 변경시 자동 검색
+    };
+
     const handleTitleChange = (e) => setInputTitle(e.target.value);
 
     const loadMore = () => {
@@ -143,6 +163,7 @@ export default function AuctionSearch() {
         window.location.href = url;
     };
 
+    // 4. 좋아요 토글 (서버 반영 후 전체 좋아요 목록 다시 받아서 동기화)
     const handleLikeToggle = async (auctionId) => {
         if (!currentUser) {
             alert("로그인이 필요합니다.");
@@ -154,18 +175,24 @@ export default function AuctionSearch() {
 
         try {
             const method = liked ? 'DELETE' : 'POST';
-            await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+            const res = await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
                 method,
                 credentials: 'include',
             });
+            if (!res.ok) throw new Error('좋아요 토글 실패');
 
-            setLikedMap(prev => ({
-                ...prev,
-                [auctionId]: !liked,
-            }));
+            // 좋아요 목록 다시 동기화
+            const res2 = await fetch(`/api/favorites/ids/${userKey}`, { credentials: 'include' });
+            if (!res2.ok) throw new Error('좋아요 목록 재요청 실패');
+            const data = await res2.json();
+            const map = {};
+            data.forEach(id => {
+                map[id] = true;
+            });
+            setLikedMap(map);
         } catch (err) {
-            console.error("좋아요 상태 변경 실패:", err);
-            alert("좋아요 변경 중 오류가 발생했습니다.");
+            console.error(err);
+            alert("좋아요 상태 변경 중 오류가 발생했습니다.");
         }
     };
 
@@ -191,6 +218,9 @@ export default function AuctionSearch() {
                         placeholder="제목 또는 호스트를 입력하세요"
                         value={inputTitle}
                         onChange={handleTitleChange}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') onSearchClick();
+                        }}
                     />
                     <select className="search-select" value={inputStatus} onChange={handleStatusChange}>
                         <option value="">전체</option>
