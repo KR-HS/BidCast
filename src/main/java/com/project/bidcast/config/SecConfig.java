@@ -45,11 +45,8 @@ public class SecConfig {
                         "/fetch/**",
                         "/searchId.do",
                         "/searchPw.do",
-<<<<<<< hs
-=======
-                        "/findcomplete.do",
-                        "/changepw.do",
->>>>>>> main
+                        "/findComplete.do",
+                        "/changePw.do",
                         "/search.do",
                         "/schedule.do",
                         "/search",
