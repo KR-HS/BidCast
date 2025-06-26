@@ -36,23 +36,11 @@
         SELECT
             a.auction_id,
             a.title,
-            i.file_url AS image
+            a.thumbnail_url AS image
         FROM likelist l
                  JOIN auction a ON l.auc_key = a.auction_id
-                 LEFT JOIN (
-            -- auction 별 대표 상품 하나만 선택 (예: prod_key가 가장 작은 것)
-            SELECT auc_key, MIN(prod_key) AS rep_prod_key
-            FROM product
-            GROUP BY auc_key
-        ) p ON a.auction_id = p.auc_key
-                 LEFT JOIN (
-            -- 대표 상품의 대표 이미지(가장 빠른 등록일) 선택
-            SELECT prod_key, MIN(reg_date) AS min_regdate
-            FROM file
-            GROUP BY prod_key
-        ) fi ON p.rep_prod_key = fi.prod_key
-                 LEFT JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
         WHERE l.user_key = #{userKey}
+
     </select>
 
 

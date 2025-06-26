@@ -127,13 +127,7 @@ export default function App() {
                         } else {
                             // 낙찰 전
                             priceCell = "";
-                            winnerCell = (
-                                <button
-                                    onClick={() => handleBid(item.prodId)}
-                                    className="bid-btn">
-                                    낙찰
-                                </button>
-                            );
+                            winnerCell = "";
                         }
                     } else if (auctionStatus === "종료") {
                         if (item.winner && item.price) {
