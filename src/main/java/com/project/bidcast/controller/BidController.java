@@ -32,6 +32,15 @@ public class BidController {
         return result;
     }
 
+    @PostMapping('/auction-title')
+    public String getAuctionTItle(@RequestBody Map<String,Object> map){
+        int roomId = Integer.parseInt(map.get("roomId").toString());
+
+        String result = bidService.getAuctionTitle(roomId);
+
+        return result;
+    }
+
     @PostMapping("/prodList")
     @ResponseBody
     public List<ProdDTO> getProducts(@RequestBody Map<String, Object> map) {

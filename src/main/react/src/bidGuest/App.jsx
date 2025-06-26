@@ -10,6 +10,7 @@ import DoBid from "./DoBid";
 import StatusMessage from "./StatusMessage";
 
 
+
 export default function App() {
 
     const [isAuctionEnded, setIsAuctionEnded] = useState(false);  // 경매 종료 여부
@@ -83,6 +84,8 @@ export default function App() {
     const MAX_CHAT_COUNT = 40;
 
 
+    const [roomTitle,setRoomTitle] = useState("");
+
     useEffect(() => {
         roomIdRef.current = roomId;
         userIdRef.current = userId;
@@ -112,6 +115,27 @@ export default function App() {
         };
 
         getRoomStatus();
+
+
+        const getRoomTitle = async () => {
+            try {
+                const response = await fetch("/fetch/auction/auction-title", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ roomId })
+                });
+
+                const title = await response.text();
+                if(title.length>0) setRoomTitle(title);
+            } catch (error) {
+                console.error("경매 상태 확인 실패:", error);
+            }
+        };
+
+        getRoomTitle();
     }, [roomId]);
 
 

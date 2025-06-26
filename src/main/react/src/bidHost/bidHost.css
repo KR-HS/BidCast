@@ -426,7 +426,7 @@ video {
 }
 
 .sliderWrap > .arrowWrap{
-    width:5%;
+    width:4.5%;
 }
 .arrowWrap > div > img{
     width:30px;
@@ -438,7 +438,7 @@ video {
     display:flex;
     justify-content:flex-start;
     padding:20px 0 0 0;
-    width:90%;
+    width:91%;
     overflow-x:auto;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width:none;
