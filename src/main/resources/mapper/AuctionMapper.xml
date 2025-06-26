@@ -43,12 +43,12 @@
         SELECT
             p.prod_key AS prodId,
             p.prod_name AS prodName,
-            a.thumbnail_url AS image,  -- 서브쿼리 대신 직접 컬럼 사용
+            f.file_url AS image,  -- 서브쿼리 대신 직접 컬럼 사용
             p.final_price AS price,
             u.nickname AS winner
         FROM product p
-                LEFT JOIN  auction a ON p.auc_key = a.auction_id
-                 LEFT JOIN users u ON p.winner_id = u.user_key
+                LEFT JOIN users u ON p.winner_id = u.user_key
+                LEFT JOIN file f ON f.prod_key = p.prod_key
         WHERE p.auc_key = #{auctionId};
 
     </select>
