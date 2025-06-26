@@ -55,7 +55,7 @@ export default function CustomerCenter() {
         const inquiryData = { ...form }; // userKey는 백엔드에서 처리
 
         try {
-            const response = await fetch('http://localhost:8888/api/inquiry', {
+            const response = await fetch('/api/inquiry', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(inquiryData),

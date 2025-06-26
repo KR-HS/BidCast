@@ -14,7 +14,7 @@ export default function InquiryList() {
         const fetchData = async () => {
             try {
                 // credentials: 'include'는 세션/쿠키 인증에 필요
-                const res = await fetch('http://localhost:8888/api/inquiryList', { credentials: 'include' });
+                const res = await fetch('/api/inquiryList', { credentials: 'include' });
                 if (res.status === 401) {
                     alert('로그인이 필요합니다.');
                     window.location.href = '/login.do'; // Spring Security의 로그인 경로

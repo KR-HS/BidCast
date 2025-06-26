@@ -223,8 +223,8 @@ export default function AuctionSearch() {
         }
         const isHost = currentUser.userKey === auction.hostId;
         const url = isHost
-            ? `http://localhost:8888/bidHost.do?roomId=${auction.auctionId}`
-            : `http://localhost:8888/bidGuest.do?roomId=${auction.auctionId}`;
+            ? `/bidHost.do?roomId=${auction.auctionId}`
+            : `/bidGuest.do?roomId=${auction.auctionId}`;
 
         window.location.href = url;
     };
