@@ -3,27 +3,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.bidcast.mapper.AuctionMapper">
     <select id="getAuctionHistoryByUserId" resultType="com.project.bidcast.vo.AuctionHistoryDTO" parameterType="String">
-        SELECT DISTINCT ON (a.auction_id)
+        SELECT
             a.auction_id AS auctionId,
             a.title AS title,
-            i.file_url AS imgUrl,
+            a.thumbnail_url AS image,  -- 여기만 바꿈
             a.start_time AS startTime,
             a.end_time AS endTime,
             a.status,
             a.created_at AS auctionDate,
             string_agg(DISTINCT t.tag_name, ', ') AS tags
         FROM auction a
-            JOIN product p ON a.auction_id = p.auc_key
-            JOIN (
-            SELECT prod_key, MIN(reg_date) AS min_regdate
-            FROM file
-            GROUP BY prod_key
-            ) fi ON p.prod_key = fi.prod_key
-            JOIN file i ON i.prod_key = fi.prod_key AND i.reg_date = fi.min_regdate
-            LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
+                 LEFT JOIN auctiontag at ON a.auction_id = at.auc_key
             LEFT JOIN tag t ON at.tag_key = t.tag_key
         WHERE a.host_id = #{loginId}
-        GROUP BY a.auction_id, a.title, i.file_url, a.created_at,a.status
+        GROUP BY a.auction_id, a.title, a.thumbnail_url, a.created_at, a.status
         ORDER BY a.auction_id, a.start_time DESC
     </select>
 
@@ -49,16 +42,12 @@
         SELECT
             p.prod_key AS prodId,
             p.prod_name AS prodName,
-            (
-                SELECT f.file_url
-                FROM file f
-                WHERE f.prod_key = p.prod_key
-                LIMIT 1
-            ) AS image,
-    p.final_price AS price,
-    u.nickname AS winner
+            a.thumbnail_url AS image,  -- 서브쿼리 대신 직접 컬럼 사용
+            p.final_price AS price,
+            u.nickname AS winner
         FROM product p
-            LEFT JOIN users u ON p.winner_id = u.user_key
+                LEFT JOIN  auction a ON p.auc_key = a.auction_id
+                 LEFT JOIN users u ON p.winner_id = u.user_key
         WHERE p.auc_key = #{auctionId};
 
     </select>
@@ -67,16 +56,13 @@
         SELECT
             p.prod_key AS prodId,
             p.prod_name AS prodName,
-            (
-                SELECT f.file_url
-                FROM file f
-                WHERE f.prod_key = p.prod_key
-                LIMIT 1
-            ) AS image,
-        p.final_price AS price
+            a.thumbnail_url AS image,
+            p.final_price AS price
         FROM product p
+            LEFT JOIN auction a ON p.auc_key = a.auction_id
         WHERE p.winner_id = #{userKey}
-        ORDER BY p.prod_key DESC
+        ORDER BY p.prod_key DESC;
+
     </select>
 
 
@@ -85,15 +71,7 @@
         a.auction_id,
         to_char(a.start_time, 'YYYY.MM.DD') AS date,
         a.title,
-        -- 대표 이미지 하나만 서브쿼리로 가져오기
-        (
-        SELECT f.file_url
-        FROM product p2
-        LEFT JOIN file f ON p2.prod_key = f.prod_key
-        WHERE p2.auc_key = a.auction_id
-        ORDER BY f.reg_date ASC
-        LIMIT 1
-        ) AS image,
+        a.thumbnail_url AS image,  -- file 서브쿼리 대신 직접 컬럼 사용
         a.start_time,
         a.end_time,
         a.status,
@@ -116,7 +94,7 @@
                 )
             </if>
         </where>
-        GROUP BY a.auction_id, a.start_time, a.title, a.end_time, a.status, a.view_count, u.user_name
+        GROUP BY a.auction_id, a.start_time, a.title, a.end_time, a.status, a.view_count, u.user_name, a.thumbnail_url
     </select>
 
 

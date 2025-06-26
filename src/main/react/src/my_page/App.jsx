@@ -187,7 +187,7 @@ export default function myPage() {
                     <div className="item-list">
                         {items.map(item => (
                             <div className="item-card" key={item.id} onClick={()=>handleClick(item.auctionId)} >
-                                <img src={item.imgUrl} alt={item.title} className="item-img" />
+                                <img src={item.image} alt={item.title} className="item-img" />
                                 <div className="item-title">{item.title}</div>
                             </div>
                         ))}
