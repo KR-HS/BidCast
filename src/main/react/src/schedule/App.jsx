@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Calendar from "./calendar";
 import Loader from "../Loader/Loader";
 import {FaHeart, FaRegHeart} from "react-icons/fa";
+import  { io }  from 'socket.io-client';
+
+
 
 const today = new Date();
 
@@ -18,6 +21,8 @@ export default function App() {
     // 경매 리스트
     const [auctionData, setAuctionData] = useState([]);
     const [userKey, setUserKey] = useState(null);
+    const [guestCounts, setGuestCounts] = useState({});
+    const socket = useRef(null);
 
     // 날짜 포맷 함수
     const formatDate = (date) =>
@@ -114,6 +119,39 @@ export default function App() {
             });
     }, [userKey]);
 
+    //웹소켓 연결
+    useEffect(() => {
+       socket.current = io('https://bidcastserver.kro.kr', {transports:['websocket']});
+
+        return () => {
+            if(socket.current) socket.current.disconnect();
+        };
+
+    }, []);
+
+    //auctionData가 바뀔 때마다 auctionIds로 emit
+    useEffect(() => {
+        if (!socket.current || auctionData.length === 0) return;
+
+        const auctionIds = auctionData.map(item => item.auctionId);
+        alert(roomId);
+        socket.current.emit('get-guest-counts', { auctionIds }, (data) => {
+            setGuestCounts(prev => ({ ...prev, ...data }));
+        });
+
+        socket.current.on('guestCountUpdate', (data) => {
+            setGuestCounts(prev => ({
+                ...prev,
+                [data.auctionId]: data.guestCount
+            }));
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off('guestCountUpdate');
+            }
+        };
+    }, [auctionData]);
 
     // 오늘인지 판별
     const isToday = (date) =>
@@ -237,7 +275,7 @@ export default function App() {
                                         <div className="info-title">
                                             <h3>{item.title}</h3>
                                             <div className="info-content">
-                                                <div className="guest-count">참여자수: {item.guestCount}</div>
+                                                <div className="guest-count">참여자수: {guestCounts[item.auctionId]??item.guestCount}</div>
                                                 <div className="host-name">경매사: {item.hostName}</div>
                                             </div>
                                         </div>
