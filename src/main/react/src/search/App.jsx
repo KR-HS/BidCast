@@ -78,6 +78,26 @@ export default function AuctionSearch() {
             });
     }, []);
 
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const keyword = params.get('keyword');
+        if (keyword) {
+            setInputTitle(keyword);
+            setSearchTitle(keyword);
+        }
+    }, []);
+
+
+    // 검색 쿼리 상태 변경 시 데이터 가져오기
+    useEffect(() => {
+        setIsLoading(true);
+        setPage(0);
+        setHasMore(true);
+        fetchAuctions(0, searchStatus, searchTitle);
+    }, [searchStatus, searchTitle]);
+
+
     // 경매 리스트 불러오기
     const fetchAuctions = async (pageNum = 0, status = '', title = '') => {
         try {
@@ -110,14 +130,6 @@ export default function AuctionSearch() {
             }
         }
     };
-
-    // 검색 쿼리 상태 변경 시 데이터 가져오기
-    useEffect(() => {
-        setIsLoading(true);
-        setPage(0);
-        setHasMore(true);
-        fetchAuctions(0, searchStatus, searchTitle);
-    }, [searchStatus, searchTitle]);
 
     // 검색 버튼 클릭 시 실제 검색 상태 업데이트
     const onSearchClick = () => {
@@ -170,6 +182,8 @@ export default function AuctionSearch() {
         .sort((a, b) => {
             return (statusPriority[normalizeStatus(a.status)] || 99) - (statusPriority[normalizeStatus(b.status)] || 99);
         });
+
+
 
     return (
         <section className="auction-search">

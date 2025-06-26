@@ -183,6 +183,15 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
+    <select id="searchAuctionsByTitle" resultType="com.project.bidcast.vo.AuctionDTO">
+        SELECT
+            a.auction_id,
+            a.title,
+            a.thumbnail_url AS image
+        FROM auction a
+        WHERE a.title ILIKE '%' || #{keyword} || '%';
+    </select>
+
 
 
 

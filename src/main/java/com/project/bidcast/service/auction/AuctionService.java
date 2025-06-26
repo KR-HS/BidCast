@@ -25,6 +25,8 @@ public interface AuctionService {
    List<AuctionDTO> getAuctionsByPageAndStatus(int offset, int size, String status);
    List<AuctionDTO> getAuctionsByPageAndFilter(int offset, int size, String status, String title);
 
+   List<AuctionDTO> searchAuctionsByTitle(String keyword);
+
 
 }
 

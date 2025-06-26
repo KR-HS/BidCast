@@ -31,12 +31,12 @@
             </ul>
         </div>
         <div class="header-right">
-            <div class="searchWrap">
-                <input type="text" class="searchInput">
-                <a href='#' class="searchIcon">
+            <form class="searchWrap" action="/search.do" method="get">
+                <input type="text" class="searchInput" name="keyword">
+                <button type="submit" class="searchIcon" style="border: none">
                     <img src="/img/searchIcon.png" alt="검색">
-                </a>
-            </div>
+                </button>
+            </form>
             <a href="#" class="alarm"><img src="/img/alarmIcon.png" alt="알람"></a>
             <a href="notice.do" class="announce"><img src="/img/announceIcon.png" alt="공지사항"></a>
             <sec:authorize access="isAuthenticated()">
