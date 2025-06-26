@@ -466,6 +466,7 @@ video {
     justify-content: center;
     align-items: center;
     padding:5px 0 ;
+    overflow-x:hidden;
 }
 .bidProd-picture > img{
     height:100%;
