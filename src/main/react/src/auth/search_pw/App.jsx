@@ -97,7 +97,7 @@ export default function App() {
             const userKey = data.user.userKey;
 
             sessionStorage.setItem("userKey", userKey);
-            window.location.href = '/changepw.do';
+            window.location.href = '/changePw.do';
         } else{
             alert("회원을 찾을 수 없습니다.");
         }

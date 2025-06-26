@@ -277,8 +277,8 @@ export default function App() {
           </div>
               </form>
           <div className="side-btn">
-              <a href="/searchid.do">아이디 찾기</a>|
-              <a href="/searchpw.do">비밀번호 찾기</a>|
+              <a href="/searchId.do">아이디 찾기</a>|
+              <a href="/searchPw.do">비밀번호 찾기</a>|
               <a href="/join.do">회원가입</a>
           </div>
           <div className="login-btn-group">

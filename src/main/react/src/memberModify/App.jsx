@@ -98,7 +98,7 @@ export default function App() {
                 const result = await response.json();
                 if (result.success) {
                     alert("회원정보가 성공적으로 수정되었습니다.");
-                    window.location.href = "/mypage.do";
+                    window.location.href = "/myPage.do";
                 } else {
                     alert(result.message || "회원정보 수정에 실패했습니다.");
                 }
@@ -114,7 +114,7 @@ export default function App() {
     const changPw = (e) => {
         e.preventDefault();
         sessionStorage.setItem("userKey", formData.userKey);
-        window.location.href = '/changepw.do';
+        window.location.href = '/changePw.do';
     }
 
     const deleteUser = async (e) => {
