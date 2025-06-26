@@ -24,4 +24,5 @@ public class MainController {
 
         return "view"; //언제나 view화면으로 이동합니다.
     }
+
 }
