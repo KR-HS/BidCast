@@ -55,7 +55,7 @@ width: 130px;
     cursor: pointer;
 }
 
-button{
+.modify-btn>button{
     min-width: 439px;
     height: 60px;
     font-size: 20px;

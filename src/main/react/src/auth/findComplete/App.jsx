@@ -26,18 +26,30 @@ export default function App() {
     }, []);
 
 
-//세션 정보 불러오기
+    // 정보 불러오기
     useEffect(() => {
-        const id = sessionStorage.getItem('recoveredUserId');
-        const createdAt = sessionStorage.getItem('recoveredUserCreatedAt');
-        if (id) {
-            setUserId(id);
-            setUserCreatedAt( new Date(createdAt).toISOString().split('T')[0]);
-            sessionStorage.removeItem('recoveredUserId');
-            sessionStorage.removeItem('recoveredUserCreatedAt');
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const CA = sessionStorage.getItem('recoveredUserCreatedAt');
+        const UI = sessionStorage.getItem('recoveredUserId');
+        const formattedDate = CA ? new Date(CA).toISOString().split('T')[0] : '';
+        setUserCreatedAt(formattedDate);
+        setUserId(UI);
+        sessionStorage.removeItem('recoveredUserCreatedAt');
+        sessionStorage.removeItem('recoveredUserId');
+        console.log(token);
+        if (token) {
+            fetch('/api/v1/validateToken?token=' + token)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .catch(() => {
+                    alert("유효하지 않은 토큰입니다.");
+                    window.location.href = "/login.do";
+                });
         } else{
-
-            alert("잘못된 접근 입니다.")
+            alert("잘못된 접근 입니다.");
             window.location.href = "/login.do";
         }
     }, []);
@@ -48,7 +60,7 @@ export default function App() {
             window.location.href="/login.do";
         }
         if(e.target.className === 'button2'){
-            window.location.href="/searchPw.do"
+            window.location.href="/searchpw.do"
         }
     }
 

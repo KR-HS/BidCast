@@ -40,10 +40,10 @@ export default function App() {
                 if (response.ok) {
                     window.location.href="/home.do";
                 } else {
-                    console.log('Not authenticated');
+                    // console.log('Not authenticated');
                 }
             } catch (error) {
-                console.error('Error checking login status:', error);
+                // console.error('Error checking login status:', error);
             }
         };
         checkLogin();
@@ -59,7 +59,7 @@ export default function App() {
             const naverState = urlParams.get('state');
 
             if (naverCode && naverState) {
-                console.log("네이버 로그인 콜백 감지:", naverCode);
+                // console.log("네이버 로그인 콜백 감지:", naverCode);
                 // 이미 naverLogin.getLoginStatus에서 처리되므로
                 // 여기서는 추가 작업이 필요 없을 수 있음
             }
@@ -83,11 +83,11 @@ export default function App() {
             script.src = 'https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js';
             script.charset = 'utf-8';
             script.onload = () => {
-                console.log('네이버 SDK 로드 완료');
+                // console.log('네이버 SDK 로드 완료');
                 initNaverLogin();
             };
             script.onerror = (e) => {
-                console.error('네이버 SDK 로드 실패:', e);
+                // console.error('네이버 SDK 로드 실패:', e);
             };
             document.head.appendChild(script);
         };
@@ -128,10 +128,10 @@ export default function App() {
 
                     // console.log('네이버 로그인 초기화 성공');
                 } else {
-                    console.error('window.naver 객체가 존재하지 않음');
+                    // console.error('window.naver 객체가 존재하지 않음');
                 }
             } catch (error) {
-                console.error('네이버 로그인 초기화 중 오류:', error);
+                // console.error('네이버 로그인 초기화 중 오류:', error);
             }
         };
 
@@ -157,10 +157,10 @@ export default function App() {
                 // 로그인 성공 후 처리 (예: 홈페이지로 리다이렉트)
                 window.location.href = "/home.do";
             } else {
-                console.error("네이버 로그인 처리 실패");
+                // console.error("네이버 로그인 처리 실패");
             }
         } catch (error) {
-            console.error("네이버 로그인 요청 오류:", error);
+            // console.error("네이버 로그인 요청 오류:", error);
         }
     };
 
@@ -170,7 +170,7 @@ export default function App() {
             const credential = response.credential;
 
             if(!credential) {
-                console.error("credential이 없습니다. 구글 로그인 실패");
+                // console.error("credential이 없습니다. 구글 로그인 실패");
                 return;
             }
             const decoded = jwtDecode(credential);
@@ -195,10 +195,10 @@ export default function App() {
                 // 로그인 성공 후 처리 (예: 홈페이지로 리다이렉트)
                 window.location.href = "/home.do";
             } else {
-                console.error("구글 로그인 처리 실패");
+                // console.error("구글 로그인 처리 실패");
             }
         } catch (error) {
-            console.error("구글 로그인 요청 오류:", error);
+            // console.error("구글 로그인 요청 오류:", error);
         }
     };
 
@@ -230,10 +230,10 @@ export default function App() {
         }else if (response.status === 401) {
             alert("아이디 또는 비밀번호가 틀렸습니다.");
         } else {
-            console.log("로그인 응답 상태:", response.status);
+            // console.log("로그인 응답 상태:", response.status);
         }
     } catch (error) {
-        console.error("로그인 요청 실패:", error);
+        // console.error("로그인 요청 실패:", error);
     }}
 
 

@@ -34,7 +34,7 @@ td input{
 }
 
 
-button{
+.change-pw-btn{
     width: 250px;
     height: 60px;
     font-size: 20px;
