@@ -97,6 +97,7 @@
     cursor: pointer;
     background: white;
     box-sizing: border-box;
+    aspect-ratio: 16/16;
 }
 
 

@@ -29,7 +29,7 @@ export default function CustomerCenter() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const res = await fetch('http://localhost:8888/api/inquiry/auth-check', { credentials: 'include' });
+                const res = await fetch('/api/inquiry/auth-check', { credentials: 'include' });
                 if (res.status === 401) {
                     alert('로그인이 필요합니다.');
                     window.location.href = './login.do';
