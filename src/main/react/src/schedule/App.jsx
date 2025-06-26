@@ -216,7 +216,7 @@ export default function App() {
                                      style={{cursor: "pointer"}}
                                 >
                                     <div className="thumbnail">
-                                        <img src={item.thumbnailUrl} alt="썸네일"/>
+                                        <img src={item.image} alt="썸네일"/>
                                         <span className={`cast-state status-${status}`}>{status}</span>
                                         <button
                                             className={`like-btn${liked ? ' liked' : ''}`}
