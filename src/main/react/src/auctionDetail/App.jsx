@@ -126,8 +126,10 @@ export default function App() {
                             winnerCell = "유찰";
                         } else {
                             // 낙찰 전
+
                             priceCell = "-";
                             winnerCell = "진행중"
+
                         }
                     } else if (auctionStatus === "종료") {
                         if (item.winner && item.price) {
