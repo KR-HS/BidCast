@@ -10,19 +10,14 @@ export default function AuctionSearch() {
     const [hasMore, setHasMore] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
 
-    // 입력용 상태 (폼 입력값)
     const [inputStatus, setInputStatus] = useState('');
     const [inputTitle, setInputTitle] = useState('');
-
-    // 실제 검색 쿼리 상태
     const [searchStatus, setSearchStatus] = useState('');
     const [searchTitle, setSearchTitle] = useState('');
 
     const [likedMap, setLikedMap] = useState({});
-
     const size = 12;
 
-    // 상태 우선순위 정의 (낮을수록 먼저 나옴)
     const statusPriority = {
         '진행중': 1,
         '진행예정': 2,
@@ -31,7 +26,6 @@ export default function AuctionSearch() {
         '알 수 없음': 99
     };
 
-    // 상태명 정규화 함수
     const normalizeStatus = (status) => {
         if (!status) return '알 수 없음';
         const s = status.replace(/\s/g, '').toLowerCase();
@@ -41,17 +35,14 @@ export default function AuctionSearch() {
         return status;
     };
 
-    // 상태 라벨
     const getStatusLabel = (status) => {
         const norm = normalizeStatus(status);
         if (norm === '진행중') return '진행중';
         if (norm === '진행예정') return '진행예정';
         if (norm === '종료') return '종료';
-        if (norm === '예정') return '예정';
         return '알 수 없음';
     };
 
-    // 상태 클래스명
     const getStatusClass = (status) => {
         const norm = normalizeStatus(status);
         if (norm === '진행중') return 'live';
@@ -60,7 +51,6 @@ export default function AuctionSearch() {
         return 'unknown';
     };
 
-    // 로그인 사용자 정보 가져오기
     useEffect(() => {
         fetch('/api/v1/getUserInfo', {
             method: 'POST',
@@ -70,15 +60,25 @@ export default function AuctionSearch() {
                 if (!res.ok) throw new Error('로그인 필요');
                 return res.json();
             })
-            .then(data => {
-                setCurrentUser(data);
-            })
-            .catch(() => {
-                setCurrentUser(null);
-            });
+            .then(data => setCurrentUser(data))
+            .catch(() => setCurrentUser(null));
     }, []);
 
-    // 경매 리스트 불러오기
+    useEffect(() => {
+        if (!currentUser) return;
+
+        fetch(`/api/favorites/${currentUser.userKey}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                const map = {};
+                data.forEach(item => {
+                    map[item.auctionId] = true;
+                });
+                setLikedMap(map);
+            })
+            .catch(err => console.error('좋아요 목록 불러오기 실패:', err));
+    }, [currentUser]);
+
     const fetchAuctions = async (pageNum = 0, status = '', title = '') => {
         try {
             let url = `/api/auctions?page=${pageNum}&size=${size}`;
@@ -93,7 +93,6 @@ export default function AuctionSearch() {
             if (pageNum === 0) setAuctionList(data);
             else setAuctionList(prev => [...prev, ...data]);
 
-            // 새로운 경매목록이 로드될 때 좋아요 상태 유지
             const newLikedMap = {};
             data.forEach(item => {
                 newLikedMap[item.auctionId] = likedMap[item.auctionId] || false;
@@ -111,7 +110,6 @@ export default function AuctionSearch() {
         }
     };
 
-    // 검색 쿼리 상태 변경 시 데이터 가져오기
     useEffect(() => {
         setIsLoading(true);
         setPage(0);
@@ -119,24 +117,20 @@ export default function AuctionSearch() {
         fetchAuctions(0, searchStatus, searchTitle);
     }, [searchStatus, searchTitle]);
 
-    // 검색 버튼 클릭 시 실제 검색 상태 업데이트
     const onSearchClick = () => {
         setSearchStatus(inputStatus);
         setSearchTitle(inputTitle);
     };
 
-    // 필터 입력 상태 변경 핸들러
     const handleStatusChange = (e) => setInputStatus(e.target.value);
     const handleTitleChange = (e) => setInputTitle(e.target.value);
 
-    // 더보기 버튼 클릭
     const loadMore = () => {
         const nextPage = page + 1;
         setPage(nextPage);
         fetchAuctions(nextPage, searchStatus, searchTitle);
     };
 
-    // 카드 클릭시 페이지 이동
     const handleCardClick = (auction) => {
         if (!currentUser) {
             alert("로그인이 필요합니다.");
@@ -146,22 +140,37 @@ export default function AuctionSearch() {
         const url = isHost
             ? `http://localhost:8888/bidHost.do?roomId=${auction.auctionId}`
             : `http://localhost:8888/bidGuest.do?roomId=${auction.auctionId}`;
-
         window.location.href = url;
     };
 
-    // 좋아요 토글
-    const handleLikeToggle = (auctionId) => {
-        setLikedMap(prev => ({
-            ...prev,
-            [auctionId]: !prev[auctionId],
-        }));
-        // 서버 API 호출 추가 가능
+    const handleLikeToggle = async (auctionId) => {
+        if (!currentUser) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const userKey = currentUser.userKey;
+        const liked = likedMap[auctionId] || false;
+
+        try {
+            const method = liked ? 'DELETE' : 'POST';
+            await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                method,
+                credentials: 'include',
+            });
+
+            setLikedMap(prev => ({
+                ...prev,
+                [auctionId]: !liked,
+            }));
+        } catch (err) {
+            console.error("좋아요 상태 변경 실패:", err);
+            alert("좋아요 변경 중 오류가 발생했습니다.");
+        }
     };
 
     if (isLoading) return <Loader />;
 
-    // 상태 필터 적용 후 항상 우선순위대로 정렬
     const filteredList = auctionList
         .filter(item => {
             if (!searchStatus) return true;
@@ -189,31 +198,20 @@ export default function AuctionSearch() {
                         <option value="진행중">진행중</option>
                         <option value="종료">종료</option>
                     </select>
-                    <button className="search-btn" onClick={onSearchClick}>
-                        검색
-                    </button>
+                    <button className="search-btn" onClick={onSearchClick}>검색</button>
                 </div>
             </div>
 
             <div className="card-list">
-                {filteredList.length === 0 && (
-                    <div className="empty-message">검색 결과가 없습니다.</div>
-                )}
+                {filteredList.length === 0 && <div className="empty-message">검색 결과가 없습니다.</div>}
                 {filteredList.map(item => {
                     const status = item.status;
                     const liked = likedMap[item.auctionId] || false;
                     return (
-                        <div
-                            className="card"
-                            key={item.auctionId}
-                            onClick={() => handleCardClick(item)}
-                            style={{ cursor: 'pointer' }}
-                        >
+                        <div className="card" key={item.auctionId} onClick={() => handleCardClick(item)} style={{ cursor: 'pointer' }}>
                             <div className="thumbnail">
                                 <img src={item.thumbnailUrl || '/img/thumbnail.png'} alt="썸네일" />
-                                <span className={`cast-state status-${getStatusClass(status)}`}>
-                                    {getStatusLabel(status)}
-                                </span>
+                                <span className={`cast-state status-${getStatusClass(status)}`}>{getStatusLabel(status)}</span>
                                 <button
                                     className={`like-btn${liked ? ' liked' : ''}`}
                                     onClick={e => {
@@ -222,10 +220,7 @@ export default function AuctionSearch() {
                                     }}
                                     aria-label={liked ? "좋아요 취소" : "좋아요"}
                                 >
-                                    {liked
-                                        ? <FaHeart color="red" size={20} />
-                                        : <FaRegHeart color="black" size={20} />
-                                    }
+                                    {liked ? <FaHeart color="red" size={20} /> : <FaRegHeart color="black" size={20} />}
                                 </button>
                             </div>
                             <div className="info">
