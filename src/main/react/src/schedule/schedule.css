@@ -168,6 +168,15 @@ section{
     mix-blend-mode: normal;
 }
 
+.heart-icon path {
+    fill: red;
+}
+
+.like-btn.liked .heart-icon path {
+    fill: red !important;
+}
+
+
 .thumbnail:hover .like-btn .heart-icon {
     filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 6px #fff);
 }
