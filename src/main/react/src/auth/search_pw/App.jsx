@@ -50,8 +50,8 @@ export default function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if(formData.id.length < 7 || formData.id.length > 20) {
-            alert("아이디는 7자 이상 20자 이하로 입력해주세요.");
+        if(formData.id.length < 6 || formData.id.length > 20) {
+            alert("아이디는 6자 이상 20자 이하로 입력해주세요.");
             idRef.current?.focus();
             return;
         }
@@ -94,10 +94,9 @@ export default function App() {
         if(response.ok) {
             const data = await response.json();
 
-            const userKey = data.user.userKey;
 
-            sessionStorage.setItem("userKey", userKey);
-            window.location.href = '/changePw.do';
+            const token = data.token
+            window.location.href = `/changepw.do?token=${token}`;
         } else{
             alert("회원을 찾을 수 없습니다.");
         }
@@ -217,6 +216,7 @@ export default function App() {
                 </table>
                 <div>
                     <button type="button"
+                            className="search-btn"
                             onClick={handleSubmit}
                     >비밀번호 찾기</button>
                 </div>

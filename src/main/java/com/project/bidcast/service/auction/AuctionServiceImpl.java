@@ -37,6 +37,7 @@ public class AuctionServiceImpl implements AuctionService {
     public AuctionDetailDTO getAuctionDetail(Integer auctionId) {
         AuctionDetailDTO detail = auctionMapper.selectAuctionDetail(auctionId);
         List<AuctionItemDTO> items = auctionMapper.selectAuctionItemsByAuctionId(auctionId);
+        System.out.println("물품"+items.toString());
         detail.setItems(items);
         return detail;
     }

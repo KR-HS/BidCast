@@ -10,5 +10,5 @@ import java.util.List;
 public interface InquiryMapper {
     void registerInquiry(InquiryDTO inquiry);
     List<InquiryDTO> getAllInquiries();
-    List<InquiryDTO> getInquiriesByUserKey(@Param("userKey") int userKey); // 이름 통일!
+    List<InquiryDTO> getInquiriesByUserKey(@Param("userKey") int userKey);
 }

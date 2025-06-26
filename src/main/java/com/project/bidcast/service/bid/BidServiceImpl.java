@@ -30,6 +30,11 @@ public class BidServiceImpl implements BidService {
     }
 
     @Override
+    public String getAuctionTitle(int roomId) {
+        return auctionMapper.getAuctionTitle(roomId);
+    }
+
+    @Override
     public List<ProdDTO> getProdList(int aucKey) {
         return bidMapper.getProdList(aucKey);
     }

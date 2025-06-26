@@ -11,6 +11,7 @@ import java.util.Map;
 public interface BidService {
 
     String getAuctionStatus(int roomId);
+    String getAuctionTitle(int roomId);
     List<ProdDTO> getProdList(int aucKey);
     List<String> getTagList(int aucKey);
     Map<Integer,String> getNicks();

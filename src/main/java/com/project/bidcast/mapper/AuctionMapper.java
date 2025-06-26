@@ -31,6 +31,10 @@ public interface AuctionMapper {
 
     @Select("SELECT status FROM auction WHERE auction_id=#{auctionId}")
     String getAuctionStatus(int auctionId);
+
+    @Select("SELECT title FROM auction WHERE auction_id=#{auctionId}")
+    String getAuctionTitle(int auctionId);
+
     @Select("SELECT tag_key, tag_name FROM tag")
     List<TagDTO> selectTag();
 

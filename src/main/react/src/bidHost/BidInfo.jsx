@@ -204,7 +204,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
     const scroll = (dir) => {
         const wrapper = scrollRef.current?.querySelector('.bidProdWrap');
         // const wrapper = scrollRef.current;
-        const scrollAmount = 206;
+        const scrollAmount = 204;
         wrapper.scrollBy({left: dir === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth'});
     };
 
