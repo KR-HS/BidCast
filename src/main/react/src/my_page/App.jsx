@@ -14,6 +14,14 @@ export default function myPage() {
     const initialTab = params.get('tab') || '경매이력';
     const [activeTab, setActiveTab] = useState(initialTab);
 
+    useEffect(() => {
+        // 주소창에서 쿼리 제거 (페이지 새로고침 없이 주소만 변경)
+        if (initialTab) {
+            const urlWithoutQuery = window.location.pathname;
+            window.history.replaceState(null, '', urlWithoutQuery);
+        }
+    }, [initialTab]);
+
     const [favoriteItems, setFavoriteItems] = useState([]);
     const [userKey, setUserKey] = useState(null);
 
@@ -41,6 +49,7 @@ export default function myPage() {
     }, []);
 
 
+    // 경매이력
     useEffect(() => {
         fetch('/api/auctions/history')
             .then(res => {
@@ -52,6 +61,7 @@ export default function myPage() {
                 return res.json();
             })
             .then(data => {
+                console.log('경매이력 items data:', data, Array.isArray(data));
                 // console.log("서버응답 data 확인:" + data);
                 if (data) {
                     setItems(data);
@@ -74,13 +84,14 @@ export default function myPage() {
                     return res.json();
                 })
                 .then(data => {
+                    console.log('낙찰 items data:', data, Array.isArray(data));
                     if (data) setWinningItems(data);
                 })
                 .catch(err => {
                     console.log('낙찰내역 요청 실패:',err);
                 });
         }
-    }, [activeTab]);
+    }, [activeTab, userKey]);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -114,13 +125,14 @@ export default function myPage() {
                     return res.json();
                 })
                 .then(data => {
+                    console.log('관심경매 items data:', data, Array.isArray(data));
                     if (data) setFavoriteItems(data);
                 })
                 .catch(err => {
                     console.error('관심경매 요청 실패:', err);
                 });
         }
-    }, [activeTab]);
+    }, [activeTab, userKey]);
 
 
 
