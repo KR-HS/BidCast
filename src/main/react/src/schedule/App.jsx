@@ -277,7 +277,7 @@ export default function App() {
                                         <div className="info-title">
                                             <h3>{item.title}</h3>
                                             <div className="info-content">
-                                                <div className="guest-count">참여자수: {guestCounts[item.auctionId]??item.guestCount}</div>
+                                                <div className="guest-count">참여자수: {guestCounts[item.auctionId]??0}</div>
                                                 <div className="host-name">경매사: {item.hostName}</div>
                                             </div>
                                         </div>

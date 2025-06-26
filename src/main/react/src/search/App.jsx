@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './search.css';
 import Loader from "../Loader/Loader";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import  { io }  from 'socket.io-client';
 
 export default function AuctionSearch() {
     const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +22,45 @@ export default function AuctionSearch() {
     const [likedMap, setLikedMap] = useState({});
 
     const size = 12;
+
+
+    const [guestCounts, setGuestCounts] = useState({});
+    const socket = useRef(null);
+    //웹소켓 연결
+    useEffect(() => {
+        socket.current = io('https://bidcastserver.kro.kr', {transports:['websocket']});
+
+        return () => {
+            if(socket.current) socket.current.disconnect();
+        };
+
+    }, []);
+
+    //auctionData가 바뀔 때마다 auctionIds로 emit
+    useEffect(() => {
+        if (!socket.current || auctionList.length === 0) return;
+
+        const auctionIds = auctionList.map(item => item.auctionId);
+        // console.log("경매 방번호들",auctionIds)
+        socket.current.emit('get-guest-counts', { auctionIds }, (data) => {
+            // console.log("실시간 경매자수 받아오기",data);
+            setGuestCounts(prev => ({ ...prev, ...data }));
+        });
+
+        socket.current.on('guestCountUpdate', (data) => {
+            // console.log("경매 시청자수 변환시 받은 데이터",data);
+            setGuestCounts(prev => ({
+                ...prev,
+                [data.auctionId]: data.guestCount
+            }));
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off('guestCountUpdate');
+            }
+        };
+    }, [auctionList]);
 
     // 상태 우선순위 정의 (낮을수록 먼저 나옴)
     const statusPriority = {
@@ -297,7 +337,7 @@ export default function AuctionSearch() {
                             <div className="info">
                                 <h3>{item.title}</h3>
                                 <div className="info-content">
-                                    <div className="guest-count">참여자수: {item.guestCount || 0}</div>
+                                    <div className="guest-count">참여자수: {guestCounts[item.auctionId]??0}</div>
                                     <div className="host-name">경매사: {item.hostName || '-'}</div>
                                 </div>
                             </div>
