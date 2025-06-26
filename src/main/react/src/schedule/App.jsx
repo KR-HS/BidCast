@@ -134,12 +134,14 @@ export default function App() {
         if (!socket.current || auctionData.length === 0) return;
 
         const auctionIds = auctionData.map(item => item.auctionId);
-        alert(roomId);
+        console.log("경매 방번호들",auctionIds)
         socket.current.emit('get-guest-counts', { auctionIds }, (data) => {
+            console.log("실시간 경매자수 받아오기",data);
             setGuestCounts(prev => ({ ...prev, ...data }));
         });
 
         socket.current.on('guestCountUpdate', (data) => {
+            console.log("경매 시청자수 변환시 받은 데이터",data);
             setGuestCounts(prev => ({
                 ...prev,
                 [data.auctionId]: data.guestCount

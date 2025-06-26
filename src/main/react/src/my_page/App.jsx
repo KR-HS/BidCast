@@ -8,7 +8,12 @@ export default function myPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [items, setItems] = useState([]);
     const [winningItems, setWinningItems] = useState([]);
-    const [activeTab, setActiveTab] = useState('경매이력');
+
+    // URL에서 쿼리 파라미터 읽기
+    const params = new URLSearchParams(window.location.search);
+    const initialTab = params.get('tab') || '경매이력';
+    const [activeTab, setActiveTab] = useState(initialTab);
+
     const [favoriteItems, setFavoriteItems] = useState([]);
     const [userKey, setUserKey] = useState(null);
 

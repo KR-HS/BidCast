@@ -145,7 +145,7 @@ header>.header-right>.searchWrap>.searchIcon>img{
 
 
 /*공지사항,알람 아이콘*/
-header>.header-right>.alarm>img,header>.header-right>.announce>img{
+header>.header-right>.like>img,header>.header-right>.announce>img{
     height:30px;
 }
 .logout>img{
