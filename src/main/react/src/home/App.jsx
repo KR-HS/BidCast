@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import Calendar from "../calendar/calendar";
-import RegAuction from "../regauction/App";
+import RegAuction from "../regAuction/App";
 import Loader from "../Loader/Loader";
 import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
 import { RiMenuSearchLine } from "react-icons/ri";

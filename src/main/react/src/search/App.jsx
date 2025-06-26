@@ -70,13 +70,31 @@ export default function AuctionSearch() {
                 if (!res.ok) throw new Error('로그인 필요');
                 return res.json();
             })
-            .then(data => {
-                setCurrentUser(data);
-            })
-            .catch(() => {
-                setCurrentUser(null);
-            });
+            .then(data => setCurrentUser(data))
+            .catch(() => setCurrentUser(null));
     }, []);
+
+    // 2. currentUser가 바뀌면 좋아요 목록 불러오기 (완전히 준비됐을 때만)
+    useEffect(() => {
+        if (!currentUser) {
+            setLikedMap({});
+            return;
+        }
+
+        fetch(`/api/favorites/ids/${currentUser.userKey}`, { credentials: 'include' })
+            .then(res => {
+                if (!res.ok) throw new Error('좋아요 목록 요청 실패');
+                return res.json();
+            })
+            .then(data => {
+                const map = {};
+                data.forEach(id => {
+                    map[id] = true;
+                });
+                setLikedMap(map);
+            })
+            .catch(() => setLikedMap({}));
+    }, [currentUser]);
 
 
     useEffect(() => {
@@ -126,7 +144,12 @@ export default function AuctionSearch() {
             const loader = document.getElementById('loader');
             if (loader) {
                 loader.classList.add('fade-out');
-                setTimeout(() => loader.style.display = 'none', 500);
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    setIsLoading(false);
+                }, 500);
+            } else {
+                setIsLoading(false);
             }
         }
     };
@@ -137,8 +160,12 @@ export default function AuctionSearch() {
         setSearchTitle(inputTitle);
     };
 
-    // 필터 입력 상태 변경 핸들러
-    const handleStatusChange = (e) => setInputStatus(e.target.value);
+    const handleStatusChange = (e) => {
+        const value = e.target.value;
+        setInputStatus(value);
+        setSearchStatus(value); // 상태 변경시 자동 검색
+    };
+
     const handleTitleChange = (e) => setInputTitle(e.target.value);
 
     // 더보기 버튼 클릭
@@ -162,13 +189,37 @@ export default function AuctionSearch() {
         window.location.href = url;
     };
 
-    // 좋아요 토글
-    const handleLikeToggle = (auctionId) => {
-        setLikedMap(prev => ({
-            ...prev,
-            [auctionId]: !prev[auctionId],
-        }));
-        // 서버 API 호출 추가 가능
+    // 4. 좋아요 토글 (서버 반영 후 전체 좋아요 목록 다시 받아서 동기화)
+    const handleLikeToggle = async (auctionId) => {
+        if (!currentUser) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const userKey = currentUser.userKey;
+        const liked = likedMap[auctionId] || false;
+
+        try {
+            const method = liked ? 'DELETE' : 'POST';
+            const res = await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {
+                method,
+                credentials: 'include',
+            });
+            if (!res.ok) throw new Error('좋아요 토글 실패');
+
+            // 좋아요 목록 다시 동기화
+            const res2 = await fetch(`/api/favorites/ids/${userKey}`, { credentials: 'include' });
+            if (!res2.ok) throw new Error('좋아요 목록 재요청 실패');
+            const data = await res2.json();
+            const map = {};
+            data.forEach(id => {
+                map[id] = true;
+            });
+            setLikedMap(map);
+        } catch (err) {
+            console.error(err);
+            alert("좋아요 상태 변경 중 오류가 발생했습니다.");
+        }
     };
 
     if (isLoading) return <Loader />;
@@ -183,8 +234,6 @@ export default function AuctionSearch() {
             return (statusPriority[normalizeStatus(a.status)] || 99) - (statusPriority[normalizeStatus(b.status)] || 99);
         });
 
-
-
     return (
         <section className="auction-search">
             <div className="search-header">
@@ -196,6 +245,9 @@ export default function AuctionSearch() {
                         placeholder="제목 또는 호스트를 입력하세요"
                         value={inputTitle}
                         onChange={handleTitleChange}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') onSearchClick();
+                        }}
                     />
                     <select className="search-select" value={inputStatus} onChange={handleStatusChange}>
                         <option value="">전체</option>

@@ -157,16 +157,7 @@
         a.status,
         a.host_id AS hostId,
         u.user_name AS hostName,
-
-        -- ✅ 썸네일: 가장 빠르게 등록된 product -> file 조인해서 가져오기
-        (
-        SELECT f.file_url
-        FROM product p
-        JOIN file f ON p.prod_key = f.prod_key
-        WHERE p.auc_key = a.auction_id
-        ORDER BY f.reg_date ASC
-        LIMIT 1
-        ) AS thumbnailUrl
+        a.thumbnail_url AS thumbnailUrl  <!-- ✅ 수정된 부분 -->
 
         FROM auction a
         LEFT JOIN users u ON a.host_id = u.login_id
@@ -191,6 +182,7 @@
         FROM auction a
         WHERE a.title ILIKE '%' || #{keyword} || '%';
     </select>
+
 
 
 

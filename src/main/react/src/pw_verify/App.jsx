@@ -41,7 +41,7 @@ export default function App() {
         if(response.ok) {
             const data = await response.json();
             alert(`비밀번호는 입니다.`);
-            window.location.href = '/findcomplete.do';
+            window.location.href = '/findComplete.do';
         } else{
             alert("회원을 찾을 수 없습니다.");
         }

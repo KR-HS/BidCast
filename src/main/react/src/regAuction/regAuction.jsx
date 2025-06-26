@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-import './regauction.css'
+import './regAuction.css'
 import App from "./App";
 
 
