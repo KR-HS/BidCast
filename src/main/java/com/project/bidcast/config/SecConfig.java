@@ -45,8 +45,14 @@ public class SecConfig {
                         "/fetch/**",
                         "/searchId.do",
                         "/searchPw.do",
+<<<<<<< hs
+=======
+                        "/findcomplete.do",
+                        "/changepw.do",
+>>>>>>> main
                         "/search.do",
                         "/schedule.do",
+                        "/search",
                         "/introduce.do",
                         "/"
                 ).permitAll()

@@ -1,12 +1,15 @@
 package com.project.bidcast.controller;
 
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.project.bidcast.config.JWTConfig;
 import com.project.bidcast.service.auth.AuthService;
 import com.project.bidcast.service.auth.CustomUserDetails;
 import com.project.bidcast.util.GetSession;
 import com.project.bidcast.vo.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,7 +63,6 @@ public class AuthController {
     @PostMapping("/getUserInfo")
     public ResponseEntity<UsersDTO> getUserInfo(){
         UsersDTO user = GetSession.getUser();
-        System.out.println(user.toString());
         return ResponseEntity.ok(user);
     }
 
@@ -122,7 +124,8 @@ public class AuthController {
             return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 회원이 없습니다."), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(Map.of("success", true,"user", dto), HttpStatus.OK);
+        String token = jwtConfig.createToken(String.valueOf(dto.getUserKey()));
+        return new ResponseEntity<>(Map.of("success", true,"token", token, "user", dto), HttpStatus.OK);
     }
 
     //비밀번호 찾기
@@ -134,7 +137,8 @@ public class AuthController {
             return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 회원이 없습니다."), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(Map.of("success", true, "user", dto), HttpStatus.OK);
+        String token = jwtConfig.createToken(String.valueOf(dto.getUserKey()));
+        return new ResponseEntity<>(Map.of("success", true, "token", token), HttpStatus.OK);
     }
 
     //비밀번호변경
@@ -191,4 +195,24 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("success", true, "msg", "회원 탈퇴가 완료되었습니다."));
     }
 
+
+
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    //jwt토큰 검증
+    @GetMapping("/validateToken")
+    public ResponseEntity<?> validateToken(@RequestParam String token) {
+        try {
+            String userKey = JWT.require(Algorithm.HMAC256(secret))
+                    .withIssuer("BidCastIssuer")
+                    .build()
+                    .verify(token)
+                    .getSubject();
+            return ResponseEntity.ok(Map.of("userKey", userKey));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "유효하지 않은 토큰입니다."));
+        }
+    }
 }

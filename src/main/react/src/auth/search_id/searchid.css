@@ -55,7 +55,7 @@ td input, select{
     padding: 0 5px;
     width: 200px;
 }
-button{
+.search-btn{
     width: 250px;
     height: 60px;
     font-size: 20px;

@@ -115,6 +115,9 @@ public class AuctionServiceImpl implements AuctionService {
         return auctionMapper.selectAuctionsByPageAndFilter(offset, size, status, title);
     }
 
-
+    @Override
+    public List<AuctionDTO> searchAuctionsByTitle(String keyword) {
+        return auctionMapper.searchAuctionsByTitle(keyword);
+    }
 }
 

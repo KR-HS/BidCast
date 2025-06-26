@@ -74,6 +74,8 @@ export default function App() {
                     </div>
                 );
             })}
+
+            <button className="prev-btn" onClick={()=>window.location.href='./myPage.do'}>이전</button>
         </div>
     );
 }
