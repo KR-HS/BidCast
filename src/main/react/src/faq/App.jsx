@@ -49,7 +49,7 @@ export default function Faq() {
                 loader.classList.add('fade-out');
                 setTimeout(() => {
                     loader.style.display = 'none';
-                }, 500); // CSS transition과 동일 시간
+                }, 500);
             }
 
         }, 500);
