@@ -180,7 +180,7 @@ export default function App() {
                 name
             } =decoded;
 
-            const res = await fetch("http://localhost:8888/api/v1/social-login", {
+            const res = await fetch("https://bidcast.kro.kr/api/v1/social-login", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
