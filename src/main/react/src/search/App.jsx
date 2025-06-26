@@ -113,7 +113,7 @@ export default function AuctionSearch() {
         setPage(0);
         setHasMore(true);
         fetchAuctions(0, searchStatus, searchTitle);
-    }, [searchStatus, searchTitle]);
+    }, [searchStatus, searchTitle] );
 
 
     // 경매 리스트 불러오기
