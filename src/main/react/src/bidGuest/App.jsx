@@ -19,6 +19,7 @@ export default function App() {
     // 로딩 창
     const [isLoading, setIsLoading] = useState(true);
 
+
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {
@@ -90,6 +91,9 @@ export default function App() {
         roomIdRef.current = roomId;
         userIdRef.current = userId;
     }, [roomId, userId]);
+
+
+
 
     useEffect(() => {
         if (!roomId) return;
@@ -896,7 +900,7 @@ export default function App() {
                         </div>
                     </VideoGrid>
                     <div className="video-bottom-wrap">
-                        <p className="auctionTitle">경매제목</p>
+                        <p className="auctionTitle">{roomTitle}</p>
                         <DoBid product={selectedProduct} socket={socket} userId={userId} userInfo={userInfo} roomId={roomId} handleStatusMsg={setStatusMessage} isAuctionEnded={isAuctionEnded}/>
                     </div>
                     <div className="countTagWrap">
