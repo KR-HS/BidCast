@@ -16,10 +16,7 @@ public class NoticeDTO {
     private Integer userKey;
     private String title;
     private String content;
-    private String reply;
     private Integer viewCount;
     private LocalDateTime regDate;
-
-
 
 }
