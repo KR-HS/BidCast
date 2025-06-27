@@ -126,7 +126,7 @@ export default function App() {
         // const params = new URLSearchParams(window.location.search);
         setRoomId(params.get("roomId"));
         // setUserId(params.get("userId"));
-        console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
+        // console.log("룸아이디, 유저아이디 설정됨", roomId, userId)
 
 
         // 세션데이터
@@ -330,7 +330,7 @@ export default function App() {
                                                 }
                                             }
                                         })
-                                        console.log("consuming producer", producerId, "from", socketId);
+                                        // console.log("consuming producer", producerId, "from", socketId);
                                         consume(producerId, socketId);
                                     });
 
@@ -365,7 +365,7 @@ export default function App() {
                     if(!statusList) return;
 
                     setUserInfoMap(statusList);
-                    // console.log("유저인포:",statusList);
+                    console.log("유저인포:",statusList);
                 });
 
 

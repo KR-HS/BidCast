@@ -114,7 +114,7 @@ const Video = ({id, stream, muted: mutedProp, isMain = false}) => {
     }, [muted]);
 
     useEffect(() => {
-        console.log(`Video ${id} stream changed`, stream, videoRef.current);
+        // console.log(`Video ${id} stream changed`, stream, videoRef.current);
         const videoEl = videoRef.current;
         if (!videoEl) return;
         if (stream) {

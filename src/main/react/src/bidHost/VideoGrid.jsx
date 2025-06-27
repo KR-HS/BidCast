@@ -7,9 +7,9 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey
 
 
     useEffect(() => {
-        console.log('Current peers:', peers);
-        console.log(peers[hostSocketId]);
-        console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
+        // console.log('Current peers:', peers);
+        // console.log(peers[hostSocketId]);
+        // console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
     }, [peers]);
 
     // 메인스트림(호스트 소켓)  설정
@@ -55,10 +55,10 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey
     };
 
     useEffect(() => {
-        console.log("🔁 [VideoGrid 리렌더 감지]");
-        console.log("🧠 selectProductKey:", selectProductKey);
-        console.log("🧠 userInfoMap:", userInfoMap);
-        console.log("🧠 subPeers:", subPeers.map(([id]) => id));
+        // console.log("🔁 [VideoGrid 리렌더 감지]");
+        // console.log("🧠 selectProductKey:", selectProductKey);
+        // console.log("🧠 userInfoMap:", userInfoMap);
+        // console.log("🧠 subPeers:", subPeers.map(([id]) => id));
     }, [userInfoMap, selectProductKey, subPeers]);
 
 
@@ -71,9 +71,9 @@ const VideoGrid = ({peers, hostSocketId, mySocketId,userInfoMap,selectProductKey
                         <div className="sub-videos" ref={subVideosRef}>
                             {subPeers.map(([id, peer]) => {
 
-                                console.log("👤 렌더링 유저:", id);
-                                console.log("   └ 닉네임:", userInfoMap?.[id]?.nickname);
-                                console.log("   └ 입찰가:", userInfoMap?.[id]?.bids?.[selectProductKey]);
+                                // console.log("👤 렌더링 유저:", id);
+                                // console.log("   └ 닉네임:", userInfoMap?.[id]?.nickname);
+                                // console.log("   └ 입찰가:", userInfoMap?.[id]?.bids?.[selectProductKey]);
 
                                 return (
                                     <div key={id} className="sub-video-content">
@@ -177,7 +177,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false}) => 
     }, [muted]);
 
     useEffect(() => {
-        console.log(`Video ${id} stream changed`, stream, videoRef.current);
+        // console.log(`Video ${id} stream changed`, stream, videoRef.current);
         const videoEl = videoRef.current;
         if (!videoEl) return;
         if (stream) {

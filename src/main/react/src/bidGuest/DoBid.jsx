@@ -17,13 +17,13 @@ const DoBid = ({product, socket, userId, userInfo, roomId, handleStatusMsg, isAu
 
         setIsBidding(true);
 
-        const unit = product?.unitvalue ?? 1000;
+        const unit = product?.unitValue ?? 1000;
 
         const bidAmount = product?.currentPrice === null /*맨처음 경매*/
             ? product?.initPrice ?? 0
             : (product?.currentPrice ?? 0) + unit;
 
-        console.log("입찰 가격:", bidAmount);
+        // console.log("입찰 가격:", bidAmount);
         socket.current.emit("bid-attempt", {
             auctionId: roomId,
             productId: product.prodKey,
@@ -38,7 +38,7 @@ const DoBid = ({product, socket, userId, userInfo, roomId, handleStatusMsg, isAu
     };
 
     useEffect(() => {
-        console.log("선택상품", product)
+        // console.log("선택상품", product)
 
     }, [product])
 

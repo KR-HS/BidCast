@@ -7,6 +7,7 @@ import { TbCalendarTime, TbCalendarPause, TbCalendarX } from "react-icons/tb";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
+import MenuBtn from "../MenuBtn/MenuBtn";
 
 const images = [
     '/img/slide1.png',
@@ -20,12 +21,10 @@ export default function App() {
     const [auctions, setAuctions] = useState([]);
     const [current, setCurrent] = useState(0);
     const [selectedDate, setSelectedDate] = useState(today);
-    const [btnBottom, setBtnBottom] = useState(20);
     const [showRegAuction, setShowRegAuction] = useState(false);
     const [user, setUser] = useState(null);
     const [notices, setNotices] = useState([]);
     const [noticeIdx, setNoticeIdx] = useState(0);
-    const [showMenu, setShowMenu] = useState(false);
 
     // 공지사항 fetch
     useEffect(() => {
@@ -93,46 +92,7 @@ export default function App() {
         return () => clearInterval(timer);
     }, []);
 
-    const hasInitialized = useRef(false);
 
-    // 스크롤 버튼 위치
-    useEffect(() => {
-        function handleScroll() {
-            const footer = document.querySelector('footer');
-            if (!footer) return;
-            const footerRect = footer.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-            if (footerRect.top < windowHeight) {
-                const overlap = windowHeight - footerRect.top;
-                setBtnBottom(overlap + 20);
-            } else {
-                setBtnBottom(20);
-            }
-        }
-
-
-        const wrappedScroll = () => {
-            // 처음엔 무조건 20px로 시작
-            if (!hasInitialized.current) {
-                hasInitialized.current = true;
-                setBtnBottom(20);
-                return;
-            }
-            handleScroll();
-        };
-
-        window.addEventListener('scroll', wrappedScroll);
-
-        // 최초 실행은 지연
-        const timer = setTimeout(() => {
-            wrappedScroll();
-        }, 100);
-
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('scroll', wrappedScroll);
-        };
-    }, []);
 
     // 경매 데이터 불러오기 (status 컬럼 포함)
     useEffect(() => {
@@ -207,10 +167,6 @@ export default function App() {
         }
     };
 
-    // 메뉴 리스트
-    const toggleMenu = () => {
-        setShowMenu(prev => !prev);
-    };
 
     if (isLoading) {
         return (<Loader />);
@@ -220,18 +176,6 @@ export default function App() {
         <div className="dashboard-container"
              ref={containerRef}
              onClick={handleContainerClick}>
-            {/* 경매장 등록 모달 */}
-            {showRegAuction && (
-                <>
-                    <div className="modal-backdrop" onClick={() => setShowRegAuction(false)} />
-                    <div className="modal-container">
-                        <div className="modal" onClick={e => e.stopPropagation()}>
-                            <RegAuction onClose={() => setShowRegAuction(false)} />
-                        </div>
-                    </div>
-                </>
-            )}
-
             <div className="top-section">
                 <img
                     src={images[current]}
@@ -399,35 +343,7 @@ export default function App() {
                 </div>
             </div>
 
-            {!showRegAuction && (
-
-                <button className="floating-btn" style={{ bottom: `${btnBottom}px` }}
-                        onClick={toggleMenu}>
-                    <img src="/img/hamburger.png" alt="메뉴" className="floating-icon" width='35px' />
-                </button>
-            )}
-            {showMenu && (
-                <div className="floating-menu">
-                    <div className="menu-item" onClick={() => window.location.href = "/regAuction.do"}>
-                        <h5>경매 등록</h5>
-                        <div className="wrap-btn">
-                            <RiAuctionLine size={30} />
-                        </div>
-                    </div>
-                    <div className="menu-item" onClick={() => window.location.href = "/schedule.do"}>
-                        <h5>경매 일정</h5>
-                        <div className="wrap-btn">
-                            <MdOutlineCalendarMonth size={30} />
-                        </div>
-                    </div>
-                    <div className="menu-item" onClick={() => window.location.href = "/search.do"}>
-                        <h5>경매 검색</h5>
-                        <div className="wrap-btn">
-                            <RiMenuSearchLine size={30} />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <MenuBtn></MenuBtn>
         </div>
     );
 }

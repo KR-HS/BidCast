@@ -2,9 +2,8 @@ import React, {useEffect, useRef, useState} from 'react';
 import Calendar from "./calendar";
 import Loader from "../Loader/Loader";
 import {FaHeart, FaRegHeart} from "react-icons/fa";
-import  { io }  from 'socket.io-client';
-
-
+import {io} from 'socket.io-client';
+import MenuBtn from "../MenuBtn/MenuBtn";
 
 const today = new Date();
 
@@ -89,7 +88,7 @@ export default function App() {
     useEffect(() => {
         const fetchAuctionData = async () => {
             setAuctionData([]);
-            const params = new URLSearchParams({ date: formatDate(selectedDate) });
+            const params = new URLSearchParams({date: formatDate(selectedDate)});
             if (selectedTag) params.append('tag', selectedTag);
 
             try {
@@ -111,7 +110,9 @@ export default function App() {
             .then(res => res.json())
             .then(ids => {
                 const map = {};
-                ids.forEach(id => { map[id] = true; });
+                ids.forEach(id => {
+                    map[id] = true;
+                });
                 setLikedMap(map);
             })
             .catch(err => {
@@ -121,10 +122,10 @@ export default function App() {
 
     //웹소켓 연결
     useEffect(() => {
-       socket.current = io('https://bidcastserver.kro.kr', {transports:['websocket']});
+        socket.current = io('https://bidcastserver.kro.kr', {transports: ['websocket']});
 
         return () => {
-            if(socket.current) socket.current.disconnect();
+            if (socket.current) socket.current.disconnect();
         };
 
     }, []);
@@ -135,9 +136,9 @@ export default function App() {
 
         const auctionIds = auctionData.map(item => item.auctionId);
         // console.log("경매 방번호들",auctionIds)
-        socket.current.emit('get-guest-counts', { auctionIds }, (data) => {
+        socket.current.emit('get-guest-counts', {auctionIds}, (data) => {
             // console.log("실시간 경매자수 받아오기",data);
-            setGuestCounts(prev => ({ ...prev, ...data }));
+            setGuestCounts(prev => ({...prev, ...data}));
         });
 
         socket.current.on('guestCountUpdate', (data) => {
@@ -172,15 +173,17 @@ export default function App() {
         const liked = likedMap[auctionId] || false;
         try {
             if (liked) {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'DELETE' });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {method: 'DELETE'});
             } else {
-                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, { method: 'POST' });
+                await fetch(`/api/favorites/like?userKey=${userKey}&aucKey=${auctionId}`, {method: 'POST'});
             }
             // 좋아요 변경 후 서버에서 최신 상태 다시 fetch
             const res = await fetch(`/api/favorites/ids/${userKey}`);
             const likedIds = await res.json();
             const newLikedMap = {};
-            likedIds.forEach(id => { newLikedMap[id] = true; });
+            likedIds.forEach(id => {
+                newLikedMap[id] = true;
+            });
             setLikedMap(newLikedMap);
         } catch (err) {
             console.error("좋아요 처리 실패:", err);
@@ -193,111 +196,115 @@ export default function App() {
     }
 
     return (
-        <section>
-            <div className="calender">
-                <div className="calendar-header">
-                    <button className="calendar-tab active">경매일정</button>
-                </div>
-                <div className="main-section">
-                    <div className="calendar-section">
-                        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
+        <>
+            <section>
+                <div className="calender">
+                    <div className="calendar-header">
+                        <button className="calendar-tab active">경매일정</button>
                     </div>
-                    <div className="auction-list">
-                        <div className="auction-list-header">
+                    <div className="main-section">
+                        <div className="calendar-section">
+                            <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
+                        </div>
+                        <div className="auction-list">
+                            <div className="auction-list-header">
                             <span className="auction-date">
                                 {formatDate(selectedDate)}
                                 {isToday(selectedDate) && <span className="today-label"> (오늘)</span>}
                             </span>
-                        </div>
-                        <div className="tag-list">
-                            {tagList.length === 0 && (
-                                <span className="tag-empty">등록된 태그가 없습니다</span>
-                            )}
-                            {tagList.map(tag => (
-                                <button
-                                    key={tag}
-                                    className={`tag-btn${selectedTag === tag ? ' active' : ''}`}
-                                    onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                                >
-                                    {tag}
-                                </button>
-                            ))}
+                            </div>
+                            <div className="tag-list">
+                                {tagList.length === 0 && (
+                                    <span className="tag-empty">등록된 태그가 없습니다</span>
+                                )}
+                                {tagList.map(tag => (
+                                    <button
+                                        key={tag}
+                                        className={`tag-btn${selectedTag === tag ? ' active' : ''}`}
+                                        onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="cast-list">
-                <div className="auction-count">
-                    {auctionData.length}건
-                </div>
-                <div className="card-list">
-                    <div className="card-list-header">
-                        {auctionData.length === 0 && (
-                            <div className="empty-message">해당 조건의 경매가 없습니다.</div>
-                        )}
-                        {auctionData.map(item => {
-                            const status = item.status;
-                            const liked = likedMap[item.auctionId] || false;
-                            return (
-                                <div className="card"
-                                     key={item.auctionId || item.id}
-                                     onClick={() => {
-                                         if (!user || !user.loginId) {
-                                             window.location.href = '/login.do';
-                                             return;
-                                         }
+                <div className="cast-list">
+                    <div className="auction-count">
+                        {auctionData.length}건
+                    </div>
+                    <div className="card-list">
+                        <div className="card-list-header">
+                            {auctionData.length === 0 && (
+                                <div className="empty-message">해당 조건의 경매가 없습니다.</div>
+                            )}
+                            {auctionData.map(item => {
+                                const status = item.status;
+                                const liked = likedMap[item.auctionId] || false;
+                                return (
+                                    <div className="card"
+                                         key={item.auctionId || item.id}
+                                         onClick={() => {
+                                             if (!user || !user.loginId) {
+                                                 window.location.href = '/login.do';
+                                                 return;
+                                             }
 
-                                         if (user.loginId === item.hostId) {
-                                             window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
-                                         } else {
-                                             window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
-                                         }
-                                     }}
-                                     style={{cursor: "pointer"}}
-                                >
-                                    <div className="thumbnail">
-                                        <img src={item.image} alt="썸네일"/>
-                                        <span className={`cast-state status-${status}`}>{status}</span>
-                                        <button
-                                            className={`like-btn${liked ? ' liked' : ''}`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();  // 이거 꼭 있어야 함
-                                                handleLikeToggle(item.auctionId);
-                                            }}
-                                        >
-                                        {liked ? (
-                                                <FaHeart color="red" size={20} className="heart-icon" />
-                                            ) : (
-                                                <FaRegHeart color="black" size={20} className="heart-icon" />
-                                            )}
-                                        </button>
+                                             if (user.loginId === item.hostId) {
+                                                 window.location.href = `/bidHost.do?roomId=${item.auctionId}`;
+                                             } else {
+                                                 window.location.href = `/bidGuest.do?roomId=${item.auctionId}`;
+                                             }
+                                         }}
+                                         style={{cursor: "pointer"}}
+                                    >
+                                        <div className="thumbnail">
+                                            <img src={item.image} alt="썸네일"/>
+                                            <span className={`cast-state status-${status}`}>{status}</span>
+                                            <button
+                                                className={`like-btn${liked ? ' liked' : ''}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();  // 이거 꼭 있어야 함
+                                                    handleLikeToggle(item.auctionId);
+                                                }}
+                                            >
+                                                {liked ? (
+                                                    <FaHeart color="red" size={20} className="heart-icon"/>
+                                                ) : (
+                                                    <FaRegHeart color="black" size={20} className="heart-icon"/>
+                                                )}
+                                            </button>
 
-                                    </div>
-                                    <div className="info">
-                                        <div className="info-title">
-                                            <h3>{item.title}</h3>
-                                            <div className="info-content">
-                                                <div className="guest-count">참여자수: {guestCounts[item.auctionId]??0}</div>
-                                                <div className="host-name">경매사: {item.hostName}</div>
+                                        </div>
+                                        <div className="info">
+                                            <div className="info-title">
+                                                <h3>{item.title}</h3>
+                                                <div className="info-content">
+                                                    <div
+                                                        className="guest-count">참여자수: {guestCounts[item.auctionId] ?? 0}</div>
+                                                    <div className="host-name">경매사: {item.hostName}</div>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="tag-list-inline">
+                                            {(typeof item.tags === 'string'
+                                                    ? item.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+                                                    : Array.isArray(item.tags)
+                                                        ? item.tags.filter(tag => tag)
+                                                        : []
+                                            ).map(tag => (
+                                                <span key={tag} className="tag">{tag}</span>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="tag-list-inline">
-                                        {(typeof item.tags === 'string'
-                                                ? item.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
-                                                : Array.isArray(item.tags)
-                                                    ? item.tags.filter(tag => tag)
-                                                    : []
-                                        ).map(tag => (
-                                            <span key={tag} className="tag">{tag}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+            <MenuBtn></MenuBtn>
+        </>
     );
 }

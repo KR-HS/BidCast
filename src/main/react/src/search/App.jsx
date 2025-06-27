@@ -1,8 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './search.css';
 import Loader from "../Loader/Loader";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import  { io }  from 'socket.io-client';
+import {FaHeart, FaRegHeart} from "react-icons/fa";
+import {io} from 'socket.io-client';
+import MenuBtn from "../MenuBtn/MenuBtn";
 
 export default function AuctionSearch() {
     const [isLoading, setIsLoading] = useState(true);
@@ -28,10 +29,10 @@ export default function AuctionSearch() {
     const socket = useRef(null);
     //웹소켓 연결
     useEffect(() => {
-        socket.current = io('https://bidcastserver.kro.kr', {transports:['websocket']});
+        socket.current = io('https://bidcastserver.kro.kr', {transports: ['websocket']});
 
         return () => {
-            if(socket.current) socket.current.disconnect();
+            if (socket.current) socket.current.disconnect();
         };
 
     }, []);
@@ -42,9 +43,9 @@ export default function AuctionSearch() {
 
         const auctionIds = auctionList.map(item => item.auctionId);
         // console.log("경매 방번호들",auctionIds)
-        socket.current.emit('get-guest-counts', { auctionIds }, (data) => {
+        socket.current.emit('get-guest-counts', {auctionIds}, (data) => {
             // console.log("실시간 경매자수 받아오기",data);
-            setGuestCounts(prev => ({ ...prev, ...data }));
+            setGuestCounts(prev => ({...prev, ...data}));
         });
 
         socket.current.on('guestCountUpdate', (data) => {
@@ -121,7 +122,7 @@ export default function AuctionSearch() {
             return;
         }
 
-        fetch(`/api/favorites/ids/${currentUser.userKey}`, { credentials: 'include' })
+        fetch(`/api/favorites/ids/${currentUser.userKey}`, {credentials: 'include'})
             .then(res => {
                 if (!res.ok) throw new Error('좋아요 목록 요청 실패');
                 return res.json();
@@ -153,7 +154,7 @@ export default function AuctionSearch() {
         setPage(0);
         setHasMore(true);
         fetchAuctions(0, searchStatus, searchTitle);
-    }, [searchStatus, searchTitle] );
+    }, [searchStatus, searchTitle]);
 
 
     // 경매 리스트 불러오기
@@ -163,7 +164,7 @@ export default function AuctionSearch() {
             if (status) url += `&status=${encodeURIComponent(status)}`;
             if (title) url += `&title=${encodeURIComponent(title)}`;
 
-            const response = await fetch(url, { method: 'GET', credentials: 'include' });
+            const response = await fetch(url, {method: 'GET', credentials: 'include'});
             if (!response.ok) throw new Error("경매 데이터를 불러오는 데 실패했습니다.");
             const data = await response.json();
 
@@ -176,7 +177,7 @@ export default function AuctionSearch() {
             data.forEach(item => {
                 newLikedMap[item.auctionId] = likedMap[item.auctionId] || false;
             });
-            setLikedMap(prev => ({ ...prev, ...newLikedMap }));
+            setLikedMap(prev => ({...prev, ...newLikedMap}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -248,7 +249,7 @@ export default function AuctionSearch() {
             if (!res.ok) throw new Error('좋아요 토글 실패');
 
             // 좋아요 목록 다시 동기화
-            const res2 = await fetch(`/api/favorites/ids/${userKey}`, { credentials: 'include' });
+            const res2 = await fetch(`/api/favorites/ids/${userKey}`, {credentials: 'include'});
             if (!res2.ok) throw new Error('좋아요 목록 재요청 실패');
             const data = await res2.json();
             const map = {};
@@ -262,7 +263,7 @@ export default function AuctionSearch() {
         }
     };
 
-    if (isLoading) return <Loader />;
+    if (isLoading) return <Loader/>;
 
     // 상태 필터 적용 후 항상 우선순위대로 정렬
     const filteredList = auctionList
@@ -275,82 +276,85 @@ export default function AuctionSearch() {
         });
 
     return (
-        <section className="auction-search">
-            <div className="search-header">
-                <h2>경매검색</h2>
-                <p>다양한 필터를 활용하여 원하는 라이브를 빠르게 찾아보세요</p>
-                <div className="search-bar-row">
-                    <input
-                        className="search-input"
-                        placeholder="제목 또는 호스트를 입력하세요"
-                        value={inputTitle}
-                        onChange={handleTitleChange}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') onSearchClick();
-                        }}
-                    />
-                    <select className="search-select" value={inputStatus} onChange={handleStatusChange}>
-                        <option value="">전체</option>
-                        <option value="진행예정">진행예정</option>
-                        <option value="진행중">진행중</option>
-                        <option value="종료">종료</option>
-                    </select>
-                    <button className="search-btn" onClick={onSearchClick}>
-                        검색
-                    </button>
+        <>
+            <section className="auction-search">
+                <div className="search-header">
+                    <h2>경매검색</h2>
+                    <p>다양한 필터를 활용하여 원하는 라이브를 빠르게 찾아보세요</p>
+                    <div className="search-bar-row">
+                        <input
+                            className="search-input"
+                            placeholder="제목 또는 호스트를 입력하세요"
+                            value={inputTitle}
+                            onChange={handleTitleChange}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') onSearchClick();
+                            }}
+                        />
+                        <select className="search-select" value={inputStatus} onChange={handleStatusChange}>
+                            <option value="">전체</option>
+                            <option value="진행예정">진행예정</option>
+                            <option value="진행중">진행중</option>
+                            <option value="종료">종료</option>
+                        </select>
+                        <button className="search-btn" onClick={onSearchClick}>
+                            검색
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div className="card-list">
-                {filteredList.length === 0 && (
-                    <div className="empty-message">검색 결과가 없습니다.</div>
-                )}
-                {filteredList.map(item => {
-                    const status = item.status;
-                    const liked = likedMap[item.auctionId] || false;
-                    return (
-                        <div
-                            className="card"
-                            key={item.auctionId}
-                            onClick={() => handleCardClick(item)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <div className="thumbnail">
-                                <img src={item.thumbnailUrl || '/img/thumbnail.png'} alt="썸네일" />
-                                <span className={`cast-state status-${getStatusClass(status)}`}>
+                <div className="card-list">
+                    {filteredList.length === 0 && (
+                        <div className="empty-message">검색 결과가 없습니다.</div>
+                    )}
+                    {filteredList.map(item => {
+                        const status = item.status;
+                        const liked = likedMap[item.auctionId] || false;
+                        return (
+                            <div
+                                className="card"
+                                key={item.auctionId}
+                                onClick={() => handleCardClick(item)}
+                                style={{cursor: 'pointer'}}
+                            >
+                                <div className="thumbnail">
+                                    <img src={item.thumbnailUrl || '/img/thumbnail.png'} alt="썸네일"/>
+                                    <span className={`cast-state status-${getStatusClass(status)}`}>
                                     {getStatusLabel(status)}
                                 </span>
-                                <button
-                                    className={`like-btn${liked ? ' liked' : ''}`}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        handleLikeToggle(item.auctionId);
-                                    }}
-                                    aria-label={liked ? "좋아요 취소" : "좋아요"}
-                                >
-                                    {liked
-                                        ? <FaHeart color="red" size={20} />
-                                        : <FaRegHeart color="black" size={20} />
-                                    }
-                                </button>
-                            </div>
-                            <div className="info">
-                                <h3>{item.title}</h3>
-                                <div className="info-content">
-                                    <div className="guest-count">참여자수: {guestCounts[item.auctionId]??0}</div>
-                                    <div className="host-name">경매사: {item.hostName || '-'}</div>
+                                    <button
+                                        className={`like-btn${liked ? ' liked' : ''}`}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            handleLikeToggle(item.auctionId);
+                                        }}
+                                        aria-label={liked ? "좋아요 취소" : "좋아요"}
+                                    >
+                                        {liked
+                                            ? <FaHeart color="red" size={20}/>
+                                            : <FaRegHeart color="black" size={20}/>
+                                        }
+                                    </button>
+                                </div>
+                                <div className="info">
+                                    <h3>{item.title}</h3>
+                                    <div className="info-content">
+                                        <div className="guest-count">참여자수: {guestCounts[item.auctionId] ?? 0}</div>
+                                        <div className="host-name">경매사: {item.hostName || '-'}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {hasMore && (
-                <div className="load-more-container">
-                    <button className="search-btn" onClick={loadMore}>더보기</button>
+                        );
+                    })}
                 </div>
-            )}
-        </section>
+
+                {hasMore && (
+                    <div className="load-more-container">
+                        <button className="search-btn" onClick={loadMore}>더보기</button>
+                    </div>
+                )}
+            </section>
+            <MenuBtn></MenuBtn>
+        </>
     );
 }

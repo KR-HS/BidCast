@@ -9,9 +9,9 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded, userInfoMap
 
 
     useEffect(() => {
-        console.log('Current peers:', peers);
-        console.log(peers[hostSocketId]);
-        console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
+        // console.log('Current peers:', peers);
+        // console.log(peers[hostSocketId]);
+        // console.log(peers[hostSocketId]?.stream.getVideoTracks().length === 0)
     }, [peers]);
 
     // 메인스트림(호스트 소켓)  설정
@@ -110,7 +110,7 @@ const VideoGrid = ({peers, hostSocketId, mySocketId, isAuctionEnded, userInfoMap
     }, [scrollX]);
 
     useEffect(() => {
-        console.log("리렌더링됨!!!!!!!!!!!!!!!!!!!!!1", product, userInfoMap)
+        // console.log("리렌더링됨!!!!!!!!!!!!!!!!!!!!!1", product, userInfoMap)
     }, [product, userInfoMap])
     const [subMutedStates, setSubMutedStates] = useState({}); // key: id, value: muted
 
@@ -266,7 +266,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
     }, [muted]);
 
     useEffect(() => {
-        console.log(`Video ${id} stream changed`, stream, videoRef.current);
+        // console.log(`Video ${id} stream changed`, stream, videoRef.current);
         const videoEl = videoRef.current;
         if (!videoEl) return;
         if (stream) {
@@ -376,7 +376,7 @@ const Video = ({id, stream, muted: mutedProp, onMuteChange, isMain = false, onSw
     };
 
     useEffect(() => {
-        console.log('isSpeaking:', isSpeaking);
+        // console.log('isSpeaking:', isSpeaking);
     }, [isSpeaking]);
 
     useEffect(() => {

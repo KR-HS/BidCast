@@ -121,8 +121,8 @@
     </select>
 
     <insert id="regProduct" parameterType="ProdDTO" keyProperty="prodKey" keyColumn="prod_key" useGeneratedKeys="true">
-        INSERT INTO product (auc_key, prod_name)
-        VALUES (#{aucKey}, #{prodName})
+        INSERT INTO product (auc_key, prod_name,prod_detail,init_price)
+        VALUES (#{aucKey}, #{prodName},#{prodDetail},#{initPrice})
         RETURNING prod_key
     </insert>
 

@@ -1,0 +1,81 @@
+.floating-btn-wrap{
+    position: fixed;
+    right: 200px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    min-width: 84px;
+}
+.floating-btn {
+    /*position: fixed;*/
+    /*right: 200px;*/
+    /*bottom: 20px;*/
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    /*background: #EA6946;*/
+    color: white;
+    font-size: 36px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.floating-icon {
+    margin-top: 7px;
+}
+
+.floating-menu {
+    /*position: fixed;*/
+    /*right: 186px;*/
+    /*bottom: 90px; !* 버튼 위에 위치 *!*/
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.menu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    transition: background 0.4s ease;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.wrap-btn {
+    margin-top: 5px;
+    padding: 10px;
+    border-radius: 50%;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    /*background-color: #EA6946;*/
+}

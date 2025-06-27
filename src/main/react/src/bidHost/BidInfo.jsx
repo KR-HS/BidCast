@@ -72,7 +72,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
                 }
 
                 const data = await response.json();
-                console.log("상품정보", data);
+                // console.log("상품정보", data);
 
                 const sorted = sortProductsByStatus(data);
                 setProducts(sorted);
@@ -100,7 +100,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
                 }
 
                 const data = await response.json();
-                console.log("태그정보", data);
+                // console.log("태그정보", data);
 
                 setTags(data);
             } catch (error) {
@@ -129,7 +129,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
                 }
 
                 const data = await response.json();
-                console.log("닉네임정보", data);
+                // console.log("닉네임정보", data);
 
                 setNicks(data);
             } catch (error) {
@@ -150,7 +150,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
         });
         setCompleted(newCompleted);
 
-        console.log("프로덕트전체", products);
+        // console.log("프로덕트전체", products);
     }, [products]);
 
 
@@ -172,11 +172,11 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
     }, [products]);
 
     useEffect(() => {
-        console.log("선택된 상품 인덱스값", selectedProductIdx);
+        // console.log("선택된 상품 인덱스값", selectedProductIdx);
     }, [selectedProductIdx])
 
     useEffect(() => {
-        console.log("selectProductKey:", selectProductKey);
+        // console.log("selectProductKey:", selectProductKey);
     }, [selectProductKey]);
 
     // 스크롤체크
@@ -354,7 +354,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
     useEffect(() => {
         socket.current.on("bid-update", ({product, bidder}) => {
             // 호스트도 이 데이터를 받아서 UI 업데이트
-            console.log("📢 입찰 갱신:", product, bidder);
+            // console.log("📢 입찰 갱신:", product, bidder);
 
             setProducts(prev =>
                 sortProductsByStatus(
@@ -497,18 +497,36 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
             userInfoMap
         ) {
             const productKey = products[selectedProductIdx].prodKey;
+            const product = products[selectedProductIdx];
             const bidders = getSortedBidders(userInfoMap, productKey);
 
-            if (bidders.length >= 2) {
-                setPrevHighestBidder(bidders[1]); // 두 번째 입찰자
+            console.log("최고입찰자 설정", productKey, bidders);
+
+            if (bidders.length === 0) {
+                setPrevHighestBidder(null);
+                return;
+            }
+
+            const finalPrice = Number(product.finalPrice); // 🟡 실제 낙찰 가격 기준
+            console.log("상품의 최종 낙찰 금액:", finalPrice);
+
+// 현재 최고 입찰자 제외한 사람들 중 finalPrice보다 낮은 금액으로 입찰한 유저들 필터링
+            const lowerBidders = bidders.filter(b => Number(b.bid) < finalPrice);
+
+// 그 중 가장 높은 입찰가를 가진 사람 선택
+            if (lowerBidders.length > 0) {
+                setPrevHighestBidder(lowerBidders[0]);
             } else {
-                setPrevHighestBidder(null); // 1명 이하면 null로 세팅해서 버튼 안 나오게
+                setPrevHighestBidder(null);
             }
         } else {
             setPrevHighestBidder(null);
         }
     }, [selectedProductIdx, userInfoMap, products]);
 
+    useEffect(() => {
+        console.log("최고입찰자 바뀜",prevHighestBidder);
+    }, [prevHighestBidder]);
 
     const openRevertModal = () => {
         if (prevHighestBidder) {
@@ -526,7 +544,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
         const product = products[selectedProductIdx];
         const newWinner = revertConfirmModal.bidder;
 
-        console.log("새로운 최고입찰자",newWinner);
+        // console.log("새로운 최고입찰자",newWinner);
         // 상태 반영
         const updatedProduct = {
             ...product,
@@ -540,7 +558,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
             )
         );
 
-        console.log("소켓에 요청보냄")
+        // console.log("소켓에 요청보냄")
         // 서버에도 반영
         socket.current.emit("revert-bidder", {
             auctionId: roomId,
@@ -549,7 +567,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
             finalPrice: newWinner.bid
         });
 
-        console.log("소켓 요청에 대한 응답받음")
+        // console.log("소켓 요청에 대한 응답받음")
         // 모달 닫기
         setRevertConfirmModal({
             visible: false,

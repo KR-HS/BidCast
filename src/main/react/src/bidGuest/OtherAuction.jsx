@@ -25,7 +25,7 @@ const OtherAuction = ({socket,userId,auctionId}) => {
                 }
 
                 const data = await response.json();
-                console.log("다른경매정보", data);
+                // console.log("다른경매정보", data);
 
                 setAuctions(data);
             } catch (error) {

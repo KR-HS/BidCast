@@ -64,15 +64,13 @@ public class AuctionServiceImpl implements AuctionService {
     //경매장 테이블 생성 후 경매장ID 반환
     @Override
     public Integer regAuction(AuctionDTO auctionDTO) {
-
         auctionMapper.regAuction(auctionDTO);
         return auctionDTO.getAuctionId();
     }
 
-
-    //경매장에 대한 물품 등록
     @Override
-    public void regProduct(Integer auctionId, List<Integer> tagKey,  List<String> itemNames, List<String> itemContent, MultipartFile[] images) {
+    public void regProduct(Integer auctionId, List<Integer> tagKey, List<ProdDTO> products, MultipartFile[] images) {
+
         for(Integer tagKeyItem : tagKey) {
             AuctionTagDTO auctionTagDTO = AuctionTagDTO.builder()
                     .auctionId(auctionId)
@@ -83,14 +81,12 @@ public class AuctionServiceImpl implements AuctionService {
 
         List<Integer> prodKeys = new ArrayList<>();
 
-        for (int i = 0; i < itemNames.size(); i++) {
-            ProdDTO prodDTO = ProdDTO.builder()
-                    .aucKey(auctionId)
-                    .prodName(itemNames.get(i))
-                    .prodDetail(itemContent.get(i))
-                    .build();
+        for(ProdDTO prodDTO : products) {
+            prodDTO.setAucKey(auctionId);
             auctionMapper.regProduct(prodDTO);
             prodKeys.add(prodDTO.getProdKey());
+
+            System.out.println("상품등록완료 : "+prodKeys.toString());
         }
 
         for (int i = 0; i < prodKeys.size(); i++) {
@@ -102,6 +98,40 @@ public class AuctionServiceImpl implements AuctionService {
             auctionMapper.regAuctionImg(fileDTO);
         }
     }
+
+
+    //경매장에 대한 물품 등록
+//    @Override
+//    public void regProduct(Integer auctionId, List<Integer> tagKey,  List<String> itemNames, List<String> itemContent, MultipartFile[] images) {
+//        for(Integer tagKeyItem : tagKey) {
+//            AuctionTagDTO auctionTagDTO = AuctionTagDTO.builder()
+//                    .auctionId(auctionId)
+//                    .tagKey(tagKeyItem)
+//                    .build();
+//            auctionMapper.regAuctionTag(auctionTagDTO);
+//        }
+//
+//        List<Integer> prodKeys = new ArrayList<>();
+//
+//        for (int i = 0; i < itemNames.size(); i++) {
+//            ProdDTO prodDTO = ProdDTO.builder()
+//                    .aucKey(auctionId)
+//                    .prodName(itemNames.get(i))
+//                    .prodDetail(itemContent.get(i))
+//                    .build();
+//            auctionMapper.regProduct(prodDTO);
+//            prodKeys.add(prodDTO.getProdKey());
+//        }
+//
+//        for (int i = 0; i < prodKeys.size(); i++) {
+//            FileDTO fileDTO = FileDTO.builder()
+//                    .aucKey(auctionId)
+//                    .fileUrl(s3UploadService.upload(images[i]))
+//                    .prodKey(prodKeys.get(i))
+//                    .build();
+//            auctionMapper.regAuctionImg(fileDTO);
+//        }
+//    }
 
     @Override
     public List<AuctionDTO> getAuctionsByPage(int offset, int size) {

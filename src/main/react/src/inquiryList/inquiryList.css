@@ -174,7 +174,6 @@
 .faq-badge {
     padding:6px;
     font-size: 0.82rem;
-    font-weight: 600;
     border-radius: 20px;
     white-space: nowrap;
 
@@ -257,7 +256,6 @@
 
 .faq-answer {
     font-size: 16px;
-    font-weight: 600;
     color: #222;
     margin-top: 3px;
 }

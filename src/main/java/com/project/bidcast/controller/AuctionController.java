@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,6 +81,7 @@ public class AuctionController {
     }
 
     //경매등록
+    @Transactional
     @PostMapping(value = "/regAuction", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> registerAuction(
             @RequestParam("title") String title,
@@ -89,26 +91,37 @@ public class AuctionController {
             @RequestParam(value = "tags", required = false) List<Integer> tags,
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @RequestParam("images") MultipartFile[] images,
-            @RequestParam("itemNames") List<String> itemNames,
-            @RequestParam("content") List<String> content
+            @RequestPart("items") List<ProdDTO> products
+//            @RequestParam("itemNames") List<String> itemNames,
+//            @RequestParam("content") List<String> content
     ) {
 
-        String loginId = GetSession.getLoginId();
+        System.out.println("등록상품목록 : "+products.toString());
+        try {
+            String loginId = GetSession.getLoginId();
 
-        AuctionDTO auctionDTO = AuctionDTO.builder()
-                                .hostId(loginId)
-                                .title(title)
-                                .startTime(startTime)
-                                .thumbnailUrl(s3UploadService.upload(thumbnail))
-                                .build();
-        /*경매장 생성*/
+            AuctionDTO auctionDTO = AuctionDTO.builder()
+                    .hostId(loginId)
+                    .title(title)
+                    .startTime(startTime)
+                    .thumbnailUrl(s3UploadService.upload(thumbnail))
+                    .build();
+            /*경매장 생성*/
 
-        //경매회차등록
-        Integer auctionId = auctionService.regAuction(auctionDTO);
-        //경매 태그, 상품 등록
-        auctionService.regProduct(auctionId, tags, itemNames, content, images);
+            //경매회차등록
+            Integer auctionId = auctionService.regAuction(auctionDTO);
+            //경매 태그, 상품 등록
+//            auctionService.regProduct(auctionId, tags, itemNames, content, images);
+            auctionService.regProduct(auctionId, tags, products, images);
 
-        return ResponseEntity.ok(Map.of("success", true));
+            return ResponseEntity.ok(Map.of("success", true));
+        }
+        catch (Exception e) {
+            e.printStackTrace();  // or log.error(...)
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     @GetMapping

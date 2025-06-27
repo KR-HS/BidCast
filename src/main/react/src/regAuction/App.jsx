@@ -15,7 +15,7 @@ export default function App() {
         tags: [],
         thumbnail: null,
         thumbnailPreview: null,
-        items: [{ name: '', content:'', image: null, preview: null }]
+        items: [{ name: '', initPrice:null, content:'', image: null, preview: null }]
     });
     const [tags, setTags] = useState([]);
 
@@ -127,8 +127,17 @@ export default function App() {
             return false;
         }
 
+        if (formData.items.some(item => item.initPrice===null||item.initPrice===0)) {
+            alert('모든 물품의 시작가격을 입력해주세요');
+            return false;
+        }
+
         if (formData.items.some(item => !item.content.trim())) {
             alert('모든 물품의 설명을 입력해주세요.');
+            return false;
+        }
+        if (formData.items.some(item => !item.image)) {
+            alert('모든 물품의 이미지를 등록해주세요.');
             return false;
         }
 
@@ -160,14 +169,22 @@ export default function App() {
         }
 
         formData.items.forEach((item) => {
-            formDataToSend.append("itemNames", item.name);
-            formDataToSend.append("content", item.content);
+            // formDataToSend.append("itemNames", item.name);
+            // formDataToSend.append("content", item.content);
             if (item.image) {
                 formDataToSend.append("images", item.image);
             } else {
                 formDataToSend.append("images", new Blob()); // 빈 이미지 처리
             }
         });
+
+        const items = formData.items.map(item => ({
+            prodName: item.name,
+            prodDetail: item.content,
+            initPrice: Number(item.initPrice),
+        }));
+
+        formDataToSend.append('items', new Blob([JSON.stringify(items)], { type: 'application/json' }));
 
         try {
             const response = await fetch('/api/auctions/regAuction', {
@@ -186,6 +203,7 @@ export default function App() {
                 alert('경매장 등록이 완료되었습니다.');
                 window.location.href = '/myPage.do';
             } else {
+                console.log(data.message);
                 alert('경매장 등록에 실패했습니다. 다시 시도해주세요.');
             }
         } catch (error) {
@@ -240,13 +258,14 @@ export default function App() {
                                         open={datePickerOpen}
                                         onOpen={() => setDatePickerOpen(true)}
                                         onClose={() => setDatePickerOpen(false)}
-                                        slots={{
-                                            textField: (props) => (
-                                                <TextField
-                                                    {...props}
-                                                    onClick={() => setDatePickerOpen(true)}
-                                                />
-                                            ),
+                                        slotProps={{
+                                            textField: {
+                                                placeholder: "시작일자를 지정해주세요",
+                                                inputProps: {
+                                                    readOnly: true, // 직접 입력 막기
+                                                },
+                                                onClick: () => setDatePickerOpen(true),
+                                            },
                                         }}
                                     />
                                 </LocalizationProvider>
@@ -337,6 +356,23 @@ export default function App() {
                                                 X
                                             </button>
                                         )}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>시작가격</td>
+                                    <td className="initPrice">
+                                        <input
+                                            type="number"
+                                            value={item.initPrice ?? ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                handleItemChange(index, 'initPrice', value === '' ? null : Number(value));
+                                            }}
+                                            min="1000"
+                                            step="1000"
+                                            style={{ width: "120px" }}
+                                            placeholder="시작가격"
+                                        />
                                     </td>
                                 </tr>
                                 <tr>
