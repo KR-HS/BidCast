@@ -101,7 +101,7 @@ export default function App() {
                 if (window.naver) {
                     const naverLogin = new window.naver.LoginWithNaverId({
                         clientId: "jofTdxFhK3nCE5655eYo",
-                        callbackUrl: "http://localhost:8888/login.do", // 현재 페이지로 변경
+                        callbackUrl: "https://bidcast.kro.kr/login.do", // 현재 페이지로 변경
                         isPopup: false,
                         loginButton: { color: "green", type: 3, height: 40 }
                     });
@@ -142,7 +142,7 @@ export default function App() {
     //네이버로그인
     const handleNaverLogin = async (id, email, name, nickName, birthyear, birthday, mobile) => {
         try {
-            const response = await fetch("http://localhost:8888/api/v1/social-login", {
+            const response = await fetch("https://bidcast.kro.kr/api/v1/social-login", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ export default function App() {
                 name
             } =decoded;
 
-            const res = await fetch("http://localhost:8888/api/v1/social-login", {
+            const res = await fetch("https://bidcast.kro.kr/api/v1/social-login", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'

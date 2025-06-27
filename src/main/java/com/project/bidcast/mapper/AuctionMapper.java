@@ -66,7 +66,7 @@ public interface AuctionMapper {
 
     List<AuctionDTO> searchAuctionsByTitle(@Param("keyword") String keyword);
 
-
+    
 
 }
 

@@ -150,5 +150,8 @@ public class AuctionServiceImpl implements AuctionService {
     public List<AuctionDTO> searchAuctionsByTitle(String keyword) {
         return auctionMapper.searchAuctionsByTitle(keyword);
     }
+
+
+
 }
 
