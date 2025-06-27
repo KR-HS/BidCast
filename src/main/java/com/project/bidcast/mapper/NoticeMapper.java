@@ -16,7 +16,6 @@ public interface NoticeMapper {
             "        user_key AS userKey,\n" +
             "        title,\n" +
             "        content,\n" +
-            "        reply,\n" +
             "        view_count AS viewCount,\n" +
             "        reg_date AS regDate\n" +
             "    FROM notice\n" +
@@ -29,7 +28,6 @@ public interface NoticeMapper {
             "        user_key AS userKey,\n" +
             "        title,\n" +
             "        content,\n" +
-            "        reply,\n" +
             "        view_count AS viewCount,\n" +
             "        reg_date AS regDate\n" +
             "    FROM notice\n" +
