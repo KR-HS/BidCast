@@ -114,6 +114,7 @@ video {
     will-change:transform;
 }
 .sub-video-content{
+    max-width:200px;
 }
 
 .sub-video{
@@ -130,9 +131,6 @@ video {
     background-color: black;
 }
 .sub-video-content > .userInfo{
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
     margin-top:3px;
 }
 
