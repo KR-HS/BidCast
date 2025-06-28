@@ -92,7 +92,7 @@ export default function App() {
                 sessionStorage.setItem("recoveredUserId", data.user.loginId);
                 sessionStorage.setItem("recoveredUserCreatedAt", data.user.createdAt);
 
-                window.location.href = `/findcomplete.do?token=${token}`;
+                window.location.href = `/findComplete.do?token=${token}`;
             } else {
                 alert('회원을 찾을 수 없습니다.');
             }
