@@ -365,7 +365,7 @@ export default function App() {
                     if(!statusList) return;
 
                     setUserInfoMap(statusList);
-                    console.log("유저인포:",statusList);
+                    // console.log("유저인포:",statusList);
                 });
 
 
@@ -373,7 +373,7 @@ export default function App() {
 
                 // 상대 유저가 연결을 끊었을 때 처리
                 socket.current.on('user-disconnected', ({socketId, producerId}) => {
-                    console.log('User disconnected:', socketId, producerId)
+                    // console.log('User disconnected:', socketId, producerId)
 
                     // 1. consumers 객체에서 해당 consumer 종료 및 삭제
                     if (consumers.current[producerId]) {

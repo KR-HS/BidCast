@@ -78,7 +78,7 @@ export default function App() {
                 loader.classList.add('fade-out');
                 setTimeout(() => {
                     loader.style.display = 'none';
-                }, 500);
+                }, 800);
             }
         }, 1000);
         return () => clearTimeout(timer);

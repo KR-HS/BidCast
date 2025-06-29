@@ -500,7 +500,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
             const product = products[selectedProductIdx];
             const bidders = getSortedBidders(userInfoMap, productKey);
 
-            console.log("최고입찰자 설정", productKey, bidders);
+            // console.log("최고입찰자 설정", productKey, bidders);
 
             if (bidders.length === 0) {
                 setPrevHighestBidder(null);
@@ -508,7 +508,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
             }
 
             const finalPrice = Number(product.finalPrice); // 🟡 실제 낙찰 가격 기준
-            console.log("상품의 최종 낙찰 금액:", finalPrice);
+            // console.log("상품의 최종 낙찰 금액:", finalPrice);
 
 // 현재 최고 입찰자 제외한 사람들 중 finalPrice보다 낮은 금액으로 입찰한 유저들 필터링
             const lowerBidders = bidders.filter(b => Number(b.bid) < finalPrice);
@@ -525,7 +525,7 @@ const BidInfo = ({socket, roomId, userId, selectProductKey, setSelectProduct,use
     }, [selectedProductIdx, userInfoMap, products]);
 
     useEffect(() => {
-        console.log("최고입찰자 바뀜",prevHighestBidder);
+        // console.log("최고입찰자 바뀜",prevHighestBidder);
     }, [prevHighestBidder]);
 
     const openRevertModal = () => {
