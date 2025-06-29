@@ -96,7 +96,7 @@ export default function App() {
 
 
             const token = data.token
-            window.location.href = `/changepw.do?token=${token}`;
+            window.location.href = `/changePw.do?token=${token}`;
         } else{
             alert("회원을 찾을 수 없습니다.");
         }
