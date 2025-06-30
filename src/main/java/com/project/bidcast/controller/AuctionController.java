@@ -97,6 +97,18 @@ public class AuctionController {
     ) {
 
         System.out.println("등록상품목록 : "+products.toString());
+        System.out.println("thumbnail file name: " + thumbnail.getOriginalFilename());
+        System.out.println("thumbnail content type: " + thumbnail.getContentType());
+        System.out.println("thumbnail size: " + thumbnail.getSize());
+
+        System.out.println("이미지 배열 크기: " + images.length);
+
+        for (int i = 0; i < images.length; i++) {
+            MultipartFile image = images[i];
+            System.out.println("이미지 " + i + " 파일명: " + image.getOriginalFilename());
+            System.out.println("이미지 " + i + " 타입: " + image.getContentType());
+            System.out.println("이미지 " + i + " 사이즈: " + image.getSize());
+        }
         try {
             String loginId = GetSession.getLoginId();
 

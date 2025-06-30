@@ -510,7 +510,7 @@ export default function App() {
 
         // 경매종료
         socket.current.on('auction-ended', ({ auctionId, message }) => {
-            alert(message); // 또는 UI 상태 변경하여 경매 종료 표시
+            // alert(message); // 또는 UI 상태 변경하여 경매 종료 표시
 
             // 경매 종료 후 입찰 버튼 비활성화, 화면 갱신 등 처리
             setIsAuctionEnded(true);

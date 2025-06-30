@@ -511,9 +511,10 @@ video {
 }
 
 .other-auctions{
-    display:flex;
-    justify-content: space-between;
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
+    gap: 25px;
 }
 
 .other-auction{
