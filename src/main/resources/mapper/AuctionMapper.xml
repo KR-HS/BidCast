@@ -57,10 +57,19 @@
         SELECT
             p.prod_key AS prodId,
             p.prod_name AS prodName,
-            a.thumbnail_url AS image,
+            f.file_url AS image,
             p.final_price AS price
         FROM product p
-            LEFT JOIN auction a ON p.auc_key = a.auction_id
+                 LEFT JOIN (
+            SELECT f1.*
+            FROM file f1
+                     JOIN (
+                SELECT prod_key, MIN(file_key) AS min_file_key
+                FROM file
+                WHERE prod_key IS NOT NULL
+                GROUP BY prod_key
+            ) f2 ON f1.file_key = f2.min_file_key
+        ) f ON p.prod_key = f.prod_key
         WHERE p.winner_id = #{userKey}
         ORDER BY p.prod_key DESC;
 
