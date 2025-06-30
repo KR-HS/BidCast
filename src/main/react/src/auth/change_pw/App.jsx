@@ -8,6 +8,8 @@ export default function App() {
         userKey: '', pw: ''
     });
 
+    const params = new URLSearchParams(window.location.search);
+
     useEffect(() => {
         // 예: 1초 후에 로딩 끝난 걸로 처리
         const timer = setTimeout(() => {
@@ -34,9 +36,7 @@ export default function App() {
     };
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
         const token = params.get('token');
-        console.log(token);
         if (token) {
             fetch('/api/v1/validateToken?token=' + token)
                 .then(res => {

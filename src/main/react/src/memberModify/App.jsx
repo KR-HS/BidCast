@@ -111,9 +111,25 @@ export default function App() {
         }
     };
 
-    const changPw = (e) => {
+    const changPw = async (e) => {
         e.preventDefault();
-        sessionStorage.setItem("userKey", formData.userKey);
+        const response = await fetch('api/v1/modify-password',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({userKey: formData.userKey})
+        });
+
+        if(response.ok) {
+            const data = await response.json();
+            const token = data.token
+
+            window.location.href = `/changePw.do?token=${token}`;
+            return;
+        } else{
+            alert("회원을 찾을 수 없습니다.");
+        }
         window.location.href = '/changePw.do';
     }
 

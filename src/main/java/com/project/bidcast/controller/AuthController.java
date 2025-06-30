@@ -130,7 +130,7 @@ public class AuthController {
 
     //비밀번호 찾기
     @PostMapping("/searchPw")
-    public ResponseEntity<?> searchPw(@RequestBody Map<String, String> searchInfo) {
+    public ResponseEntity<?> searchPw(@RequestBody Map<String, String> searchInfo, HttpSession httpSession) {
         UsersDTO dto = authService.searchPw(searchInfo);
 
         if(dto ==null){
@@ -166,6 +166,17 @@ public class AuthController {
         }
 
 
+    }
+
+    @PostMapping("/modify-password")
+    public ResponseEntity<?> modifyPw(@RequestBody Map<String, String> searchInfo) {
+        String userKey = searchInfo.get("userKey");
+        if(userKey ==null){
+            return new ResponseEntity<>(Map.of("msg", "해당 정보로 가입된 회원이 없습니다."), HttpStatus.NOT_FOUND);
+        }
+
+        String token = jwtConfig.createToken(userKey);
+        return new ResponseEntity<>(Map.of("success", true, "token", token), HttpStatus.OK);
     }
 
     //회원정보 수정
