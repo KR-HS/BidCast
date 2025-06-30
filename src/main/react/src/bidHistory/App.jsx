@@ -1,5 +1,5 @@
 import './bidHistory.css';
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Loader from "../Loader/Loader";
 
 export default function App() {
@@ -36,7 +36,7 @@ export default function App() {
 
     // 로딩 중일 때
     if (isLoading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     // 데이터 렌더링
@@ -51,7 +51,7 @@ export default function App() {
                     <div
                         key={index}
                         className="history-card"
-                        style={{ cursor: 'pointer' }}
+                        style={{cursor: 'pointer'}}
                         onClick={() => window.location.href = `/auctionDetail.do?auctionId=${auction.auctionId}`}
                     >
                         <div className="card-header">
@@ -61,7 +61,8 @@ export default function App() {
                             </div>
                             <div className="right-section">
                                 <div className="date">진행일자: {auction.startTime?.slice(0, 10)}</div>
-                                <div className={`status ${status === '진행예정' ? 'upcoming' : status === '진행중' ? 'ongoing' : 'ended'}`}>
+                                <div
+                                    className={`status ${status === '진행예정' ? 'upcoming' : status === '진행중' ? 'ongoing' : 'ended'}`}>
                                     {status}
                                 </div>
                             </div>
@@ -74,8 +75,9 @@ export default function App() {
                     </div>
                 );
             })}
-
-            <button className="prev-btn" onClick={()=>window.location.href='./myPage.do'}>이전</button>
+            <div className="prev-btn-wrap">
+                <button className="prev-btn" onClick={() => window.location.href = './myPage.do'}>이전</button>
+            </div>
         </div>
     );
 }

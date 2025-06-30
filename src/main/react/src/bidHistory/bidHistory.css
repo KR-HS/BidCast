@@ -91,6 +91,12 @@
     cursor: pointer;
 }
 
+.prev-btn-wrap{
+    display: flex;
+    justify-content: right;
+    max-width: 740px;
+}
+
 .prev-btn {
     width: 50px;
     padding: 6px;
