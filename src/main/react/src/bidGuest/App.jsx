@@ -240,8 +240,6 @@ export default function App() {
         socket.current.emit('join-auction', {auctionId: roomId,loginId:userId}, (response) => {
             const {joined, hostSocketId, userCount, hostLoginId, chats, selectProduct} = response
             if (joined) {
-                console.log("호스트로그인아이디:"+hostLoginId);
-                console.log("현재 로그인 아이디:"+userId);
                 if(hostLoginId===userId){
                     location.href=`/bidHost.do?roomId=${roomId}`;
                     return;
